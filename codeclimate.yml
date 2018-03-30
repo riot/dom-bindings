@@ -3,9 +3,9 @@ engines:
     enabled: true
 
 exclude_patterns:
-  - 'test'
-  - 'dom-bindings.js'
+  - "test"
+  - "dom-bindings.js"
 
 ratings:
   paths:
-    - 'src/*.js'
+    - "src/*.js"
