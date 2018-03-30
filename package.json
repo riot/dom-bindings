@@ -15,7 +15,7 @@
     "postest": "npm run cov-html",
     "doc": "documentation readme index.next.js -s API",
     "test": "npm run lint && nyc mocha test.js",
-    "prepublish": "npm run test"
+    "prepublishOnly": "npm run test"
   },
   "files": [
     "src",
@@ -45,6 +45,5 @@
     "rollup": "^0.57.1",
     "rollup-plugin-node-resolve": "^3.3.0"
   },
-  "dependencies": {
-  }
+  "dependencies": {}
 }
