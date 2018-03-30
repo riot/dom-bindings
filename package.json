@@ -12,6 +12,7 @@
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c",
     "pretest": "npm run build",
+    "postest": "npm run cov-html",
     "doc": "documentation readme index.next.js -s API",
     "test": "npm run lint && nyc mocha test.js",
     "prepublish": "npm run build"
