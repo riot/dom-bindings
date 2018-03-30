@@ -2,7 +2,6 @@ import resolve from 'rollup-plugin-node-resolve'
 
 export default {
   input: 'src/index.js',
-  name: 'riotDOMBindings',
   plugins: [
     resolve({
       jsnext: true
@@ -10,6 +9,7 @@ export default {
   ],
   output: [
     {
+      name: 'riotDOMBindings',
       file: 'dom-bindings.js',
       format: 'umd'
     }

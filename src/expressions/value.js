@@ -4,7 +4,7 @@ export default {
     return this.update(...args)
   },
   update(...args) {
-    this.node.textContent = this.expression.value(...args)
+    this.node.value = this.expression.value(...args)
 
     return this
   },

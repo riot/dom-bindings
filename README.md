@@ -11,7 +11,7 @@
 ## Usage
 
 ```js
-import dom-bindings from 'dom-bindings'
+import riotDomBindings from 'riot-dom-bindings'
 
 ```
 
