@@ -6,7 +6,7 @@
   "jsnext:main": "src/index.js",
   "module": "src/index.js",
   "scripts": {
-    "prepare": "npm run build && npm test",
+    "prepare": "npm test",
     "lint": "eslint src/ test.js rollup.config.js",
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
@@ -15,7 +15,7 @@
     "postest": "npm run cov-html",
     "doc": "documentation readme index.next.js -s API",
     "test": "npm run lint && nyc mocha test.js",
-    "prepublish": "npm run build"
+    "prepublish": "npm run test"
   },
   "files": [
     "src",
