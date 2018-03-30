@@ -13,5 +13,5 @@ export default {
       file: 'dom-bindings.js',
       format: 'umd'
     }
-  ]
+  ],
 }

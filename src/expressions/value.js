@@ -1,7 +1,6 @@
-export default {
+export default Object.seal({
   mount(node, expression, ...args) {
-    Object.assign(this, { node, expression })
-    return this.update(...args)
+    return Object.assign({}, this, { node, expression }).update(...args)
   },
   update(...args) {
     this.node.value = this.expression.value(...args)
@@ -11,4 +10,4 @@ export default {
   unmount() {
     return this
   }
-}
+})

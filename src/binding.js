@@ -1,39 +1,54 @@
-import curry from 'curri'
-import bind from './bind'
+import registry from './expressions'
+import { create as createChunk, createTemplate } from './template'
 
 /**
- * Expression object
+ * Binding object
  */
-export default {
+export const Binding = Object.seal({
   init(node, data, ...args) {
-    Object.assign(this, {
-      nodePrototype: node.cloneNode(true),
-      expressions: data.map(expression => bind(node, expression, ...args)),
+    return Object.assign({}, this, {
+      expressions: bind(node, data, ...args),
       data,
       node
     })
-
-    // add the update and unmount methods
-    this.update = curry(exec)(this.expressions, 'update')
-    this.unmount = curry(exec)(this.expressions, 'unmount')
-
+  },
+  update(...args) {
+    this.expressions.forEach(({ update }) => update(...args))
     return this
   },
-  clone() {
-    return this.init(
-      this.nodePrototype.cloneNode(true),
-      this.data
-    )
+  unmount(...args) {
+    this.expressions.forEach(({ unmount }) => unmount(...args))
+    return this
+  },
+  clone(node) {
+    return this.init(node, this.data)
   }
-}
+})
 
 /**
- * Execute a single method on all the expressions list
- * @param   { Array } expressions - list of expressions
- * @param   { String } method - expression method to execute
- * @param   {...*} args - expression method caller arguments
- * @returns { Array }
+ * Bind a new expression object to a DOM node
+ * @param   { HTMLElement } node - DOM node where to bind the expression
+ * @param   { Array } expressions - expressions array
+ * @param   { ...* } args - values needed to evaluate the expressions
+ * @returns { Expression } Expression object
  */
-function exec(expressions, method, ...args) {
-  return expressions.map(expression => expression[method](...args))
+function bind(node, expressions, ...args) {
+  return expressions.map(expression => {
+    const { template, bindings } = expression
+
+    if (template && bindings) {
+      if (expression.chunk) {
+        expression.chunk = expression.chunk.clone()
+      } else {
+        const dom = createTemplate(template)
+        expression.chunk = createChunk(dom, create(dom.content, bindings, ...args))
+      }
+    }
+
+    return Object.assign({}, registry[expression.type]).mount(node, expression, ...args)
+  })
+}
+
+export function create(root, expressions, ...args) {
+  return Object.assign({}, Binding).init(root, expressions, ...args)
 }

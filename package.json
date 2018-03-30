@@ -8,9 +8,13 @@
   "scripts": {
     "prepare": "npm run build && npm test",
     "lint": "eslint src/ test.js rollup.config.js",
+    "cov": "nyc report --reporter=text-lcov | coveralls",
+    "cov-html": "nyc report --reporter=html",
     "build": "rollup -c",
+    "pretest": "npm run build",
     "doc": "documentation readme index.next.js -s API",
-    "test": "npm run lint && mocha test.js"
+    "test": "npm run lint && mocha test.js",
+    "prepublish": "npm run build"
   },
   "files": [
     "src",
@@ -36,6 +40,7 @@
     "eslint-config-riot": "^1.0.0",
     "mocha": "^5.0.1",
     "rollup": "^0.57.1",
+    "nyc": "^11.5.0",
     "rollup-plugin-node-resolve": "^3.3.0"
   },
   "dependencies": {
