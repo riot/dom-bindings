@@ -1,34 +1,37 @@
+import createBinding from './binding'
+import createFragment from './util/create-fragment'
+import flattenCollectionMethods from './util/flatten-collection-methods'
+
 /**
  * Template Chunk model
  * @type {Object}
  */
-export const TemplateChunk = Object.seal({
-  mount(html, bindings) {
-    const dom = this.dom || createTemplate(html).content
+const TemplateChunk = Object.seal({
+  init(html, bindings) {
+    const dom = typeof html === 'string' ? createFragment(html).content : html
+    const proto = dom.cloneNode(true)
+    // create the bindings and batch them together
+    const { mount, update, unmount } = flattenCollectionMethods(
+      bindings.map(binding => createBinding(dom, binding)),
+      ['mount', 'update', 'unmount'],
+      this
+    )
 
-    return Object.assign({}, this, {
-      bindings: this.bindings || bindings,
+    return Object.assign(this, {
+      mount,
+      update,
+      unmount,
+      bindings,
       dom,
-      proto: dom.cloneNode(true)
+      proto
     })
   },
-  update(...args) {
-    this.bindings.update(...args)
-
-    return this
-  },
-  unmount(...args) {
-    this.bindings.unmount(...args)
-
-    return this
-  },
+  /**
+   * Clone the template chunk
+   * @returns { TemplateChunk } a new template chunk
+   */
   clone() {
-    const dom = this.proto.cloneNode(true)
-
-    return Object.assign({}, this, {
-      bindings: this.bindings.clone(dom),
-      dom
-    })
+    return create(this.proto.cloneNode(true), this.bindings)
   }
 })
 
@@ -38,17 +41,6 @@ export const TemplateChunk = Object.seal({
  * @param   { Array } bindings - bindings collection
  * @returns { TemplateChunk } a new TemplateChunk copy
  */
-export function create(html, bindings) {
-  return Object.assign({}, TemplateChunk).init(html, bindings)
-}
-
-/**
- * Create a template node
- * @param   { String } html - template inner html
- * @returns { HTMLElement } the new template node just created
- */
-export function createTemplate(html) {
-  const template = document.createElement('template')
-  template.innerHTML = html
-  return template
+export default function create(html, bindings) {
+  return Object.create(TemplateChunk).init(html, bindings)
 }

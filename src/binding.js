@@ -1,54 +1,23 @@
-import registry from './expressions'
-import { create as createChunk, createTemplate } from './template'
-
-/**
- * Binding object
- */
-export const Binding = Object.seal({
-  init(node, data, ...args) {
-    return Object.assign({}, this, {
-      expressions: bind(node, data, ...args),
-      data,
-      node
-    })
-  },
-  update(...args) {
-    this.expressions.forEach(({ update }) => update(...args))
-    return this
-  },
-  unmount(...args) {
-    this.expressions.forEach(({ unmount }) => unmount(...args))
-    return this
-  },
-  clone(node) {
-    return this.init(node, this.data)
-  }
-})
+import bindings from './bindings'
 
 /**
  * Bind a new expression object to a DOM node
- * @param   { HTMLElement } node - DOM node where to bind the expression
- * @param   { Array } expressions - expressions array
- * @param   { ...* } args - values needed to evaluate the expressions
+ * @param   { HTMLElement } root - DOM node where to bind the expression
+ * @param   { Object } binding - binding data
  * @returns { Expression } Expression object
  */
-function bind(node, expressions, ...args) {
-  return expressions.map(expression => {
-    const { template, bindings } = expression
+export default function create(root, binding) {
+  const { selector, type, redundantAttribute, expressions } = binding
+  // find the node to apply the bindings
+  const node = selector ? root.querySelector(selector) : node
+  // remove eventually additional attributes created only to select this node
+  if (redundantAttribute) node.removeAttribute(redundantAttribute)
 
-    if (template && bindings) {
-      if (expression.chunk) {
-        expression.chunk = expression.chunk.clone()
-      } else {
-        const dom = createTemplate(template)
-        expression.chunk = createChunk(dom, create(dom.content, bindings, ...args))
-      }
-    }
-
-    return Object.assign({}, registry[expression.type]).mount(node, expression, ...args)
-  })
-}
-
-export function create(root, expressions, ...args) {
-  return Object.assign({}, Binding).init(root, expressions, ...args)
+  // init the binding
+  return Object.create(bindings[type] || bindings.default).init(
+    node,
+    Object.assign({}, binding, {
+      expressions: expressions || []
+    })
+  )
 }

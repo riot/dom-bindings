@@ -4,53 +4,126 @@
   (factory((global.riotDOMBindings = {})));
 }(this, (function (exports) { 'use strict';
 
-  var textExpression = Object.seal({
-    mount(node, expression, ...args) {
-      return Object.assign({}, this, { node, expression }).update(...args)
+  /**
+   * Create a flat object having as keys a list of methods that if dispatched will propagate
+   * on the whole collection
+   * @param   { Array } collection - collection to iterate
+   * @param   { Array<String> } methods - methods to execute on each item of the collection
+   * @param   { * } context - context returned by the new methods created
+   * @returns { Object } a new object to simplify the the nested methods dispatching
+   */
+  function flattenCollectionMethods(collection, methods, context) {
+    return methods.reduce((acc, method) => {
+      return Object.assign(acc, {
+        [method]: (...args) => {
+          collection.forEach(item => item[method](...args));
+          return context
+        }
+      })
+    }, {})
+  }
+
+  function textExpression(node, expression, scope) {
+    node.childNodes[expression.childNodeIndex].textContent = expression.value(scope);
+  }
+
+  function valueExpression(node, expression, scope) {
+    node.value = expression.value(scope);
+  }
+
+  function attributeExpression(node, expression, scope) {
+    const value = expression.value(scope);
+    node[value ? 'setAttribute' : 'removeAttribute'](expression.name, value);
+  }
+
+  var expressions = {
+    text: textExpression,
+    value: valueExpression,
+    attribute: attributeExpression
+  }
+
+  const Expression = Object.seal({
+    init(node, expression) {
+      return Object.assign(this, expression, {
+        node
+      })
     },
-    update(...args) {
-      this.node.textContent = this.expression.value(...args);
+    mount(scope) {
+      this.value = this.apply(scope);
+
+      return this
+    },
+    update(scope) {
+      const value = this.evaluate(scope);
+
+      if (this.value !== value) this.value = this.apply(value);
 
       return this
     },
     unmount() {
       return this
+    },
+    apply(value) {
+      return expressions[this.type](this.node, value)
+    }
+  });
+
+  function create(dom, expression) {
+    return Object.create(Expression).init(dom, expression)
+  }
+
+  var defaultBinding = Object.seal({
+    init(node, { expressions }) {
+      return Object.assign(this, flattenCollectionMethods(
+        expressions.map(expression => create(node, expression)),
+        ['mount', 'update', 'unmount'],
+        this
+      ))
     }
   })
 
-  var ifExpression = Object.seal({
-    mount(node, expression, ...args) {
-      return Object.assign({}, this, {
+  var ifBinding = Object.seal({
+    init(node, { evaluate, template, expressions }) {
+      const placeholder = document.createTextNode('');
+      swap(placeholder, node);
+
+      return Object.assign(this, {
         node,
-        expression,
-        placeholder: document.createTextNode('')
-      }).update(...args)
+        expressions,
+        evaluate,
+        placeholder,
+        template
+      })
     },
-    update(...args) {
-      const { chunk } = this.expression;
-      const value = this.expression.value(...args);
+    mount(scope) {
+      return this.update(scope)
+    },
+    update(scope) {
+      const value = this.evaluate(scope);
       const mustMount = this.value && !value;
       const mustUnmount = !this.value && value;
-      const mustUpdate = value && chunk;
+      const mustUpdate = value && this.template;
 
       if (mustMount) {
         swap(this.node, this.placeholder);
-        if (chunk)
-          chunk.clone().mount(...args);
+        if (this.template) {
+          this.template = this.template.clone();
+          this.template.mount(scope);
+        }
       } else if (mustUnmount) {
         swap(this.placeholder, this.node);
-        this.unmount(...args);
+        this.unmount(scope);
       } else if (mustUpdate) {
-        chunk.update(...args);
+        this.template.update(scope);
       }
 
       this.value = value;
 
       return this
     },
-    unmount(...args) {
-      const { chunk } = this.expression;
-      if (chunk) chunk.unmount(...args);
+    unmount(scope) {
+      const { template } = this;
+      if (template) template.unmount(scope);
       return this
     }
   })
@@ -61,30 +134,55 @@
     parent.removeChild(outNode);
   }
 
-  var eachExpression = Object.seal({
-    mount(node, expression, ...args) {
+  /* WIP */
+  var eachBinding = Object.seal({
+    init(node, { evaluate, template, expressions }) {
       const placeholder = document.createTextNode('');
       const parent = node.parentNode;
 
       parent.insertBefore(placeholder, node);
       parent.removeChild(node);
 
-      return Object.assign({}, this, {
+      return Object.assign(this, {
         node,
-        expression,
+        evaluate,
+        template,
+        expressions,
         placeholder
-      }).update(...args)
+      })
     },
-    update(...args) {
-      /* eslint-disable */
-      const value = this.expression.value(...args);
+    mount(scope) {
+      return this.update(scope)
+    },
+    /* eslint-disable */
+    update(scope) {
+      const value = this.evaulate(scope);
       const parent = this.placeholder.parentNode;
       const fragment = document.createDocumentFragment();
 
       // [...] @TODO: implement list updates
 
       this.value = value;
-      /* eslint-enable */
+      this.expressionsBatch.update();
+
+      return this
+    },
+
+    unmount() {
+      this.expressionsBatch.unmount();
+      return this
+    }
+  })
+  /* eslint-enable */
+
+  var tagBinding = Object.seal({
+    init() {
+      return this
+    },
+    mount() {
+      return this
+    },
+    update() {
       return this
     },
     unmount() {
@@ -92,10 +190,44 @@
     }
   })
 
-  var registry = {
-    text: textExpression,
-    if: ifExpression,
-    each: eachExpression
+  var bindings = {
+    if: ifBinding,
+    defauult: defaultBinding,
+    each: eachBinding,
+    tag: tagBinding
+  }
+
+  /**
+   * Bind a new expression object to a DOM node
+   * @param   { HTMLElement } root - DOM node where to bind the expression
+   * @param   { Object } binding - binding data
+   * @returns { Expression } Expression object
+   */
+  function create$1(root, binding) {
+    const { selector, type, redundantAttribute, expressions } = binding;
+    // find the node to apply the bindings
+    const node = selector ? root.querySelector(selector) : node;
+    // remove eventually additional attributes created only to select this node
+    if (redundantAttribute) node.removeAttribute(redundantAttribute);
+
+    // init the binding
+    return Object.create(bindings[type] || bindings.default).init(
+      node,
+      Object.assign({}, binding, {
+        expressions: expressions || []
+      })
+    )
+  }
+
+  /**
+   * Create a template node
+   * @param   { String } html - template inner html
+   * @returns { HTMLElement } the new template node just created
+   */
+  function createFragment(html) {
+    const template = document.createElement('template');
+    template.innerHTML = html;
+    return template
   }
 
   /**
@@ -103,32 +235,31 @@
    * @type {Object}
    */
   const TemplateChunk = Object.seal({
-    mount(html, bindings) {
-      const dom = this.dom || createTemplate(html).content;
+    init(html, bindings) {
+      const dom = typeof html === 'string' ? createFragment(html).content : html;
+      const proto = dom.cloneNode(true);
+      // create the bindings and batch them together
+      const { mount, update, unmount } = flattenCollectionMethods(
+        bindings.map(binding => create$1(dom, binding)),
+        ['mount', 'update', 'unmount'],
+        this
+      );
 
-      return Object.assign({}, this, {
-        bindings: this.bindings || bindings,
+      return Object.assign(this, {
+        mount,
+        update,
+        unmount,
+        bindings,
         dom,
-        proto: dom.cloneNode(true)
+        proto
       })
     },
-    update(...args) {
-      this.bindings.update(...args);
-
-      return this
-    },
-    unmount(...args) {
-      this.bindings.unmount(...args);
-
-      return this
-    },
+    /**
+     * Clone the template chunk
+     * @returns { TemplateChunk } a new template chunk
+     */
     clone() {
-      const dom = this.proto.cloneNode(true);
-
-      return Object.assign({}, this, {
-        bindings: this.bindings.clone(dom),
-        dom
-      })
+      return create$2(this.proto.cloneNode(true), this.bindings)
     }
   });
 
@@ -138,113 +269,12 @@
    * @param   { Array } bindings - bindings collection
    * @returns { TemplateChunk } a new TemplateChunk copy
    */
-  function create(html, bindings) {
-    return Object.assign({}, TemplateChunk).init(html, bindings)
+  function create$2(html, bindings) {
+    return Object.create(TemplateChunk).init(html, bindings)
   }
 
-  /**
-   * Create a template node
-   * @param   { String } html - template inner html
-   * @returns { HTMLElement } the new template node just created
-   */
-  function createTemplate(html) {
-    const template = document.createElement('template');
-    template.innerHTML = html;
-    return template
-  }
-
-  /**
-   * Binding object
-   */
-  const Binding = Object.seal({
-    init(node, data, ...args) {
-      return Object.assign({}, this, {
-        expressions: bind(node, data, ...args),
-        data,
-        node
-      })
-    },
-    update(...args) {
-      this.expressions.forEach(({ update }) => update(...args));
-      return this
-    },
-    unmount(...args) {
-      this.expressions.forEach(({ unmount }) => unmount(...args));
-      return this
-    },
-    clone(node) {
-      return this.init(node, this.data)
-    }
-  });
-
-  /**
-   * Bind a new expression object to a DOM node
-   * @param   { HTMLElement } node - DOM node where to bind the expression
-   * @param   { Array } expressions - expressions array
-   * @param   { ...* } args - values needed to evaluate the expressions
-   * @returns { Expression } Expression object
-   */
-  function bind(node, expressions, ...args) {
-    return expressions.map(expression => {
-      const { template, bindings } = expression;
-
-      if (template && bindings) {
-        if (expression.chunk) {
-          expression.chunk = expression.chunk.clone();
-        } else {
-          const dom = createTemplate(template);
-          expression.chunk = create(dom, create$1(dom.content, bindings, ...args));
-        }
-      }
-
-      return Object.assign({}, registry[expression.type]).mount(node, expression, ...args)
-    })
-  }
-
-  function create$1(root, expressions, ...args) {
-    return Object.assign({}, Binding).init(root, expressions, ...args)
-  }
-
-  /**
-   * Mathod that can be used recursively bind expressions to a DOM tree structure
-   * @param   { HTMLElement } root - the root node where to start applying the bindings
-   * @param   { Array } bindings - list of the expressions to bind
-   * @param   { * } args - context needed to evaluate the expressions
-   * @returns { Array } bindings objects upgraded to a Binding object
-   *
-   * @example
-   * riotDOMBindings.create(DOMtree, [{
-   *     selector: '[expr0]',
-   *     redundantAttribute: 'expr0',
-   *     expressions: [
-   *       { type: 'text', value(scope) { return scope.name }}
-   *     ]
-   *   }
-   * ], { name: 'hi' })
-   */
-  function create$2(root, bindings, ...args) {
-    return bindings.map(binding => {
-      return upgrade(root, binding, ...args)
-    })
-  }
-
-  /**
-   * Upgrade a DOM node to a dom+expressions
-   * @param   { String } options.selector - selector used to select the target of our expressions
-   * @param   { String } options.redundantAttribute - attribute we want to remove (eventually used as selector)
-   */
-  function upgrade(root, { selector, redundantAttribute, expressions }, ...args) {
-    // find the node to apply the bindings
-    const node = selector ? root.querySelector(selector) : node;
-    // remove eventually additional attributes created only to select this node
-    if (redundantAttribute) node.removeAttribute(redundantAttribute);
-    // create a new Binding object
-    return create$1(root, expressions, ...args)
-  }
-
+  exports.bind = create$1;
   exports.create = create$2;
-  exports.upgrade = upgrade;
-  exports.chunk = create;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

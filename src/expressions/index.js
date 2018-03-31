@@ -1,9 +1,9 @@
 import textExpression from './text'
-import ifExpression from './if'
-import eachExpression from './each'
+import valueExpression from './value'
+import attributeExpression from './attribute'
 
 export default {
   text: textExpression,
-  if: ifExpression,
-  each: eachExpression
+  value: valueExpression,
+  attribute: attributeExpression
 }
