@@ -23,16 +23,15 @@
     }, {})
   }
 
-  function textExpression(node, expression, scope) {
-    node.childNodes[expression.childNodeIndex].textContent = expression.value(scope);
+  function textExpression(node, expression, value) {
+    node.childNodes[expression.childNodeIndex].textContent = value;
   }
 
-  function valueExpression(node, expression, scope) {
-    node.value = expression.value(scope);
+  function valueExpression(node, expression, value) {
+    node.value = value;
   }
 
-  function attributeExpression(node, expression, scope) {
-    const value = expression.value(scope);
+  function attributeExpression(node, expression, value) {
     node[value ? 'setAttribute' : 'removeAttribute'](expression.name, value);
   }
 
@@ -49,7 +48,8 @@
       })
     },
     mount(scope) {
-      this.value = this.apply(scope);
+      this.value = this.evaluate(scope);
+      this.apply(this.value);
 
       return this
     },
@@ -64,7 +64,7 @@
       return this
     },
     apply(value) {
-      return expressions[this.type](this.node, value)
+      return expressions[this.type](this.node, this, value)
     }
   });
 
@@ -192,7 +192,7 @@
 
   var bindings = {
     if: ifBinding,
-    defauult: defaultBinding,
+    default: defaultBinding,
     each: eachBinding,
     tag: tagBinding
   }

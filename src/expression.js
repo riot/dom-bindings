@@ -7,7 +7,8 @@ const Expression = Object.seal({
     })
   },
   mount(scope) {
-    this.value = this.apply(scope)
+    this.value = this.evaluate(scope)
+    this.apply(this.value)
 
     return this
   },
@@ -22,7 +23,7 @@ const Expression = Object.seal({
     return this
   },
   apply(value) {
-    return expressions[this.type](this.node, value)
+    return expressions[this.type](this.node, this, value)
   }
 })
 

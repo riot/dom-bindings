@@ -5,7 +5,7 @@ import tagBinding from './tag'
 
 export default {
   if: ifBinding,
-  defauult: defaultBinding,
+  default: defaultBinding,
   each: eachBinding,
   tag: tagBinding
 }

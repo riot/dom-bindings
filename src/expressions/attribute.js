@@ -1,4 +1,3 @@
-export default function attributeExpression(node, expression, scope) {
-  const value = expression.value(scope)
+export default function attributeExpression(node, expression, value) {
   node[value ? 'setAttribute' : 'removeAttribute'](expression.name, value)
 }

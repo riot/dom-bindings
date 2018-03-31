@@ -1,3 +1,3 @@
-export default function textExpression(node, expression, scope) {
-  node.childNodes[expression.childNodeIndex].textContent = expression.value(scope)
+export default function textExpression(node, expression, value) {
+  node.childNodes[expression.childNodeIndex].textContent = value
 }
