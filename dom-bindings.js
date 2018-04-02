@@ -275,6 +275,22 @@
     return Object.create(TemplateChunk).init(html, bindings)
   }
 
+  /* TODO: create the riot tag bindings */
+  var tag = Object.seal({
+    init() {
+      return this
+    },
+    mount() {
+      return this
+    },
+    update() {
+      return this
+    },
+    unmount() {
+      return this
+    }
+  })
+
   /**
    * Method used to bind expressions to a DOM tree structure
    * @param   { HTMLElement|String } root - the root node where to start applying the bindings
@@ -309,6 +325,7 @@
    */
 
   exports.template = create$2;
+  exports.tag = tag;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
