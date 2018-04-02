@@ -82,26 +82,36 @@
     }
   })
 
+  /**
+   * Remove the child nodes from any DOM node
+   * @param   { HTMLElement } node - target node
+   */
+  function cleanNode(node) {
+    const children = node.childNodes;
+
+    while (children.length) {
+      node.removeChild(children[0]);
+    }
+  }
+
   var ifBinding = Object.seal({
     init(node, { evaluate, template, expressions }) {
-      const placeholder = document.createTextNode('');
-      swap(placeholder, node);
-
       return Object.assign(this, {
         node,
         expressions,
         evaluate,
-        placeholder,
+        placeholder: document.createTextNode(''),
         template
       })
     },
     mount(scope) {
+      swap(this.placeholder, this.node);
       return this.update(scope)
     },
     update(scope) {
       const value = this.evaluate(scope);
-      const mustMount = this.value && !value;
-      const mustUnmount = !this.value && value;
+      const mustMount = !this.value && value;
+      const mustUnmount = this.value && !value;
       const mustUpdate = value && this.template;
 
       if (mustMount) {
@@ -109,6 +119,7 @@
         if (this.template) {
           this.template = this.template.clone();
           this.template.mount(scope);
+          this.node.appendChild(this.template.dom);
         }
       } else if (mustUnmount) {
         swap(this.placeholder, this.node);
@@ -123,7 +134,10 @@
     },
     unmount(scope) {
       const { template } = this;
-      if (template) template.unmount(scope);
+      if (template) {
+        template.unmount(scope);
+        cleanNode(this.node);
+      }
       return this
     }
   })
@@ -175,26 +189,10 @@
   })
   /* eslint-enable */
 
-  var tagBinding = Object.seal({
-    init() {
-      return this
-    },
-    mount() {
-      return this
-    },
-    update() {
-      return this
-    },
-    unmount() {
-      return this
-    }
-  })
-
   var bindings = {
     if: ifBinding,
     default: defaultBinding,
-    each: eachBinding,
-    tag: tagBinding
+    each: eachBinding
   }
 
   /**
@@ -235,7 +233,7 @@
    * @type {Object}
    */
   const TemplateChunk = Object.seal({
-    init(html, bindings) {
+    init(html, bindings = []) {
       const dom = typeof html === 'string' ? createFragment(html).content : html;
       const proto = dom.cloneNode(true);
       // create the bindings and batch them together

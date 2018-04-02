@@ -7,7 +7,7 @@ import flattenCollectionMethods from './util/flatten-collection-methods'
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
-  init(html, bindings) {
+  init(html, bindings = []) {
     const dom = typeof html === 'string' ? createFragment(html).content : html
     const proto = dom.cloneNode(true)
     // create the bindings and batch them together

@@ -1,23 +1,23 @@
+import cleanNode from '../util/clean-node'
+
 export default Object.seal({
   init(node, { evaluate, template, expressions }) {
-    const placeholder = document.createTextNode('')
-    swap(placeholder, node)
-
     return Object.assign(this, {
       node,
       expressions,
       evaluate,
-      placeholder,
+      placeholder: document.createTextNode(''),
       template
     })
   },
   mount(scope) {
+    swap(this.placeholder, this.node)
     return this.update(scope)
   },
   update(scope) {
     const value = this.evaluate(scope)
-    const mustMount = this.value && !value
-    const mustUnmount = !this.value && value
+    const mustMount = !this.value && value
+    const mustUnmount = this.value && !value
     const mustUpdate = value && this.template
 
     if (mustMount) {
@@ -25,6 +25,7 @@ export default Object.seal({
       if (this.template) {
         this.template = this.template.clone()
         this.template.mount(scope)
+        this.node.appendChild(this.template.dom)
       }
     } else if (mustUnmount) {
       swap(this.placeholder, this.node)
@@ -39,7 +40,10 @@ export default Object.seal({
   },
   unmount(scope) {
     const { template } = this
-    if (template) template.unmount(scope)
+    if (template) {
+      template.unmount(scope)
+      cleanNode(this.node)
+    }
     return this
   }
 })
