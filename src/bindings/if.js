@@ -1,5 +1,3 @@
-import cleanNode from '../util/clean-node'
-
 /**
  * Binding responsible for the `if` directive
  */
@@ -27,8 +25,7 @@ export default Object.seal({
       swap(this.node, this.placeholder)
       if (this.template) {
         this.template = this.template.clone()
-        this.template.mount(scope)
-        this.node.appendChild(this.template.dom)
+        this.template.mount(this.node, scope)
       }
     } else if (mustUnmount) {
       swap(this.placeholder, this.node)
@@ -45,7 +42,6 @@ export default Object.seal({
     const { template } = this
     if (template) {
       template.unmount(scope)
-      cleanNode(this.node)
     }
     return this
   }

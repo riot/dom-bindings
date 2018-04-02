@@ -7,7 +7,7 @@
  * @example
  * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
  *   {
- *    selector: '[expr0]',
+ *     selector: '[expr0]',
  *     redundantAttribute: 'expr0',
  *     expressions: [
  *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.time }}

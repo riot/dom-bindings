@@ -83,18 +83,6 @@
   })
 
   /**
-   * Remove the child nodes from any DOM node
-   * @param   { HTMLElement } node - target node
-   */
-  function cleanNode(node) {
-    const children = node.childNodes;
-
-    while (children.length) {
-      node.removeChild(children[0]);
-    }
-  }
-
-  /**
    * Binding responsible for the `if` directive
    */
   var ifBinding = Object.seal({
@@ -121,8 +109,7 @@
         swap(this.node, this.placeholder);
         if (this.template) {
           this.template = this.template.clone();
-          this.template.mount(scope);
-          this.node.appendChild(this.template.dom);
+          this.template.mount(this.node, scope);
         }
       } else if (mustUnmount) {
         swap(this.placeholder, this.node);
@@ -139,7 +126,6 @@
       const { template } = this;
       if (template) {
         template.unmount(scope);
-        cleanNode(this.node);
       }
       return this
     }
@@ -233,27 +219,71 @@
   }
 
   /**
+   * Remove the child nodes from any DOM node
+   * @param   { HTMLElement } node - target node
+   */
+  function cleanNode(node) {
+    const children = node.childNodes;
+
+    while (children.length) {
+      node.removeChild(children[0]);
+    }
+  }
+
+  /**
    * Template Chunk model
    * @type {Object}
    */
   const TemplateChunk = Object.seal({
     init(dom, bindings) {
       const proto = dom.cloneNode(true);
-      // create the bindings and batch them together
-      const { mount, update, unmount } = flattenCollectionMethods(
-        bindings.map(binding => create$1(dom, binding)),
-        ['mount', 'update', 'unmount'],
-        this
-      );
 
       return Object.assign(this, {
-        mount,
-        update,
-        unmount,
-        bindings,
+        bindings: bindings.map(binding => create$1(dom, binding)),
         dom,
         proto
       })
+    },
+    /**
+     * Attatch the template to a DOM node
+     * @param   { HTMLElement } el - target DOM node
+     * @param   { * } scope - template data
+     * @returns { TemplateChunk } self
+     */
+    mount(el, scope) {
+      if (!el) throw new Error('Please provide DOM node to mount properly your template')
+
+      if (this.el) this.unmount(scope);
+
+      this.el = el;
+      el.appendChild(this.dom);
+      this.bindings.forEach(({ mount }) => mount(scope));
+
+      return this
+    },
+    /**
+     * Update the template with fresh data
+     * @param   { * } scope - template data
+     * @returns { TemplateChunk } self
+     */
+    update(scope) {
+      this.bindings.forEach(({ update }) => update(scope));
+
+      return this
+    },
+    /**
+     * Remove the template from the node where it was initially mounted
+     * @param   { * } scope - template data
+     * @returns { TemplateChunk } self
+     */
+    unmount(scope) {
+      if (!this.el) throw new Error('This template was never mounted before')
+
+      this.bindings.forEach(({ unmount }) => unmount(scope));
+      cleanNode(this.el);
+      this.el = null;
+
+      return this
     },
     /**
      * Clone the template chunk
@@ -301,7 +331,7 @@
    * @example
    * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
    *   {
-   *    selector: '[expr0]',
+   *     selector: '[expr0]',
    *     redundantAttribute: 'expr0',
    *     expressions: [
    *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.time }}
