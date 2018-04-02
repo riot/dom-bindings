@@ -237,8 +237,7 @@
    * @type {Object}
    */
   const TemplateChunk = Object.seal({
-    init(html, bindings = []) {
-      const dom = typeof html === 'string' ? createFragment(html).content : html;
+    init(dom, bindings) {
       const proto = dom.cloneNode(true);
       // create the bindings and batch them together
       const { mount, update, unmount } = flattenCollectionMethods(
@@ -271,8 +270,10 @@
    * @param   { Array } bindings - bindings collection
    * @returns { TemplateChunk } a new TemplateChunk copy
    */
-  function create$2(html, bindings) {
-    return Object.create(TemplateChunk).init(html, bindings)
+  function create$2(html, bindings = []) {
+    if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
+    const dom = typeof html === 'string' ? createFragment(html).content : html;
+    return Object.create(TemplateChunk).init(dom, bindings)
   }
 
   /* TODO: create the riot tag bindings */

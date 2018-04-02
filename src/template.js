@@ -7,8 +7,7 @@ import flattenCollectionMethods from './util/flatten-collection-methods'
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
-  init(html, bindings = []) {
-    const dom = typeof html === 'string' ? createFragment(html).content : html
+  init(dom, bindings) {
     const proto = dom.cloneNode(true)
     // create the bindings and batch them together
     const { mount, update, unmount } = flattenCollectionMethods(
@@ -41,6 +40,8 @@ const TemplateChunk = Object.seal({
  * @param   { Array } bindings - bindings collection
  * @returns { TemplateChunk } a new TemplateChunk copy
  */
-export default function create(html, bindings) {
-  return Object.create(TemplateChunk).init(html, bindings)
+export default function create(html, bindings = []) {
+  if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
+  const dom = typeof html === 'string' ? createFragment(html).content : html
+  return Object.create(TemplateChunk).init(dom, bindings)
 }
