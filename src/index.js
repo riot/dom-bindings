@@ -1,40 +1,33 @@
-
-/**
- * Mathod that can be used recursively bind expressions to a DOM tree structure
- * @param   { HTMLElement } root - the root node where to start applying the bindings
- * @param   { Object } binding - binding object
- * @returns { Object } a new binding object having the `update`,`mount`, `unmount` methods
- *
- * @example
- * riotDOMBindings.bind(DOMTree, {
- *     selector: '[expr0]',
- *     redundantAttribute: 'expr0',
- *     type: 'each'
- *     evaluate(scope) { return scope.getItems() },
- *     key: 'item'
- *     expressions: [
- *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.item.name }}
- *     ]
- *   }
- * })
- */
-export { default as bind } from './binding'
-
 /**
  * Method used to bind expressions to a DOM tree structure
  * @param   { HTMLElement|String } root - the root node where to start applying the bindings
  * @param   { Array } bindings - list of the expressions to bind
- * @returns { TemplateChunk } a new TemplateChunk object having the `update`,`mount`, `unmount` methods
+ * @returns { TemplateChunk } a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
  *
  * @example
- * riotDOMBindings.create('<p expr0></p><div>Hello there</div>', [{
- *     selector: '[expr0]',
+ * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
+ *   {
+ *    selector: '[expr0]',
  *     redundantAttribute: 'expr0',
- *     type: 'simple',
  *     expressions: [
- *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.name }}
+ *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.time }}
  *     ]
- *   }
+ *   },
+ *   {
+ *     selector: '[expr1]',
+ *     redundantAttribute: 'expr1',
+ *     expressions: [
+ *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.name }},
+ *      { type: 'attribute', name: 'style', evaluate(scope) { return scope.style }}
+ *    ]
+ *  },
+ *  {
+ *    selector: '[expr2]',
+ *    redundantAttribute: 'expr2',
+ *    type: 'if',
+ *    evaluate(scope) { return scope.isVisible },
+ *    template: riotDOMBindings.create('hello there')
+ *  }
  * ])
  */
-export { default as create } from './template'
+export { default as template } from './template'

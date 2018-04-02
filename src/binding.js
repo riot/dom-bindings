@@ -11,7 +11,8 @@ export default function create(root, binding) {
   // find the node to apply the bindings
   const node = selector ? root.querySelector(selector) : node
   // remove eventually additional attributes created only to select this node
-  if (redundantAttribute) node.removeAttribute(redundantAttribute)
+  if (redundantAttribute)
+    node.removeAttribute(redundantAttribute)
 
   // init the binding
   return Object.create(bindings[type] || bindings.default).init(

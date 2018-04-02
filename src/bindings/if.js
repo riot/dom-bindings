@@ -1,5 +1,8 @@
 import cleanNode from '../util/clean-node'
 
+/**
+ * Binding responsible for the `if` directive
+ */
 export default Object.seal({
   init(node, { evaluate, template, expressions }) {
     return Object.assign(this, {

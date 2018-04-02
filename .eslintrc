@@ -1,4 +1,4 @@
-extends: "eslint-config-riot"
+extends: eslint-config-riot
 
 globals:
   expect: true

@@ -9,9 +9,8 @@
 export default function flattenCollectionMethods(collection, methods, context) {
   return methods.reduce((acc, method) => {
     return Object.assign(acc, {
-      [method]: (...args) => {
-        collection.forEach(item => item[method](...args))
-        return context
+      [method]: (scope) => {
+        return collection.map(item => item[method](scope)) && context
       }
     })
   }, {})

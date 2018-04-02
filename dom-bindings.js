@@ -15,9 +15,8 @@
   function flattenCollectionMethods(collection, methods, context) {
     return methods.reduce((acc, method) => {
       return Object.assign(acc, {
-        [method]: (...args) => {
-          collection.forEach(item => item[method](...args));
-          return context
+        [method]: (scope) => {
+          return collection.map(item => item[method](scope)) && context
         }
       })
     }, {})
@@ -56,7 +55,8 @@
     update(scope) {
       const value = this.evaluate(scope);
 
-      if (this.value !== value) this.value = this.apply(value);
+      if (this.value !== value)
+        this.value = this.apply(value);
 
       return this
     },
@@ -94,6 +94,9 @@
     }
   }
 
+  /**
+   * Binding responsible for the `if` directive
+   */
   var ifBinding = Object.seal({
     init(node, { evaluate, template, expressions }) {
       return Object.assign(this, {
@@ -206,7 +209,8 @@
     // find the node to apply the bindings
     const node = selector ? root.querySelector(selector) : node;
     // remove eventually additional attributes created only to select this node
-    if (redundantAttribute) node.removeAttribute(redundantAttribute);
+    if (redundantAttribute)
+      node.removeAttribute(redundantAttribute);
 
     // init the binding
     return Object.create(bindings[type] || bindings.default).init(
@@ -271,8 +275,40 @@
     return Object.create(TemplateChunk).init(html, bindings)
   }
 
-  exports.bind = create$1;
-  exports.create = create$2;
+  /**
+   * Method used to bind expressions to a DOM tree structure
+   * @param   { HTMLElement|String } root - the root node where to start applying the bindings
+   * @param   { Array } bindings - list of the expressions to bind
+   * @returns { TemplateChunk } a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
+   *
+   * @example
+   * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
+   *   {
+   *    selector: '[expr0]',
+   *     redundantAttribute: 'expr0',
+   *     expressions: [
+   *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.time }}
+   *     ]
+   *   },
+   *   {
+   *     selector: '[expr1]',
+   *     redundantAttribute: 'expr1',
+   *     expressions: [
+   *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.name }},
+   *      { type: 'attribute', name: 'style', evaluate(scope) { return scope.style }}
+   *    ]
+   *  },
+   *  {
+   *    selector: '[expr2]',
+   *    redundantAttribute: 'expr2',
+   *    type: 'if',
+   *    evaluate(scope) { return scope.isVisible },
+   *    template: riotDOMBindings.create('hello there')
+   *  }
+   * ])
+   */
+
+  exports.template = create$2;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

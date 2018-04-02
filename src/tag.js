@@ -1,3 +1,4 @@
+/* TODO: create the riot tag bindings */
 export default Object.seal({
   init() {
     return this

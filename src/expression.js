@@ -15,7 +15,8 @@ const Expression = Object.seal({
   update(scope) {
     const value = this.evaluate(scope)
 
-    if (this.value !== value) this.value = this.apply(value)
+    if (this.value !== value)
+      this.value = this.apply(value)
 
     return this
   },
