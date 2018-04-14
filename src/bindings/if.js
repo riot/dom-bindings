@@ -2,10 +2,9 @@
  * Binding responsible for the `if` directive
  */
 export default Object.seal({
-  init(node, { evaluate, template, expressions }) {
+  init(node, { evaluate, template }) {
     return Object.assign(this, {
       node,
-      expressions,
       evaluate,
       placeholder: document.createTextNode(''),
       template

@@ -26,7 +26,7 @@
  *    redundantAttribute: 'expr2',
  *    type: 'if',
  *    evaluate(scope) { return scope.isVisible },
- *    template: riotDOMBindings.create('hello there')
+ *    template: riotDOMBindings.template('hello there')
  *  }
  * ])
  */

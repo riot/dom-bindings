@@ -9,7 +9,7 @@ import bindings from './bindings'
 export default function create(root, binding) {
   const { selector, type, redundantAttribute, expressions } = binding
   // find the node to apply the bindings
-  const node = selector ? root.querySelector(selector) : node
+  const node = selector ? root.querySelector(selector) : root
   // remove eventually additional attributes created only to select this node
   if (redundantAttribute)
     node.removeAttribute(redundantAttribute)

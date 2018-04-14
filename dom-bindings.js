@@ -23,7 +23,15 @@
   }
 
   function textExpression(node, expression, value) {
-    node.childNodes[expression.childNodeIndex].textContent = value;
+    const target = node.childNodes[expression.childNodeIndex];
+
+    // replace the target if it's a comment
+    if (target.nodeType === Node.COMMENT_NODE) {
+      const textNode = document.createTextNode(value);
+      node.replaceChild(textNode, target);
+    } else {
+      target.textContent = value;
+    }
   }
 
   function valueExpression(node, expression, value) {
@@ -86,10 +94,9 @@
    * Binding responsible for the `if` directive
    */
   var ifBinding = Object.seal({
-    init(node, { evaluate, template, expressions }) {
+    init(node, { evaluate, template }) {
       return Object.assign(this, {
         node,
-        expressions,
         evaluate,
         placeholder: document.createTextNode(''),
         template
@@ -193,7 +200,7 @@
   function create$1(root, binding) {
     const { selector, type, redundantAttribute, expressions } = binding;
     // find the node to apply the bindings
-    const node = selector ? root.querySelector(selector) : node;
+    const node = selector ? root.querySelector(selector) : root;
     // remove eventually additional attributes created only to select this node
     if (redundantAttribute)
       node.removeAttribute(redundantAttribute);
@@ -236,12 +243,11 @@
    */
   const TemplateChunk = Object.seal({
     init(dom, bindings) {
-      const proto = dom.cloneNode(true);
-
       return Object.assign(this, {
         bindings: bindings.map(binding => create$1(dom, binding)),
         dom,
-        proto
+        proto: dom.cloneNode(true),
+        bindingsData: bindings
       })
     },
     /**
@@ -257,7 +263,7 @@
 
       this.el = el;
       el.appendChild(this.dom);
-      this.bindings.forEach(({ mount }) => mount(scope));
+      this.bindings.forEach(b => b.mount(scope));
 
       return this
     },
@@ -267,7 +273,7 @@
      * @returns { TemplateChunk } self
      */
     update(scope) {
-      this.bindings.forEach(({ update }) => update(scope));
+      this.bindings.forEach(b => b.update(scope));
 
       return this
     },
@@ -279,7 +285,7 @@
     unmount(scope) {
       if (!this.el) throw new Error('This template was never mounted before')
 
-      this.bindings.forEach(({ unmount }) => unmount(scope));
+      this.bindings.forEach(b => b.unmount(scope));
       cleanNode(this.el);
       this.el = null;
 
@@ -290,7 +296,7 @@
      * @returns { TemplateChunk } a new template chunk
      */
     clone() {
-      return create$2(this.proto.cloneNode(true), this.bindings)
+      return create$2(this.proto.cloneNode(true), this.bindingsData)
     }
   });
 
@@ -350,7 +356,7 @@
    *    redundantAttribute: 'expr2',
    *    type: 'if',
    *    evaluate(scope) { return scope.isVisible },
-   *    template: riotDOMBindings.create('hello there')
+   *    template: riotDOMBindings.template('hello there')
    *  }
    * ])
    */

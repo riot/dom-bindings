@@ -30,7 +30,7 @@ describe('core specs', () => {
 
   it('The bindings are properly linked to the DOM nodes', () => {
     const target = document.createElement('div')
-    const el = template('<div></div><p expr0> </p>', [{
+    const el = template('<div></div><p expr0><!----></p>', [{
       selector: '[expr0]',
       expressions: [
         { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }}
