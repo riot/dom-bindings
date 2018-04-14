@@ -9,9 +9,7 @@ import cleanNode from './util/clean-node'
 const TemplateChunk = Object.seal({
   init(dom, bindings) {
     return Object.assign(this, {
-      bindings: bindings.map(binding => createBinding(dom, binding)),
       dom,
-      proto: dom.cloneNode(true),
       bindingsData: bindings
     })
   },
@@ -27,7 +25,12 @@ const TemplateChunk = Object.seal({
     if (this.el) this.unmount(scope)
 
     this.el = el
-    el.appendChild(this.dom)
+
+    // clone the template DOM and append it to the target node
+    el.appendChild(this.dom.cloneNode(true))
+
+    // create the bindings
+    this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding)),
     this.bindings.forEach(b => b.mount(scope))
 
     return this
@@ -61,7 +64,7 @@ const TemplateChunk = Object.seal({
    * @returns { TemplateChunk } a new template chunk
    */
   clone() {
-    return create(this.proto.cloneNode(true), this.bindingsData)
+    return create(this.dom, this.bindingsData)
   }
 })
 

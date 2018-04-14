@@ -244,9 +244,7 @@
   const TemplateChunk = Object.seal({
     init(dom, bindings) {
       return Object.assign(this, {
-        bindings: bindings.map(binding => create$1(dom, binding)),
         dom,
-        proto: dom.cloneNode(true),
         bindingsData: bindings
       })
     },
@@ -262,8 +260,12 @@
       if (this.el) this.unmount(scope);
 
       this.el = el;
-      el.appendChild(this.dom);
-      this.bindings.forEach(b => b.mount(scope));
+
+      // clone the template DOM and append it to the target node
+      el.appendChild(this.dom.cloneNode(true));
+
+      // create the bindings
+      this.bindings = this.bindingsData.map(binding => create$1(this.el, binding)), this.bindings.forEach(b => b.mount(scope));
 
       return this
     },
@@ -296,7 +298,7 @@
      * @returns { TemplateChunk } a new template chunk
      */
     clone() {
-      return create$2(this.proto.cloneNode(true), this.bindingsData)
+      return create$2(this.dom, this.bindingsData)
     }
   });
 

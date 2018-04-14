@@ -23,6 +23,19 @@ describe('core specs', () => {
     expect(() => template()).to.throw
   })
 
+  it('A template can be easily cloned', () => {
+    const message = 'hello world'
+    const el = template('<!---->', [{
+      expressions: [{
+        type: 'text', childNodeIndex: 0, evaluate() { return message }
+      }]
+    }])
+
+    const target = document.createElement('div')
+    el.clone().mount(target)
+    expect(target.textContent).to.be.equal(message)
+  })
+
   it('The unmount method throws if the template was never mounted before', () => {
     const el = template('hello')
     expect(() => el.unmount()).to.throw
