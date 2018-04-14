@@ -2,12 +2,13 @@
   "name": "riot-dom-bindings",
   "version": "0.0.0",
   "description": "Riot.js DOM bindings",
-  "main": "dom-bindings.js",
+  "main": "dist/cjs.dom-bindings.js",
+  "browser": "dist/umd.dom-bindings.js",
   "jsnext:main": "src/index.js",
   "module": "src/index.js",
   "scripts": {
     "prepare": "npm test",
-    "lint": "eslint src/ test.js rollup.config.js",
+    "lint": "eslint src/ test/ rollup.config.js",
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c",
@@ -19,7 +20,7 @@
   },
   "files": [
     "src",
-    "dom-bindings.js"
+    "dist"
   ],
   "repository": {
     "type": "git",

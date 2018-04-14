@@ -10,8 +10,12 @@ export default {
   output: [
     {
       name: 'riotDOMBindings',
-      file: 'dom-bindings.js',
+      file: 'dist/umd.dom-bindings.js',
       format: 'umd'
+    },
+    {
+      file: 'dist/cjs.dom-bindings.js',
+      format: 'cjs'
     }
   ],
 }
