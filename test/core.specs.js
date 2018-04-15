@@ -43,14 +43,18 @@ describe('core specs', () => {
 
   it('The bindings are properly linked to the DOM nodes', () => {
     const target = document.createElement('div')
-    const el = template('<div></div><p expr0><!----></p>', [{
+
+    template('<div></div><p expr0><!----></p>', [{
       selector: '[expr0]',
+      redundantAttribute: 'expr0',
       expressions: [
         { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }}
       ]
-    }])
+    }]).mount(target, { text: 'hello' })
 
-    el.mount(target, { text: 'hello' })
-    expect(target.querySelector('[expr0]').textContent).to.be.equal('hello')
+    const p = target.querySelector('p')
+
+    expect(p.textContent).to.be.equal('hello')
+    expect(p.hasAttribute('expr0')).to.be.not.ok
   })
 })
