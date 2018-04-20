@@ -7,10 +7,11 @@ import cleanNode from './util/clean-node'
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
-  init(dom, bindings) {
+  init(dom, bindings, attach) {
     return Object.assign(this, {
       dom,
-      bindingsData: bindings
+      bindingsData: bindings,
+      attach
     })
   },
   /**
@@ -26,11 +27,10 @@ const TemplateChunk = Object.seal({
 
     this.el = el
 
-    // clone the template DOM and append it to the target node
-    el.appendChild(this.dom.cloneNode(true))
+    const root = this.attach()
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding)),
+    this.bindings = this.bindingsData.map(binding => createBinding(root, binding)),
     this.bindings.forEach(b => b.mount(scope))
 
     return this
@@ -55,6 +55,9 @@ const TemplateChunk = Object.seal({
 
     this.bindings.forEach(b => b.unmount(scope))
     cleanNode(this.el)
+
+    // todo: Can we detatch this.el.shadowRoot?
+
     this.el = null
 
     return this
@@ -64,18 +67,44 @@ const TemplateChunk = Object.seal({
    * @returns { TemplateChunk } a new template chunk
    */
   clone() {
-    return create(this.dom, this.bindingsData)
+    return create(this.dom, this.bindingsData, { attach: this.attatch })
   }
 })
+
+/**
+ * Hosting strategy on light DOM
+ */
+function attachDOM() {
+  // clone the template DOM and append it to the target node
+  this.el.appendChild(this.dom.cloneNode(true))
+  return this.el
+}
+
+/**
+ * Hosting strategy on shadow DOM
+ */
+const attachShadowDOM = 'attachShadow' in Element.prototype ?
+  function attachShadowDOM() {
+    // clone the template DOM and append it to shadowRoot of the target node
+    const shadowRoot = this.el.attachShadow({ mode: 'open' })
+    shadowRoot.appendChild(this.dom.cloneNode(true))
+    return shadowRoot.host
+  }:
+  function attachShadowDOM() {
+    throw new Error('Shadow DOM is unavailable on your browser')
+  }
 
 /**
  * Create a template chunk wiring also the bindings
  * @param   { String } html - template string
  * @param   { Array } bindings - bindings collection
+ * @param   { Object= } options - options
+ * @param   { String= } options.attatch - host on Shadow DOM if 'shadow', host on DOM otherwise 
  * @returns { TemplateChunk } a new TemplateChunk copy
  */
-export default function create(html, bindings = []) {
+export default function create(html, bindings = [], options = {}) {
   if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
   const dom = typeof html === 'string' ? createFragment(html).content : html
-  return Object.create(TemplateChunk).init(dom, bindings)
+  const attach = options.attach === undefined ? attachDOM : options.attach === 'shadow' ? attachShadowDOM : options.attach
+  return Object.create(TemplateChunk).init(dom, bindings, attach)
 }
