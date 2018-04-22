@@ -15,6 +15,21 @@ describe('attribute specs', () => {
     expect(p.getAttribute('class')).to.be.equal('hello')
   })
 
+  it('set boolean attributes', () => {
+    const target = document.createElement('div')
+    template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: 'attribute', name: 'selected', evaluate(scope) { return scope.attr }}
+      ]
+    }]).mount(target, { attr: true })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('selected')).to.be.equal('selected')
+    expect(p.selected).to.be.ok
+  })
+
   it('remove attribute if it\'s falsy', () => {
     const target = document.createElement('div')
     template('<p class="hello" expr0></p>', [{

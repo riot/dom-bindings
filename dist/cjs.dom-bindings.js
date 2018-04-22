@@ -20,10 +20,17 @@ function flattenCollectionMethods(collection, methods, context) {
   }, {})
 }
 
-function textExpression(node, expression, value) {
-  const target = node.childNodes[expression.childNodeIndex];
+/**
+ * This methods handles a simple text expression update
+ * @param   {HTMLElement} node - target node
+ * @param   {object} expression - expression object
+ * @param   {number} expression.childNodeIndex - index to find the text node to update
+ * @param   {*} value - new expression value
+ */
+function textExpression(node, { childNodeIndex }, value) {
+  const target = node.childNodes[childNodeIndex];
 
-  // replace the target if it's a comment
+  // replace the target if it's a placeholder comment
   if (target.nodeType === Node.COMMENT_NODE) {
     const textNode = document.createTextNode(value);
     node.replaceChild(textNode, target);
@@ -32,19 +39,66 @@ function textExpression(node, expression, value) {
   }
 }
 
+/**
+ * This methods handles the input fileds value updates
+ * @param   {HTMLElement} node - target node
+ * @param   {object} expression - expression object
+ * @param   {*} value - new expression value
+ */
 function valueExpression(node, expression, value) {
   node.value = value;
 }
 
+/**
+ * This methods handles the DOM attributes updates
+ * @param   {HTMLElement} node - target node
+ * @param   {object} expression - expression object
+ * @param   {number} expression.name - attribute name
+ * @param   {*} value - new expression value
+ */
 function attributeExpression(node, { name }, value, oldValue) {
+  // is it a spread operator? {...attributes}
   if (!name) {
-    if (value)
-      Object.entries(value).forEach(([key, value]) => attributeExpression(node, { name: key }, value));
-    else if (oldValue)
-      Object.keys(oldValue).forEach(key => attributeExpression(node, { name: key }));
+    // is the value still truthy?
+    if (value) {
+      Object
+        .entries(value)
+        .forEach(([key, value]) => attributeExpression(node, { name: key }, value));
+    } else if (oldValue) {
+      // otherwise remove all the old attributes
+      Object.keys(oldValue).forEach(key => node.removeAttribute(key));
+    }
   } else {
-    node[value ? 'setAttribute' : 'removeAttribute'](name, Array.isArray(value) ? value.join(' ') : value);
+    // handle boolean attributes
+    if (typeof value === 'boolean') {
+      node[name] = value;
+    }
+
+    node[getMethod(value)](name, normalizeValue(name, value));
   }
+}
+
+/**
+ * Get the attribute modifier method
+ * @param   {*} value - if truthy we return `setAttribute` othewise `removeAttribute`
+ * @returns {string} the node attribute modifier method name
+ */
+function getMethod(value) {
+  return value ? 'setAttribute' : 'removeAttribute'
+}
+
+/**
+ * Get the value as string
+ * @param   {string} name - attribute name
+ * @param   {*} value - user input value
+ * @returns {string} input value as string
+ */
+function normalizeValue(name, value) {
+  // be sure that expressions like selected={ true } will be always rendered as selected='selected'
+  if (value === true) return name
+
+  // array values will be joined with spaces
+  return Array.isArray(value) ? value.join(' ') : value
 }
 
 var expressions = {
