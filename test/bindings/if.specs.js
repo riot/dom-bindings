@@ -1,6 +1,6 @@
-const { template } = require('../')
+const { template } = require('../../')
 
-describe('if specs', () => {
+describe('if bindings', () => {
   it('Remove the DOM node from the template if the condition is false', () => {
     const target = document.createElement('div')
     const el = template('<div></div><p expr0></p>', [{

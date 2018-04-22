@@ -24,7 +24,7 @@ const Expression = Object.seal({
     return this
   },
   apply(value) {
-    return expressions[this.type](this.node, this, value)
+    return expressions[this.type](this.node, this, value, this.value)
   }
 })
 
