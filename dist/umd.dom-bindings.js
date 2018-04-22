@@ -31,14 +31,24 @@
    */
   function textExpression(node, { childNodeIndex }, value) {
     const target = node.childNodes[childNodeIndex];
+    const val = normalizeValue(value);
 
     // replace the target if it's a placeholder comment
     if (target.nodeType === Node.COMMENT_NODE) {
-      const textNode = document.createTextNode(value);
+      const textNode = document.createTextNode(val);
       node.replaceChild(textNode, target);
     } else {
-      target.textContent = value;
+      target.textContent = normalizeValue(val);
     }
+  }
+
+  /**
+   * Normalize the user value in order to render a empty string in case of falsy values
+   * @param   {*} value - user input value
+   * @returns {string} hopefully a string
+   */
+  function normalizeValue(value) {
+    return value || ''
   }
 
   /**
@@ -76,7 +86,7 @@
         node[name] = value;
       }
 
-      node[getMethod(value)](name, normalizeValue(name, value));
+      node[getMethod(value)](name, normalizeValue$1(name, value));
     }
   }
 
@@ -95,7 +105,7 @@
    * @param   {*} value - user input value
    * @returns {string} input value as string
    */
-  function normalizeValue(name, value) {
+  function normalizeValue$1(name, value) {
     // be sure that expressions like selected={ true } will be always rendered as selected='selected'
     if (value === true) return name
 
@@ -124,8 +134,7 @@
     update(scope) {
       const value = this.evaluate(scope);
 
-      if (this.value !== value)
-        this.value = this.apply(value);
+      if (this.value !== value) this.value = this.apply(value);
 
       return this
     },
@@ -141,7 +150,7 @@
     return Object.create(Expression).init(dom, expression)
   }
 
-  var defaultBinding = Object.seal({
+  var simpleBinding = Object.seal({
     init(node, { expressions }) {
       return Object.assign(this, flattenCollectionMethods(
         expressions.map(expression => create(node, expression)),
@@ -248,7 +257,7 @@
 
   var bindings = {
     if: ifBinding,
-    default: defaultBinding,
+    simple: simpleBinding,
     each: eachBinding
   }
 
@@ -267,7 +276,7 @@
       node.removeAttribute(redundantAttribute);
 
     // init the binding
-    return Object.create(bindings[type] || bindings.default).init(
+    return Object.create(bindings[type] || bindings.simple).init(
       node,
       Object.assign({}, binding, {
         expressions: expressions || []

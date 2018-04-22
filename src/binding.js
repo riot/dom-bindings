@@ -15,7 +15,7 @@ export default function create(root, binding) {
     node.removeAttribute(redundantAttribute)
 
   // init the binding
-  return Object.create(bindings[type] || bindings.default).init(
+  return Object.create(bindings[type] || bindings.simple).init(
     node,
     Object.assign({}, binding, {
       expressions: expressions || []

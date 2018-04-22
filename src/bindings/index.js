@@ -1,9 +1,9 @@
-import defaultBinding from './default'
+import simpleBinding from './simple'
 import ifBinding from './if'
 import eachBinding from './each'
 
 export default {
   if: ifBinding,
-  default: defaultBinding,
+  simple: simpleBinding,
   each: eachBinding
 }
