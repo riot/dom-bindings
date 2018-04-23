@@ -1,4 +1,5 @@
 const { template, tag } = require('../')
+const supportsShadowDOMv1 = 'attachShadow' in Element.prototype
 
 describe('core specs', () => {
   it('The riot DOM bindings public methods get properly exported', () => {
@@ -24,17 +25,29 @@ describe('core specs', () => {
   })
 
   it('A template can be easily cloned', () => {
+    doCloneTest()
+  })
+
+  it('A template can be easily cloned for Shadow DOM', function () {
+    if (supportsShadowDOMv1) {
+      doCloneTest({ attach: 'shadow' })
+    } else {
+      this.skip()
+    }
+  })
+
+  function doCloneTest(options) {
     const message = 'hello world'
     const el = template('<!---->', [{
       expressions: [{
         type: 'text', childNodeIndex: 0, evaluate() { return message }
       }]
-    }])
+    }], options)
 
     const target = document.createElement('div')
     el.clone().mount(target)
     expect(target.textContent).to.be.equal(message)
-  })
+  }
 
   it('The unmount method throws if the template was never mounted before', () => {
     const el = template('hello')
@@ -56,5 +69,18 @@ describe('core specs', () => {
 
     expect(p.textContent).to.be.equal('hello')
     expect(p.hasAttribute('expr0')).to.be.not.ok
+  })
+
+  it('can create open shadow-DOM', function () {
+    if (supportsShadowDOMv1) {
+      const target = document.createElement('div')
+      template('<p>hello</p>', [], { attach: 'shadow' }).mount(target)
+
+      expect(target.shadowRoot).to.be.not.null
+      const p = target.shadowRoot.querySelector('p')
+      expect(p.textContent).to.be.equal('hello')
+    } else {
+      this.skip()
+    }
   })
 })
