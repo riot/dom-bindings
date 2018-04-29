@@ -419,28 +419,14 @@ var registry = new Map()
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
  */
 function create$6(name, options) {
-  const el = document.createElement(name);
-
-  // set the static attributes on the DOM node
-  if (options.attributes) {
-    attributeExpression(el, null, options.attributes);
-  }
-
-  // if this tag was registered before we
+  // if this tag was registered before we will return its implementation
   if (registry.has(name)) {
     return Object.assign({}, registry.get(name), {
-      el,
       options
     })
   }
-
-  return fallbackToTemplate(el, options)
-}
-
-
-function fallbackToTemplate(el, options) {
-  el.innerHTML = options.template;
-  return create$5(el, options.bindings)
+  // otherwise we return a template chunk
+  return create$5(options.html, options.bindings)
 }
 
 /**
