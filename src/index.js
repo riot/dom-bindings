@@ -31,7 +31,4 @@
  * ])
  */
 export { default as template } from './template'
-
-export { default as tag } from './tag'
-
 export { default as registry } from './registry'

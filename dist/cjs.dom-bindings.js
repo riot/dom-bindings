@@ -291,10 +291,76 @@ function create$3(node, { expressions }) {
   ))
 }
 
+/**
+ * Function to curry any javascript method
+ * @param   {Function}  fn - the target function we want to curry
+ * @param   {...[args]} acc - initial arguments
+ * @returns {Function|*} it will return a function until the target function
+ *                       will receive all of its arguments
+ */
+function curry(fn, ...acc) {
+  return (...args) => {
+    args = [...acc, ...args];
+
+    return args.length < fn.length ?
+      curry(fn, ...args) :
+      fn(...args)
+  }
+}
+
+/**
+ * Tags registry
+ * It will contain the `tag-name`: TagImplementation objects
+ */
+var registry = new Map()
+
+/**
+ * Create a new tag object if it was registered before, othewise fallback to the simple
+ * template chunk
+ * @param   {string} name - tag name
+ * @param   {Array<Object>} slots - array containing the slots markup
+ * @param   {Array} bindings - DOM bindings
+ * @param   {Array} attributes - dynamic attributes that will be received by the tag element
+ * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
+ */
+function getTag(name, slots = {}, bindings = [], attributes = []) {
+  // if this tag was registered before we will return its implementation
+  if (registry.has(name)) {
+    return registry.get(name)({ slots, bindings, attributes })
+  }
+
+  // otherwise we return a template chunk
+  return create$6(slotsToMarkup(slots), [...bindings, {
+    // the attributes should be registered as binding
+    // if we fallback to a normal template chunk
+    expressions: attributes
+  }])
+}
+
+/**
+ * Merge all the slots together in a single markup string
+ * @param   {Array<Object>} slots - slots collection
+ * @returns {string} markup of all the slots in a single string
+ */
+function slotsToMarkup(slots) {
+  return slots.reduce((acc, slot) => {
+    return acc + slot.html
+  }, '')
+}
+
+function create$4(node, { name, slots, bindings, attributes }) {
+  const tag = getTag(name, slots, bindings, attributes);
+
+  return Object.assign({}, tag, {
+    mount: curry(tag.mount)(node)
+  })
+}
+
 var bindings = {
   if: create$1,
   simple: create$3,
-  each: create
+  each: create,
+  tag: create$4
 }
 
 /**
@@ -303,7 +369,7 @@ var bindings = {
  * @param   {Object} binding - binding data
  * @returns {Expression} Expression object
  */
-function create$4(root, binding) {
+function create$5(root, binding) {
   const { selector, type, redundantAttribute, expressions } = binding;
   // find the node to apply the bindings
   const node = selector ? root.querySelector(selector) : root;
@@ -337,9 +403,9 @@ function createFragment(html) {
 const TemplateChunk = Object.seal({
   /**
    * Attatch the template to a DOM node
-   * @param   { HTMLElement } el - target DOM node
-   * @param   { * } scope - template data
-   * @returns { TemplateChunk } self
+   * @param   {HTMLElement} el - target DOM node
+   * @param   {*} scope - template data
+   * @returns {TemplateChunk} self
    */
   mount(el, scope) {
     if (!el) throw new Error('Please provide DOM node to mount properly your template')
@@ -352,14 +418,14 @@ const TemplateChunk = Object.seal({
     el.appendChild(this.dom.cloneNode(true));
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => create$4(this.el, binding)), this.bindings.forEach(b => b.mount(scope));
+    this.bindings = this.bindingsData.map(binding => create$5(this.el, binding)), this.bindings.forEach(b => b.mount(scope));
 
     return this
   },
   /**
    * Update the template with fresh data
-   * @param   { * } scope - template data
-   * @returns { TemplateChunk } self
+   * @param   {*} scope - template data
+   * @returns {TemplateChunk} self
    */
   update(scope) {
     this.bindings.forEach(b => b.update(scope));
@@ -368,8 +434,8 @@ const TemplateChunk = Object.seal({
   },
   /**
    * Remove the template from the node where it was initially mounted
-   * @param   { * } scope - template data
-   * @returns { TemplateChunk } self
+   * @param   {*} scope - template data
+   * @returns {TemplateChunk} self
    */
   unmount(scope) {
     if (!this.el) throw new Error('This template was never mounted before')
@@ -382,20 +448,20 @@ const TemplateChunk = Object.seal({
   },
   /**
    * Clone the template chunk
-   * @returns { TemplateChunk } a new template chunk
+   * @returns {TemplateChunk} a new template chunk
    */
   clone() {
-    return create$5(this.dom, this.bindingsData)
+    return create$6(this.dom, this.bindingsData)
   }
 });
 
 /**
  * Create a template chunk wiring also the bindings
- * @param   { string } html - template string
- * @param   { Array } bindings - bindings collection
- * @returns { TemplateChunk } a new TemplateChunk copy
+ * @param   {string} html - template string
+ * @param   {Array} bindings - bindings collection
+ * @returns {TemplateChunk} a new TemplateChunk copy
  */
-function create$5(html, bindings = []) {
+function create$6(html, bindings = []) {
   if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
   const dom = typeof html === 'string' ? createFragment(html).content : html;
 
@@ -403,30 +469,6 @@ function create$5(html, bindings = []) {
     dom,
     bindingsData: bindings
   })
-}
-
-/**
- * Tags registry
- * It will contain the `tag-name`: TagImplementation objects
- */
-var registry = new Map()
-
-/**
- * Create a new tag object if it was registered before, othewise fallback to the simple
- * template chunk
- * @param   {string} name - tag name
- * @param   {Object} options - tag options
- * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
- */
-function create$6(name, options) {
-  // if this tag was registered before we will return its implementation
-  if (registry.has(name)) {
-    return Object.assign({}, registry.get(name), {
-      options
-    })
-  }
-  // otherwise we return a template chunk
-  return create$5(options.html, options.bindings)
 }
 
 /**
@@ -462,6 +504,5 @@ function create$6(name, options) {
  * ])
  */
 
-exports.template = create$5;
-exports.tag = create$6;
+exports.template = create$6;
 exports.registry = registry;

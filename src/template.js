@@ -9,9 +9,9 @@ import createFragment from './util/create-fragment'
 export const TemplateChunk = Object.seal({
   /**
    * Attatch the template to a DOM node
-   * @param   { HTMLElement } el - target DOM node
-   * @param   { * } scope - template data
-   * @returns { TemplateChunk } self
+   * @param   {HTMLElement} el - target DOM node
+   * @param   {*} scope - template data
+   * @returns {TemplateChunk} self
    */
   mount(el, scope) {
     if (!el) throw new Error('Please provide DOM node to mount properly your template')
@@ -31,8 +31,8 @@ export const TemplateChunk = Object.seal({
   },
   /**
    * Update the template with fresh data
-   * @param   { * } scope - template data
-   * @returns { TemplateChunk } self
+   * @param   {*} scope - template data
+   * @returns {TemplateChunk} self
    */
   update(scope) {
     this.bindings.forEach(b => b.update(scope))
@@ -41,8 +41,8 @@ export const TemplateChunk = Object.seal({
   },
   /**
    * Remove the template from the node where it was initially mounted
-   * @param   { * } scope - template data
-   * @returns { TemplateChunk } self
+   * @param   {*} scope - template data
+   * @returns {TemplateChunk} self
    */
   unmount(scope) {
     if (!this.el) throw new Error('This template was never mounted before')
@@ -55,7 +55,7 @@ export const TemplateChunk = Object.seal({
   },
   /**
    * Clone the template chunk
-   * @returns { TemplateChunk } a new template chunk
+   * @returns {TemplateChunk} a new template chunk
    */
   clone() {
     return create(this.dom, this.bindingsData)
@@ -64,9 +64,9 @@ export const TemplateChunk = Object.seal({
 
 /**
  * Create a template chunk wiring also the bindings
- * @param   { string } html - template string
- * @param   { Array } bindings - bindings collection
- * @returns { TemplateChunk } a new TemplateChunk copy
+ * @param   {string} html - template string
+ * @param   {Array} bindings - bindings collection
+ * @returns {TemplateChunk} a new TemplateChunk copy
  */
 export default function create(html, bindings = []) {
   if (!html) throw new Error('The html element is required, please provide a string or a DOM node')

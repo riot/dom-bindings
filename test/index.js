@@ -6,6 +6,8 @@ describe('dom-bindings', () => {
 
   describe('bindings', () => {
     require('./bindings/if.specs')
+    require('./bindings/simple.specs')
+    // require('./bindings/tag.specs')
   })
 
   describe('expressions', () => {
