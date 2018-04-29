@@ -312,7 +312,7 @@
 
   /**
    * Tags registry
-   * It will contain the `tag-name`: TagImplementation objects
+   * It will contain the pair { `tag-name`: tag creation function }
    */
   var registry = new Map()
 
@@ -353,8 +353,8 @@
   function create$4(node, { name, slots, bindings, attributes }) {
     const tag = getTag(name, slots, bindings, attributes);
 
-    return Object.assign({}, tag, {
-      mount: curry(tag.mount)(node)
+    return Object.assign(tag, {
+      mount: curry(tag.mount.bind(tag))(node)
     })
   }
 

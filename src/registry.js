@@ -1,5 +1,5 @@
 /**
  * Tags registry
- * It will contain the `tag-name`: TagImplementation objects
+ * It will contain the pair { `tag-name`: tag creation function }
  */
 export default new Map()
