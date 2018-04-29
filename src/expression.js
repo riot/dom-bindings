@@ -1,11 +1,6 @@
 import expressions from './expressions'
 
 const Expression = Object.seal({
-  init(node, expression) {
-    return Object.assign(this, expression, {
-      node
-    })
-  },
   mount(scope) {
     this.value = this.evaluate(scope)
     this.apply(this.value)
@@ -27,6 +22,8 @@ const Expression = Object.seal({
   }
 })
 
-export default function create(dom, expression) {
-  return Object.create(Expression).init(dom, expression)
+export default function create(node, expression) {
+  return Object.assign({}, Expression, expression, {
+    node
+  })
 }

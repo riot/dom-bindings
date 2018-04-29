@@ -7,12 +7,6 @@ import cleanNode from './util/clean-node'
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
-  init(dom, bindings) {
-    return Object.assign(this, {
-      dom,
-      bindingsData: bindings
-    })
-  },
   /**
    * Attatch the template to a DOM node
    * @param   { HTMLElement } el - target DOM node
@@ -77,5 +71,9 @@ const TemplateChunk = Object.seal({
 export default function create(html, bindings = []) {
   if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
   const dom = typeof html === 'string' ? createFragment(html).content : html
-  return Object.create(TemplateChunk).init(dom, bindings)
+
+  return Object.assign({}, TemplateChunk, {
+    dom,
+    bindingsData: bindings
+  })
 }

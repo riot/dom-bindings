@@ -1,15 +1,7 @@
 /**
  * Binding responsible for the `if` directive
  */
-export default Object.seal({
-  init(node, { evaluate, template }) {
-    return Object.assign(this, {
-      node,
-      evaluate,
-      placeholder: document.createTextNode(''),
-      template
-    })
-  },
+export const ifBinding = Object.seal({
   mount(scope) {
     swap(this.placeholder, this.node)
     return this.update(scope)
@@ -50,4 +42,13 @@ function swap(inNode, outNode) {
   const parent = outNode.parentNode
   parent.insertBefore(inNode, outNode)
   parent.removeChild(outNode)
+}
+
+export default function create(node, { evaluate, template }) {
+  return Object.assign({}, ifBinding, {
+    node,
+    evaluate,
+    placeholder: document.createTextNode(''),
+    template
+  })
 }

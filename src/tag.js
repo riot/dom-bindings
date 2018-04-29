@@ -1,8 +1,5 @@
 /* TODO: create the riot tag bindings */
 export default Object.seal({
-  init() {
-    return this
-  },
   mount() {
     return this
   },
@@ -10,6 +7,9 @@ export default Object.seal({
     return this
   },
   unmount() {
+    return this
+  },
+  clone() {
     return this
   }
 })

@@ -1,20 +1,5 @@
 /* WIP */
-export default Object.seal({
-  init(node, { evaluate, template, expressions }) {
-    const placeholder = document.createTextNode('')
-    const parent = node.parentNode
-
-    parent.insertBefore(placeholder, node)
-    parent.removeChild(node)
-
-    return Object.assign(this, {
-      node,
-      evaluate,
-      template,
-      expressions,
-      placeholder
-    })
-  },
+export const eachBinding = Object.seal({
   mount(scope) {
     return this.update(scope)
   },
@@ -31,7 +16,6 @@ export default Object.seal({
 
     return this
   },
-
   unmount() {
     this.expressionsBatch.unmount()
     return this
@@ -45,3 +29,19 @@ function extendScope(key, value, scope) {
   }, scope)
 }
 /* eslint-enable */
+
+export default function create(node, { evaluate, template, expressions }) {
+  const placeholder = document.createTextNode('')
+  const parent = node.parentNode
+
+  parent.insertBefore(placeholder, node)
+  parent.removeChild(node)
+
+  return Object.assign({}, eachBinding, {
+    node,
+    evaluate,
+    template,
+    expressions,
+    placeholder
+  })
+}

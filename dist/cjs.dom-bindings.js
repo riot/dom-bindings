@@ -118,11 +118,6 @@ var expressions = {
 }
 
 const Expression = Object.seal({
-  init(node, expression) {
-    return Object.assign(this, expression, {
-      node
-    })
-  },
   mount(scope) {
     this.value = this.evaluate(scope);
     this.apply(this.value);
@@ -144,32 +139,23 @@ const Expression = Object.seal({
   }
 });
 
-function create(dom, expression) {
-  return Object.create(Expression).init(dom, expression)
+function create(node, expression) {
+  return Object.assign({}, Expression, expression, {
+    node
+  })
 }
 
-var simpleBinding = Object.seal({
-  init(node, { expressions }) {
-    return Object.assign(this, flattenCollectionMethods(
-      expressions.map(expression => create(node, expression)),
-      ['mount', 'update', 'unmount'],
-      this
-    ))
-  }
-})
+function create$1(node, { expressions }) {
+  return Object.assign({}, flattenCollectionMethods(
+    expressions.map(expression => create(node, expression)),
+    ['mount', 'update', 'unmount']
+  ))
+}
 
 /**
  * Binding responsible for the `if` directive
  */
-var ifBinding = Object.seal({
-  init(node, { evaluate, template }) {
-    return Object.assign(this, {
-      node,
-      evaluate,
-      placeholder: document.createTextNode(''),
-      template
-    })
-  },
+const ifBinding = Object.seal({
   mount(scope) {
     swap(this.placeholder, this.node);
     return this.update(scope)
@@ -204,7 +190,7 @@ var ifBinding = Object.seal({
     }
     return this
   }
-})
+});
 
 function swap(inNode, outNode) {
   const parent = outNode.parentNode;
@@ -212,23 +198,17 @@ function swap(inNode, outNode) {
   parent.removeChild(outNode);
 }
 
+function create$2(node, { evaluate, template }) {
+  return Object.assign({}, ifBinding, {
+    node,
+    evaluate,
+    placeholder: document.createTextNode(''),
+    template
+  })
+}
+
 /* WIP */
-var eachBinding = Object.seal({
-  init(node, { evaluate, template, expressions }) {
-    const placeholder = document.createTextNode('');
-    const parent = node.parentNode;
-
-    parent.insertBefore(placeholder, node);
-    parent.removeChild(node);
-
-    return Object.assign(this, {
-      node,
-      evaluate,
-      template,
-      expressions,
-      placeholder
-    })
-  },
+const eachBinding = Object.seal({
   mount(scope) {
     return this.update(scope)
   },
@@ -245,18 +225,33 @@ var eachBinding = Object.seal({
 
     return this
   },
-
   unmount() {
     this.expressionsBatch.unmount();
     return this
   }
-})
+});
 /* eslint-enable */
 
+function create$3(node, { evaluate, template, expressions }) {
+  const placeholder = document.createTextNode('');
+  const parent = node.parentNode;
+
+  parent.insertBefore(placeholder, node);
+  parent.removeChild(node);
+
+  return Object.assign({}, eachBinding, {
+    node,
+    evaluate,
+    template,
+    expressions,
+    placeholder
+  })
+}
+
 var bindings = {
-  if: ifBinding,
-  simple: simpleBinding,
-  each: eachBinding
+  if: create$2,
+  simple: create$1,
+  each: create$3
 }
 
 /**
@@ -265,7 +260,7 @@ var bindings = {
  * @param   { Object } binding - binding data
  * @returns { Expression } Expression object
  */
-function create$1(root, binding) {
+function create$4(root, binding) {
   const { selector, type, redundantAttribute, expressions } = binding;
   // find the node to apply the bindings
   const node = selector ? root.querySelector(selector) : root;
@@ -274,7 +269,8 @@ function create$1(root, binding) {
     node.removeAttribute(redundantAttribute);
 
   // init the binding
-  return Object.create(bindings[type] || bindings.simple).init(
+  const createBinding = bindings[type] || bindings.simple;
+  return createBinding(
     node,
     Object.assign({}, binding, {
       expressions: expressions || []
@@ -310,12 +306,6 @@ function cleanNode(node) {
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
-  init(dom, bindings) {
-    return Object.assign(this, {
-      dom,
-      bindingsData: bindings
-    })
-  },
   /**
    * Attatch the template to a DOM node
    * @param   { HTMLElement } el - target DOM node
@@ -333,7 +323,7 @@ const TemplateChunk = Object.seal({
     el.appendChild(this.dom.cloneNode(true));
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => create$1(this.el, binding)), this.bindings.forEach(b => b.mount(scope));
+    this.bindings = this.bindingsData.map(binding => create$4(this.el, binding)), this.bindings.forEach(b => b.mount(scope));
 
     return this
   },
@@ -366,7 +356,7 @@ const TemplateChunk = Object.seal({
    * @returns { TemplateChunk } a new template chunk
    */
   clone() {
-    return create$2(this.dom, this.bindingsData)
+    return create$5(this.dom, this.bindingsData)
   }
 });
 
@@ -376,17 +366,18 @@ const TemplateChunk = Object.seal({
  * @param   { Array } bindings - bindings collection
  * @returns { TemplateChunk } a new TemplateChunk copy
  */
-function create$2(html, bindings = []) {
+function create$5(html, bindings = []) {
   if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
   const dom = typeof html === 'string' ? createFragment(html).content : html;
-  return Object.create(TemplateChunk).init(dom, bindings)
+
+  return Object.assign({}, TemplateChunk, {
+    dom,
+    bindingsData: bindings
+  })
 }
 
 /* TODO: create the riot tag bindings */
 var tag = Object.seal({
-  init() {
-    return this
-  },
   mount() {
     return this
   },
@@ -394,6 +385,9 @@ var tag = Object.seal({
     return this
   },
   unmount() {
+    return this
+  },
+  clone() {
     return this
   }
 })
@@ -431,5 +425,5 @@ var tag = Object.seal({
  * ])
  */
 
-exports.template = create$2;
+exports.template = create$5;
 exports.tag = tag;
