@@ -2,6 +2,8 @@ import curry from 'curri'
 import registry from '../registry'
 import template from '../template'
 
+const PLACEHOLDER_COMMENT = '<!---->'
+
 /**
  * Create a new tag object if it was registered before, othewise fallback to the simple
  * template chunk
@@ -11,7 +13,7 @@ import template from '../template'
  * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
  */
-function getTag(name, slots = {}, bindings = [], attributes = []) {
+function getTag(name, slots = [], bindings = [], attributes = []) {
   // if this tag was registered before we will return its implementation
   if (registry.has(name)) {
     return registry.get(name)({ slots, bindings, attributes })
@@ -21,7 +23,11 @@ function getTag(name, slots = {}, bindings = [], attributes = []) {
   return template(slotsToMarkup(slots), [...bindings, {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk
-    expressions: attributes
+    expressions: attributes.map(attr => {
+      return Object.assign({
+        type: 'attribute'
+      }, attr)
+    })
   }])
 }
 
@@ -33,7 +39,7 @@ function getTag(name, slots = {}, bindings = [], attributes = []) {
 function slotsToMarkup(slots) {
   return slots.reduce((acc, slot) => {
     return acc + slot.html
-  }, '')
+  }, '') || PLACEHOLDER_COMMENT
 }
 
 export default function create(node, { name, slots, bindings, attributes }) {
