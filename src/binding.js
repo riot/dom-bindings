@@ -2,21 +2,19 @@ import bindings from './bindings'
 
 /**
  * Bind a new expression object to a DOM node
- * @param   { HTMLElement } root - DOM node where to bind the expression
- * @param   { Object } binding - binding data
- * @returns { Expression } Expression object
+ * @param   {HTMLElement} root - DOM node where to bind the expression
+ * @param   {Object} binding - binding data
+ * @returns {Expression} Expression object
  */
 export default function create(root, binding) {
   const { selector, type, redundantAttribute, expressions } = binding
   // find the node to apply the bindings
   const node = selector ? root.querySelector(selector) : root
   // remove eventually additional attributes created only to select this node
-  if (redundantAttribute)
-    node.removeAttribute(redundantAttribute)
+  if (redundantAttribute) node.removeAttribute(redundantAttribute)
 
   // init the binding
-  const createBinding = bindings[type] || bindings.simple
-  return createBinding(
+  return (bindings[type] || bindings.simple)(
     node,
     Object.assign({}, binding, {
       expressions: expressions || []

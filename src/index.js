@@ -1,8 +1,8 @@
 /**
  * Method used to bind expressions to a DOM tree structure
- * @param   { HTMLElement|String } root - the root node where to start applying the bindings
- * @param   { Array } bindings - list of the expressions to bind
- * @returns { TemplateChunk } a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
+ * @param   {HTMLElement|String} root - the root node where to start applying the bindings
+ * @param   {Array} bindings - list of the expressions to bind
+ * @returns {TemplateChunk} a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
  *
  * @example
  * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
@@ -33,3 +33,5 @@
 export { default as template } from './template'
 
 export { default as tag } from './tag'
+
+export { default as registry } from './registry'

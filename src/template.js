@@ -1,12 +1,12 @@
+import cleanNode from './util/clean-node'
 import createBinding from './binding'
 import createFragment from './util/create-fragment'
-import cleanNode from './util/clean-node'
 
 /**
  * Template Chunk model
  * @type {Object}
  */
-const TemplateChunk = Object.seal({
+export const TemplateChunk = Object.seal({
   /**
    * Attatch the template to a DOM node
    * @param   { HTMLElement } el - target DOM node
@@ -64,7 +64,7 @@ const TemplateChunk = Object.seal({
 
 /**
  * Create a template chunk wiring also the bindings
- * @param   { String } html - template string
+ * @param   { string } html - template string
  * @param   { Array } bindings - bindings collection
  * @returns { TemplateChunk } a new TemplateChunk copy
  */

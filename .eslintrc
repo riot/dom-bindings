@@ -2,6 +2,3 @@ extends: eslint-config-riot
 
 globals:
   expect: true
-
-env:
-  mocha: true

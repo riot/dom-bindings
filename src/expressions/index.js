@@ -1,6 +1,6 @@
+import attributeExpression from './attribute'
 import textExpression from './text'
 import valueExpression from './value'
-import attributeExpression from './attribute'
 
 export default {
   text: textExpression,

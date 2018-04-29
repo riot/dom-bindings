@@ -17,5 +17,5 @@ export default {
       file: 'dist/cjs.dom-bindings.js',
       format: 'cjs'
     }
-  ],
+  ]
 }

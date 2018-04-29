@@ -5,153 +5,54 @@
 }(this, (function (exports) { 'use strict';
 
   /**
-   * Create a flat object having as keys a list of methods that if dispatched will propagate
-   * on the whole collection
-   * @param   { Array } collection - collection to iterate
-   * @param   { Array<String> } methods - methods to execute on each item of the collection
-   * @param   { * } context - context returned by the new methods created
-   * @returns { Object } a new object to simplify the the nested methods dispatching
-   */
-  function flattenCollectionMethods(collection, methods, context) {
-    return methods.reduce((acc, method) => {
-      return Object.assign(acc, {
-        [method]: (scope) => {
-          return collection.map(item => item[method](scope)) && context
-        }
-      })
-    }, {})
-  }
-
-  /**
-   * This methods handles a simple text expression update
+   * Remove the child nodes from any DOM node
    * @param   {HTMLElement} node - target node
-   * @param   {object} expression - expression object
-   * @param   {number} expression.childNodeIndex - index to find the text node to update
-   * @param   {*} value - new expression value
+   * @returns {undefined}
    */
-  function textExpression(node, { childNodeIndex }, value) {
-    const target = node.childNodes[childNodeIndex];
-    const val = normalizeValue(value);
-
-    // replace the target if it's a placeholder comment
-    if (target.nodeType === Node.COMMENT_NODE) {
-      const textNode = document.createTextNode(val);
-      node.replaceChild(textNode, target);
-    } else {
-      target.textContent = normalizeValue(val);
-    }
+  function cleanNode(node) {
+    const children = node.childNodes;
+    children.forEach(n => node.removeChild(n));
   }
 
-  /**
-   * Normalize the user value in order to render a empty string in case of falsy values
-   * @param   {*} value - user input value
-   * @returns {string} hopefully a string
-   */
-  function normalizeValue(value) {
-    return value || ''
-  }
-
-  /**
-   * This methods handles the input fileds value updates
-   * @param   {HTMLElement} node - target node
-   * @param   {object} expression - expression object
-   * @param   {*} value - new expression value
-   */
-  function valueExpression(node, expression, value) {
-    node.value = value;
-  }
-
-  /**
-   * This methods handles the DOM attributes updates
-   * @param   {HTMLElement} node - target node
-   * @param   {object} expression - expression object
-   * @param   {number} expression.name - attribute name
-   * @param   {*} value - new expression value
-   */
-  function attributeExpression(node, { name }, value, oldValue) {
-    // is it a spread operator? {...attributes}
-    if (!name) {
-      // is the value still truthy?
-      if (value) {
-        Object
-          .entries(value)
-          .forEach(([key, value]) => attributeExpression(node, { name: key }, value));
-      } else if (oldValue) {
-        // otherwise remove all the old attributes
-        Object.keys(oldValue).forEach(key => node.removeAttribute(key));
-      }
-    } else {
-      // handle boolean attributes
-      if (typeof value === 'boolean') {
-        node[name] = value;
-      }
-
-      node[getMethod(value)](name, normalizeValue$1(name, value));
-    }
-  }
-
-  /**
-   * Get the attribute modifier method
-   * @param   {*} value - if truthy we return `setAttribute` othewise `removeAttribute`
-   * @returns {string} the node attribute modifier method name
-   */
-  function getMethod(value) {
-    return value ? 'setAttribute' : 'removeAttribute'
-  }
-
-  /**
-   * Get the value as string
-   * @param   {string} name - attribute name
-   * @param   {*} value - user input value
-   * @returns {string} input value as string
-   */
-  function normalizeValue$1(name, value) {
-    // be sure that expressions like selected={ true } will be always rendered as selected='selected'
-    if (value === true) return name
-
-    // array values will be joined with spaces
-    return Array.isArray(value) ? value.join(' ') : value
-  }
-
-  var expressions = {
-    text: textExpression,
-    value: valueExpression,
-    attribute: attributeExpression
-  }
-
-  const Expression = Object.seal({
+  /* WIP */
+  const eachBinding = Object.seal({
     mount(scope) {
-      this.value = this.evaluate(scope);
-      this.apply(this.value);
-
-      return this
+      return this.update(scope)
     },
+    /* eslint-disable */
     update(scope) {
-      const value = this.evaluate(scope);
+      const value = this.evaulate(scope);
+      const parent = this.placeholder.parentNode;
+      const fragment = document.createDocumentFragment();
 
-      if (this.value !== value) this.value = this.apply(value);
+      // [...] @TODO: implement list updates
+
+      this.value = value;
+      this.expressionsBatch.update();
 
       return this
     },
     unmount() {
+      this.expressionsBatch.unmount();
       return this
-    },
-    apply(value) {
-      return expressions[this.type](this.node, this, value, this.value)
     }
   });
+  /* eslint-enable */
 
-  function create(node, expression) {
-    return Object.assign({}, Expression, expression, {
-      node
+  function create(node, { evaluate, template, expressions }) {
+    const placeholder = document.createTextNode('');
+    const parent = node.parentNode;
+
+    parent.insertBefore(placeholder, node);
+    parent.removeChild(node);
+
+    return Object.assign({}, eachBinding, {
+      node,
+      evaluate,
+      template,
+      expressions,
+      placeholder
     })
-  }
-
-  function create$1(node, { expressions }) {
-    return Object.assign({}, flattenCollectionMethods(
-      expressions.map(expression => create(node, expression)),
-      ['mount', 'update', 'unmount']
-    ))
   }
 
   /**
@@ -200,7 +101,7 @@
     parent.removeChild(outNode);
   }
 
-  function create$2(node, { evaluate, template }) {
+  function create$1(node, { evaluate, template }) {
     return Object.assign({}, ifBinding, {
       node,
       evaluate,
@@ -209,70 +110,210 @@
     })
   }
 
-  /* WIP */
-  const eachBinding = Object.seal({
+  /**
+   * This methods handles the DOM attributes updates
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} expression - expression object
+   * @param   {number} expression.name - attribute name
+   * @param   {*} value - new expression value
+   * @param   {*} oldValue - the old expression cached value
+   * @returns {undefined}
+   */
+  function attributeExpression(node, { name }, value, oldValue) {
+    // is it a spread operator? {...attributes}
+    if (!name) {
+      // is the value still truthy?
+      if (value) {
+        Object
+          .entries(value)
+          .forEach(([key, value]) => attributeExpression(node, { name: key }, value));
+      } else if (oldValue) {
+        // otherwise remove all the old attributes
+        Object.keys(oldValue).forEach(key => node.removeAttribute(key));
+      }
+    } else {
+      // handle boolean attributes
+      if (typeof value === 'boolean') {
+        node[name] = value;
+      }
+
+      node[getMethod(value)](name, normalizeValue(name, value));
+    }
+  }
+
+  /**
+   * Get the attribute modifier method
+   * @param   {*} value - if truthy we return `setAttribute` othewise `removeAttribute`
+   * @returns {string} the node attribute modifier method name
+   */
+  function getMethod(value) {
+    return value ? 'setAttribute' : 'removeAttribute'
+  }
+
+  /**
+   * Get the value as string
+   * @param   {string} name - attribute name
+   * @param   {*} value - user input value
+   * @returns {string} input value as string
+   */
+  function normalizeValue(name, value) {
+    // be sure that expressions like selected={ true } will be always rendered as selected='selected'
+    if (value === true) return name
+
+    // array values will be joined with spaces
+    return Array.isArray(value) ? value.join(' ') : value
+  }
+
+  /**
+   * This methods handles a simple text expression update
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} expression - expression object
+   * @param   {number} expression.childNodeIndex - index to find the text node to update
+   * @param   {*} value - new expression value
+   * @returns {undefined}
+   */
+  function textExpression(node, { childNodeIndex }, value) {
+    const target = node.childNodes[childNodeIndex];
+    const val = normalizeValue$1(value);
+
+    // replace the target if it's a placeholder comment
+    if (target.nodeType === Node.COMMENT_NODE) {
+      const textNode = document.createTextNode(val);
+      node.replaceChild(textNode, target);
+    } else {
+      target.textContent = normalizeValue$1(val);
+    }
+  }
+
+  /**
+   * Normalize the user value in order to render a empty string in case of falsy values
+   * @param   {*} value - user input value
+   * @returns {string} hopefully a string
+   */
+  function normalizeValue$1(value) {
+    return value || ''
+  }
+
+  /**
+   * This methods handles the input fileds value updates
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} expression - expression object
+   * @param   {*} value - new expression value
+   * @returns {undefined}
+   */
+  function valueExpression(node, expression, value) {
+    node.value = value;
+  }
+
+  var expressions = {
+    text: textExpression,
+    value: valueExpression,
+    attribute: attributeExpression
+  }
+
+  const Expression = Object.seal({
+    /**
+     * Mount the expression evaluating its inital value
+     * @param   {*} scope - argument passed to the expression to evaluate its current values
+     * @returns {Expression} self
+     */
     mount(scope) {
-      return this.update(scope)
-    },
-    /* eslint-disable */
-    update(scope) {
-      const value = this.evaulate(scope);
-      const parent = this.placeholder.parentNode;
-      const fragment = document.createDocumentFragment();
+      // hopefully a pure function
+      this.value = this.evaluate(scope);
 
-      // [...] @TODO: implement list updates
-
-      this.value = value;
-      this.expressionsBatch.update();
+      // IO() DOM updates
+      apply(this, this.value);
 
       return this
     },
+    /**
+     * Update the expression if its value changed
+     * @param   {*} scope - argument passed to the expression to evaluate its current values
+     * @returns {Expression} self
+     */
+    update(scope) {
+      // pure function
+      const value = this.evaluate(scope);
+
+      if (this.value !== value) {
+        // IO() DOM updates
+        apply(this, value);
+        this.value = value;
+      }
+
+      return this
+    },
+    /**
+     * Expression teardown method
+     * @returns {Expression} self
+     */
     unmount() {
-      this.expressionsBatch.unmount();
       return this
     }
   });
-  /* eslint-enable */
 
-  function create$3(node, { evaluate, template, expressions }) {
-    const placeholder = document.createTextNode('');
-    const parent = node.parentNode;
+  /**
+   * IO() function to handle the DOM updates
+   * @param {Expression} expression - expression object
+   * @param {*} value - current expression value
+   * @returns {undefined}
+   */
+  function apply(expression, value) {
+    return expressions[expression.type](expression.node, expression, value, expression.value)
+  }
 
-    parent.insertBefore(placeholder, node);
-    parent.removeChild(node);
-
-    return Object.assign({}, eachBinding, {
-      node,
-      evaluate,
-      template,
-      expressions,
-      placeholder
+  function create$2(node, expression) {
+    return Object.assign({}, Expression, expression, {
+      node
     })
   }
 
+  /**
+   * Create a flat object having as keys a list of methods that if dispatched will propagate
+   * on the whole collection
+   * @param   {Array} collection - collection to iterate
+   * @param   {Array<string>} methods - methods to execute on each item of the collection
+   * @param   {*} context - context returned by the new methods created
+   * @returns {Object} a new object to simplify the the nested methods dispatching
+   */
+  function flattenCollectionMethods(collection, methods, context) {
+    return methods.reduce((acc, method) => {
+      return Object.assign(acc, {
+        [method]: (scope) => {
+          return collection.map(item => item[method](scope)) && context
+        }
+      })
+    }, {})
+  }
+
+  function create$3(node, { expressions }) {
+    return Object.assign({}, flattenCollectionMethods(
+      expressions.map(expression => create$2(node, expression)),
+      ['mount', 'update', 'unmount']
+    ))
+  }
+
   var bindings = {
-    if: create$2,
-    simple: create$1,
-    each: create$3
+    if: create$1,
+    simple: create$3,
+    each: create
   }
 
   /**
    * Bind a new expression object to a DOM node
-   * @param   { HTMLElement } root - DOM node where to bind the expression
-   * @param   { Object } binding - binding data
-   * @returns { Expression } Expression object
+   * @param   {HTMLElement} root - DOM node where to bind the expression
+   * @param   {Object} binding - binding data
+   * @returns {Expression} Expression object
    */
   function create$4(root, binding) {
     const { selector, type, redundantAttribute, expressions } = binding;
     // find the node to apply the bindings
     const node = selector ? root.querySelector(selector) : root;
     // remove eventually additional attributes created only to select this node
-    if (redundantAttribute)
-      node.removeAttribute(redundantAttribute);
+    if (redundantAttribute) node.removeAttribute(redundantAttribute);
 
     // init the binding
-    const createBinding = bindings[type] || bindings.simple;
-    return createBinding(
+    return (bindings[type] || bindings.simple)(
       node,
       Object.assign({}, binding, {
         expressions: expressions || []
@@ -282,25 +323,13 @@
 
   /**
    * Create a template node
-   * @param   { String } html - template inner html
-   * @returns { HTMLElement } the new template node just created
+   * @param   {string} html - template inner html
+   * @returns {HTMLElement} the new template node just created
    */
   function createFragment(html) {
     const template = document.createElement('template');
     template.innerHTML = html;
     return template
-  }
-
-  /**
-   * Remove the child nodes from any DOM node
-   * @param   { HTMLElement } node - target node
-   */
-  function cleanNode(node) {
-    const children = node.childNodes;
-
-    while (children.length) {
-      node.removeChild(children[0]);
-    }
   }
 
   /**
@@ -364,7 +393,7 @@
 
   /**
    * Create a template chunk wiring also the bindings
-   * @param   { String } html - template string
+   * @param   { string } html - template string
    * @param   { Array } bindings - bindings collection
    * @returns { TemplateChunk } a new TemplateChunk copy
    */
@@ -378,27 +407,49 @@
     })
   }
 
-  /* TODO: create the riot tag bindings */
-  var tag = Object.seal({
-    mount() {
-      return this
-    },
-    update() {
-      return this
-    },
-    unmount() {
-      return this
-    },
-    clone() {
-      return this
+  /**
+   * Tags registry
+   * It will contain the `tag-name`: TagImplementation objects
+   */
+  var registry = new Map()
+
+  /**
+   * Create a new tag object if it was registered before, othewise fallback to the simple
+   * template chunk
+   * @param   {string} name - tag name
+   * @param   {Object} options - tag options
+   * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
+   */
+  function create$6(name, options) {
+    const el = document.createElement(name);
+
+    // set the static attributes on the DOM node
+    if (options.attributes) {
+      attributeExpression(el, null, options.attributes);
     }
-  })
+
+    // if this tag was registered before we
+    if (registry.has(name)) {
+      return Object.assign({}, registry.get(name), {
+        el,
+        options
+      })
+    }
+
+    return fallbackToTemplate(el, options)
+  }
+
+
+  function fallbackToTemplate(el, options) {
+    el.innerHTML = options.template;
+    return create$5(el, options.bindings)
+  }
 
   /**
    * Method used to bind expressions to a DOM tree structure
-   * @param   { HTMLElement|String } root - the root node where to start applying the bindings
-   * @param   { Array } bindings - list of the expressions to bind
-   * @returns { TemplateChunk } a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
+   * @param   {HTMLElement|String} root - the root node where to start applying the bindings
+   * @param   {Array} bindings - list of the expressions to bind
+   * @returns {TemplateChunk} a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
    *
    * @example
    * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
@@ -428,7 +479,8 @@
    */
 
   exports.template = create$5;
-  exports.tag = tag;
+  exports.tag = create$6;
+  exports.registry = registry;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

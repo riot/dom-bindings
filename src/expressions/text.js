@@ -1,9 +1,10 @@
 /**
  * This methods handles a simple text expression update
  * @param   {HTMLElement} node - target node
- * @param   {object} expression - expression object
+ * @param   {Object} expression - expression object
  * @param   {number} expression.childNodeIndex - index to find the text node to update
  * @param   {*} value - new expression value
+ * @returns {undefined}
  */
 export default function textExpression(node, { childNodeIndex }, value) {
   const target = node.childNodes[childNodeIndex]
