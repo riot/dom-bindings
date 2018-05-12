@@ -50,4 +50,49 @@ describe('tag bindings', () => {
     expect(b.getAttribute('class')).to.be.equal('hello')
     expect(b).to.be.ok
   })
+
+  it('registered tags will receive bindings slots and attributes', (done) => {
+    const target = document.createElement('div')
+
+    // fake tag
+    registry.set('my-tag', function({ slots, bindings, attributes }) {
+      expect(slots).to.be.ok
+      expect(attributes).to.be.ok
+      expect(bindings).to.be.ok
+
+      return {
+        mount(el, scope) {
+          expect(el).to.be.ok
+          expect(scope).to.be.ok
+          registry.delete('my-tag')
+          done()
+        }
+      }
+    })
+
+    // create a template with a fake custom riot tag in it
+    template('<section><b expr0></b></section>', [{
+      selector: '[expr0]',
+      type: 'tag',
+      name: 'my-tag',
+      slots: [{
+        id: 'default',
+        html: '<p expr1>hello</p>'
+      }],
+      bindings: [{
+        selector: '[expr1]',
+        expressions: [{
+          type: 'text',
+          childNodeIndex: 0,
+          evaluate(scope) {
+            return scope.text
+          }
+        }]
+      }],
+      attributes: [{
+        evaluate(scope) { return scope.class },
+        name: 'class'
+      }]
+    }]).mount(target, { class: 'hello' })
+  })
 })

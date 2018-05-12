@@ -32,3 +32,4 @@
  */
 export { default as template } from './template'
 export { default as registry } from './registry'
+export { default as createBinding } from './binding'

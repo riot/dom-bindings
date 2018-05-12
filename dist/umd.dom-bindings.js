@@ -512,6 +512,7 @@
 
   exports.template = create$6;
   exports.registry = registry;
+  exports.createBinding = create$5;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

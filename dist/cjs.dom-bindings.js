@@ -510,3 +510,4 @@ function create$6(html, bindings = []) {
 
 exports.template = create$6;
 exports.registry = registry;
+exports.createBinding = create$5;
