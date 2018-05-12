@@ -314,8 +314,6 @@ function curry(fn, ...acc) {
  */
 var registry = new Map()
 
-const PLACEHOLDER_COMMENT = '<!---->';
-
 /**
  * Create a new tag object if it was registered before, othewise fallback to the simple
  * template chunk
@@ -351,7 +349,7 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
 function slotsToMarkup(slots) {
   return slots.reduce((acc, slot) => {
     return acc + slot.html
-  }, '') || PLACEHOLDER_COMMENT
+  }, '')
 }
 
 function create$4(node, { name, slots, bindings, attributes }) {
@@ -421,10 +419,11 @@ const TemplateChunk = Object.seal({
     this.el = el;
 
     // clone the template DOM and append it to the target node
-    el.appendChild(this.dom.cloneNode(true));
+    if (this.dom) el.appendChild(this.dom.cloneNode(true));
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => create$5(this.el, binding)), this.bindings.forEach(b => b.mount(scope));
+    this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
+    this.bindings.forEach(b => b.mount(scope));
 
     return this
   },
@@ -468,7 +467,6 @@ const TemplateChunk = Object.seal({
  * @returns {TemplateChunk} a new TemplateChunk copy
  */
 function create$6(html, bindings = []) {
-  if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
   const dom = typeof html === 'string' ? createFragment(html).content : html;
 
   return Object.assign({}, TemplateChunk, {

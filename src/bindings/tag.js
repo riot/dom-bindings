@@ -2,8 +2,6 @@ import curry from 'curri'
 import registry from '../registry'
 import template from '../template'
 
-const PLACEHOLDER_COMMENT = '<!---->'
-
 /**
  * Create a new tag object if it was registered before, othewise fallback to the simple
  * template chunk
@@ -39,7 +37,7 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
 function slotsToMarkup(slots) {
   return slots.reduce((acc, slot) => {
     return acc + slot.html
-  }, '') || PLACEHOLDER_COMMENT
+  }, '')
 }
 
 export default function create(node, { name, slots, bindings, attributes }) {

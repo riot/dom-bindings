@@ -21,10 +21,10 @@ export const TemplateChunk = Object.seal({
     this.el = el
 
     // clone the template DOM and append it to the target node
-    el.appendChild(this.dom.cloneNode(true))
+    if (this.dom) el.appendChild(this.dom.cloneNode(true))
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding)),
+    this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding))
     this.bindings.forEach(b => b.mount(scope))
 
     return this
@@ -69,7 +69,6 @@ export const TemplateChunk = Object.seal({
  * @returns {TemplateChunk} a new TemplateChunk copy
  */
 export default function create(html, bindings = []) {
-  if (!html) throw new Error('The html element is required, please provide a string or a DOM node')
   const dom = typeof html === 'string' ? createFragment(html).content : html
 
   return Object.assign({}, TemplateChunk, {
