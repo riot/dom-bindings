@@ -4,11 +4,10 @@ export const eachBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
+    const oldTags = this.tags || []
     const newItems = Array.from(this.evaluate(scope)) || []
-    const oldItems = this.items || []
     const parent = this.placeholder.parentNode
     const fragment = document.createDocumentFragment()
-    const oldTags = this.tags || []
     const { condition, template, children, itemName, indexName, root } = this
 
     const newTags = newItems.map((item, index) => {
@@ -18,8 +17,8 @@ export const eachBinding = Object.seal({
       const mustFilter = condition ? condition(context) : false
 
       if (mustFilter) {
-        if (oldItem) oldItem.tag.unmount()
-        return
+        remove(oldItem.tag, item, children)
+        return null
       }
 
       if (!oldItem) {
@@ -49,35 +48,47 @@ export const eachBinding = Object.seal({
           index
         })
 
-        oldItems.splice(index, 0, oldItems.splice(oldItems.index, 1)) // eslint-disable-line
         tag.update(context)
       } else {
         oldTags[index].update(context)
       }
 
       return oldItem.tag
-    })
+    }).filter(item => item !== null)
 
-    /* eslint-disable */
-    while (oldItems.length > newItems.length) {
-      oldTags[oldTags.length - 1].unmount(null , true)
-      children.delete(oldItems[oldItems.length - 1])
-      oldItems.pop()
+    if (oldTags.length > newItems.length) {
+      removeRedundant(oldTags.length - newItems.length, children)
     }
-    /* eslint-enable */
 
     parent.insertBefore(fragment, this.placeholder)
+
     this.tags = newTags
-    this.items = newItems
 
     return this
   },
   unmount() {
+    removeRedundant(this.tags.length, this.children)
 
     return this
   }
 })
 
+
+function removeRedundant(length, children) {
+  const entries = Array.from(children.entries())
+
+  return Array(length).fill(null).map(() => {
+    const [item, value] = entries[entries.length - 1]
+    const { tag } = value
+    remove(tag, item, children)
+    return item
+  })
+}
+
+function remove(tag, item, children) {
+  tag.unmount(item, true)
+  children.delete(item)
+}
 
 function extendScope(itemName, indexName, index, item, scope) {
   return Object.assign({}, indexName ? {
