@@ -15,7 +15,7 @@ export default function textExpression(node, { childNodeIndex }, value) {
     const textNode = document.createTextNode(val)
     node.replaceChild(textNode, target)
   } else {
-    target.textContent = normalizeValue(val)
+    target.data = normalizeValue(val)
   }
 }
 

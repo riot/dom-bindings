@@ -181,7 +181,7 @@
       const textNode = document.createTextNode(val);
       node.replaceChild(textNode, target);
     } else {
-      target.textContent = normalizeValue$1(val);
+      target.data = normalizeValue$1(val);
     }
   }
 

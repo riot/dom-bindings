@@ -13,5 +13,6 @@ describe('dom-bindings', () => {
   describe('expressions', () => {
     require('./expressions/text.specs')
     require('./expressions/attribute.specs')
+    require('./expressions/value.specs')
   })
 })
