@@ -7,9 +7,8 @@ function fireEvent(el, name) {
 }
 
 describe('event specs', () => {
-  const spy = sinon.spy()
-
   it('dom events get properly bound', () => {
+    const spy = sinon.spy()
     const target = document.createElement('div')
     template('<button expr0/>Click me</button>', [{
       selector: '[expr0]',
@@ -25,9 +24,8 @@ describe('event specs', () => {
     expect(spy).to.have.been.calledOnce
   })
 
-  /*
-  FIXME: sinon fails unexpectedly dis test I need to dig it
   it('dom events get properly removed', () => {
+    const spy = sinon.spy()
     const target = document.createElement('div')
     const el = template('<button expr0/>Click me</button>', [{
       selector: '[expr0]',
@@ -46,5 +44,4 @@ describe('event specs', () => {
 
     expect(spy).to.have.been.calledOnce
   })
-  */
 })
