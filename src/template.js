@@ -42,13 +42,19 @@ export const TemplateChunk = Object.seal({
   /**
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
+   * @param   {boolean} mustRemoveRoot - if true remove the root element
    * @returns {TemplateChunk} self
    */
-  unmount(scope) {
+  unmount(scope, mustRemoveRoot) {
     if (!this.el) throw new Error('This template was never mounted before')
 
     this.bindings.forEach(b => b.unmount(scope))
     cleanNode(this.el)
+
+    if (mustRemoveRoot) {
+      this.el.parentNode.removeChild(this.el)
+    }
+
     this.el = null
 
     return this
