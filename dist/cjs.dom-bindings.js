@@ -112,7 +112,7 @@ function create$1(node, { evaluate, template }) {
  * This methods handles the DOM attributes updates
  * @param   {HTMLElement} node - target node
  * @param   {Object} expression - expression object
- * @param   {number} expression.name - attribute name
+ * @param   {string} expression.name - attribute name
  * @param   {*} value - new expression value
  * @param   {*} oldValue - the old expression cached value
  * @returns {undefined}
@@ -163,6 +163,18 @@ function normalizeValue(name, value) {
 }
 
 /**
+ * Set a new event listener
+ * @param   {HTMLElement} node - target node
+ * @param   {Object} expression - expression object
+ * @param   {string} expression.name - event name
+ * @param   {*} value - new expression value
+ * @returns {undefined}
+ */
+function eventExpression(node, { name }, value) {
+  node[name] = value;
+}
+
+/**
  * This methods handles a simple text expression update
  * @param   {HTMLElement} node - target node
  * @param   {Object} expression - expression object
@@ -204,9 +216,10 @@ function valueExpression(node, expression, value) {
 }
 
 var expressions = {
+  attribute: attributeExpression,
+  event: eventExpression,
   text: textExpression,
-  value: valueExpression,
-  attribute: attributeExpression
+  value: valueExpression
 }
 
 const Expression = Object.seal({

@@ -2,7 +2,7 @@
  * This methods handles the DOM attributes updates
  * @param   {HTMLElement} node - target node
  * @param   {Object} expression - expression object
- * @param   {number} expression.name - attribute name
+ * @param   {string} expression.name - attribute name
  * @param   {*} value - new expression value
  * @param   {*} oldValue - the old expression cached value
  * @returns {undefined}
