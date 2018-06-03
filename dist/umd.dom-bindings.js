@@ -26,7 +26,7 @@
       const fragment = document.createDocumentFragment();
       const { condition, template, children, itemName, indexName, root } = this;
 
-      const newTags = newItems.map((item, index) => {
+      const newTags = newItems.reduce((accumulator, item, index) => {
         const context = extendScope(itemName, indexName, index, item, scope);
         const oldItem = children.get(item);
         const mustAppend = index >= oldTags.length;
@@ -34,7 +34,7 @@
 
         if (mustFilter) {
           remove(oldItem.tag, item, children);
-          return null
+          return accumulator
         }
 
         if (!oldItem) {
@@ -54,7 +54,7 @@
             parent.insertBefore(oldTags[index].el, el);
           }
 
-          return tag
+          return [...accumulator, tag]
         } else if (oldItem.index !== index) {
           const tag = oldTags[oldItem.index];
           parent.insertBefore(oldTags[index].el, tag.el);
@@ -69,11 +69,11 @@
           oldTags[index].update(context);
         }
 
-        return oldItem.tag
-      }).filter(item => item !== null);
+        return [...accumulator, oldItem.tag]
+      }, []);
 
       if (oldTags.length > newItems.length) {
-        removeRedundant(oldTags.length - newItems.length + 1, children);
+        removeRedundant(oldTags.length - newItems.length, children);
       }
 
       parent.insertBefore(fragment, this.placeholder);
