@@ -15,13 +15,15 @@ function cleanNode(node) {
 /* WIP */
 const eachBinding = Object.seal({
   // dynamic binding properties
-  children: null,
+  childrenMap: null,
   node: null,
   root: null,
   condition: null,
   evaluate: null,
   template: null,
-  key: null,
+  getKey: null,
+  tags: null,
+  items: null,
   indexName: null,
   itemName: null,
   placeholder: null,
@@ -31,20 +33,23 @@ const eachBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
-    const oldTags = this.tags || [];
+    const { condition, template, childrenMap, itemName, getKey, indexName, root } = this;
     const newItems = Array.from(this.evaluate(scope)) || [];
-    const parent = this.placeholder.parentNode;
     const fragment = document.createDocumentFragment();
-    const { condition, template, children, itemName, indexName, root } = this;
+    const parent = this.placeholder.parentNode;
+    const filteredItems = new Set();
 
-    const newTags = newItems.reduce((accumulator, item, index) => {
-      const context = extendScope(itemName, indexName, index, item, scope);
-      const oldItem = children.get(item);
-      const mustAppend = index >= oldTags.length;
-      const mustFilter = condition ? condition(context) : false;
+    this.tags = newItems.reduce((accumulator, item, i) => {
+      // the real item index should be subtracted to the items that were filtered
+      const index = i - filteredItems.size;
+      const context = getContext(itemName, indexName, index, item, scope);
+      const key = getKey(context);
+      const oldItem = childrenMap.get(key);
+      const mustAppend = index >= this.tags.length;
 
-      if (mustFilter) {
-        remove(oldItem.tag, item, children);
+      if (mustFilterItem(condition, oldItem, context)) {
+        remove(oldItem.tag, item, childrenMap);
+        filteredItems.add(oldItem);
         return accumulator
       }
 
@@ -52,7 +57,7 @@ const eachBinding = Object.seal({
         const tag = template.clone();
         const el = root.cloneNode();
 
-        children.set(item, {
+        childrenMap.set(key, {
           tag,
           index
         });
@@ -62,70 +67,85 @@ const eachBinding = Object.seal({
         if (mustAppend) {
           fragment.appendChild(el);
         } else {
-          parent.insertBefore(oldTags[index].el, el);
+          parent.insertBefore(this.tags[index].el, el);
         }
 
         return [...accumulator, tag]
-      } else if (oldItem.index !== index) {
-        const tag = oldTags[oldItem.index];
-        parent.insertBefore(oldTags[index].el, tag.el);
 
-        children.set(item, {
+      } else if (oldItem.index !== index) {
+        const tag = this.tags[oldItem.index];
+        const otherTagkey = getKey(getContext(itemName, indexName, index, this.items[index], scope));
+        const otherTag = childrenMap.get(otherTagkey);
+
+        parent.insertBefore(tag.el, otherTag.tag.el);
+
+        childrenMap.set(key, {
           tag,
           index
         });
 
         tag.update(context);
       } else {
-        oldTags[index].update(context);
+        this.tags[index].update(context);
       }
 
       return [...accumulator, oldItem.tag]
     }, []);
 
-    if (oldTags.length > newItems.length) {
-      removeRedundant(oldTags.length - newItems.length, children);
+    if (this.tags.length > newItems.length) {
+      removeRedundant(this.tags.length - newItems.length, childrenMap);
     }
 
     parent.insertBefore(fragment, this.placeholder);
 
-    this.tags = newTags;
+    this.items = newItems;
 
     return this
   },
   unmount() {
-    removeRedundant(this.tags.length, this.children);
+    removeRedundant(this.tags.length, this.childrenMap);
 
     return this
   }
 });
 
-
-function removeRedundant(length, children) {
-  const entries = Array.from(children.entries());
+function removeRedundant(length, childrenMap) {
+  const entries = Array.from(childrenMap.entries());
 
   return Array(length).fill(null).map(() => {
     const [item, value] = entries[entries.length - 1];
     const { tag } = value;
-    remove(tag, item, children);
+    remove(tag, item, childrenMap);
     return item
   })
 }
 
-function remove(tag, item, children) {
+function mustFilterItem(condition, oldItem, context) {
+  return !!oldItem && condition ? condition(context) : false
+}
+
+function remove(tag, item, childrenMap) {
   tag.unmount(item, true);
-  children.delete(item);
+  childrenMap.delete(item);
 }
 
-function extendScope(itemName, indexName, index, item, scope) {
-  return Object.assign({}, indexName ? {
-    [indexName]: index
-  } : null, {
-    [itemName]: item
-  }, scope)
+function getContext(itemName, indexName, index, item, scope) {
+  const context = {
+    [itemName]: item,
+    ...scope
+  };
+
+  if (indexName) {
+    return {
+      [indexName]: index,
+      ...context
+    }
+  }
+
+  return context
 }
 
-function create(node, { evaluate, condition, itemName, indexName, key, template }) {
+function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
   const placeholder = document.createTextNode('');
   const parent = node.parentNode;
   const root = node.cloneNode();
@@ -133,18 +153,21 @@ function create(node, { evaluate, condition, itemName, indexName, key, template 
   parent.insertBefore(placeholder, node);
   parent.removeChild(node);
 
-  return Object.assign({}, eachBinding, {
-    children: new Map(),
+  return {
+    ...eachBinding,
+    childrenMap: new Map(),
     node,
     root,
+    tags: [],
+    items: [],
     condition,
     evaluate,
     template,
-    key,
+    getKey,
     indexName,
     itemName,
     placeholder
-  })
+  }
 }
 
 /**
@@ -201,12 +224,13 @@ function swap(inNode, outNode) {
 }
 
 function create$1(node, { evaluate, template }) {
-  return Object.assign({}, ifBinding, {
+  return {
+    ...ifBinding,
     node,
     evaluate,
     placeholder: document.createTextNode(''),
     template
-  })
+  }
 }
 
 const REMOVE_ATTRIBUTE = 'removeAttribute';
@@ -327,6 +351,11 @@ var expressions = {
 }
 
 const Expression = Object.seal({
+  // Static props
+  node: null,
+  value: null,
+
+  // API methods
   /**
    * Mount the expression evaluating its inital value
    * @param   {*} scope - argument passed to the expression to evaluate its current values
@@ -377,10 +406,12 @@ function apply(expression, value) {
   return expressions[expression.type](expression.node, expression, value, expression.value)
 }
 
-function create$2(node, expression) {
-  return Object.assign({}, Expression, expression, {
+function create$2(node, data) {
+  return {
+    ...Expression,
+    ...data,
     node
-  })
+  }
 }
 
 /**
@@ -393,19 +424,22 @@ function create$2(node, expression) {
  */
 function flattenCollectionMethods(collection, methods, context) {
   return methods.reduce((acc, method) => {
-    return Object.assign(acc, {
+    return {
+      ...acc,
       [method]: (scope) => {
         return collection.map(item => item[method](scope)) && context
       }
-    })
+    }
   }, {})
 }
 
 function create$3(node, { expressions }) {
-  return Object.assign({}, flattenCollectionMethods(
-    expressions.map(expression => create$2(node, expression)),
-    ['mount', 'update', 'unmount']
-  ))
+  return {
+    ...flattenCollectionMethods(
+      expressions.map(expression => create$2(node, expression)),
+      ['mount', 'update', 'unmount']
+    )
+  }
 }
 
 /**
@@ -451,9 +485,10 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk
     expressions: attributes.map(attr => {
-      return Object.assign({
-        type: 'attribute'
-      }, attr)
+      return {
+        type: 'attribute',
+        ...attr
+      }
     })
   }])
 }
@@ -472,9 +507,10 @@ function slotsToMarkup(slots) {
 function create$4(node, { name, slots, bindings, attributes }) {
   const tag = getTag(name, slots, bindings, attributes);
 
-  return Object.assign(tag, {
+  return {
+    ...tag,
     mount: curry(tag.mount.bind(tag))(node)
-  })
+  }
 }
 
 var bindings = {
@@ -500,9 +536,10 @@ function create$5(root, binding) {
   // init the binding
   return (bindings[type] || bindings.simple)(
     node,
-    Object.assign({}, binding, {
+    {
+      ...binding,
       expressions: expressions || []
-    })
+    }
   )
 }
 
@@ -522,6 +559,13 @@ function createFragment(html) {
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
+  // Static props
+  bindings: null,
+  bindingsData: null,
+  dom: null,
+  el: null,
+
+  // API methods
   /**
    * Attatch the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
@@ -592,10 +636,11 @@ const TemplateChunk = Object.seal({
 function create$6(html, bindings = []) {
   const dom = typeof html === 'string' ? createFragment(html).content : html;
 
-  return Object.assign({}, TemplateChunk, {
+  return {
+    ...TemplateChunk,
     dom,
     bindingsData: bindings
-  })
+  }
 }
 
 /**

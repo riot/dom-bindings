@@ -1,6 +1,11 @@
 import expressions from './expressions'
 
 export const Expression = Object.seal({
+  // Static props
+  node: null,
+  value: null,
+
+  // API methods
   /**
    * Mount the expression evaluating its inital value
    * @param   {*} scope - argument passed to the expression to evaluate its current values
@@ -51,8 +56,10 @@ function apply(expression, value) {
   return expressions[expression.type](expression.node, expression, value, expression.value)
 }
 
-export default function create(node, expression) {
-  return Object.assign({}, Expression, expression, {
+export default function create(node, data) {
+  return {
+    ...Expression,
+    ...data,
     node
-  })
+  }
 }

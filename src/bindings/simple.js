@@ -2,8 +2,10 @@ import createExpression from '../expression'
 import flattenCollectionMethods from '../util/flatten-collection-methods'
 
 export default function create(node, { expressions }) {
-  return Object.assign({}, flattenCollectionMethods(
-    expressions.map(expression => createExpression(node, expression)),
-    ['mount', 'update', 'unmount']
-  ))
+  return {
+    ...flattenCollectionMethods(
+      expressions.map(expression => createExpression(node, expression)),
+      ['mount', 'update', 'unmount']
+    )
+  }
 }

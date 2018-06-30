@@ -1,13 +1,14 @@
 /* WIP */
 export const eachBinding = Object.seal({
   // dynamic binding properties
-  children: null,
+  childrenMap: null,
   node: null,
   root: null,
   condition: null,
   evaluate: null,
   template: null,
-  key: null,
+  getKey: null,
+  tags: [],
   indexName: null,
   itemName: null,
   placeholder: null,
@@ -17,20 +18,23 @@ export const eachBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
-    const oldTags = this.tags || []
+    const { condition, template, childrenMap, itemName, getKey, tags, indexName, root } = this
     const newItems = Array.from(this.evaluate(scope)) || []
-    const parent = this.placeholder.parentNode
     const fragment = document.createDocumentFragment()
-    const { condition, template, children, itemName, indexName, root } = this
+    const parent = this.placeholder.parentNode
+    const filteredItems = new Set()
 
-    const newTags = newItems.reduce((accumulator, item, index) => {
-      const context = extendScope(itemName, indexName, index, item, scope)
-      const oldItem = children.get(item)
-      const mustAppend = index >= oldTags.length
-      const mustFilter = condition ? condition(context) : false
+    this.tags = newItems.reduce((accumulator, item, i) => {
+      // the real item index should be subtracted to the items that were filtered
+      const index = i - filteredItems.size
+      const context = getContext(itemName, indexName, index, item, scope)
+      const key = getKey(context)
+      const oldItem = childrenMap.get(key)
+      const mustAppend = index >= tags.length
 
-      if (mustFilter) {
-        remove(oldItem.tag, item, children)
+      if (mustFilterItem(condition, oldItem, context)) {
+        remove(oldItem.tag, item, childrenMap)
+        filteredItems.add(oldItem)
         return accumulator
       }
 
@@ -38,7 +42,7 @@ export const eachBinding = Object.seal({
         const tag = template.clone()
         const el = root.cloneNode()
 
-        children.set(item, {
+        childrenMap.set(key, {
           tag,
           index
         })
@@ -48,70 +52,81 @@ export const eachBinding = Object.seal({
         if (mustAppend) {
           fragment.appendChild(el)
         } else {
-          parent.insertBefore(oldTags[index].el, el)
+          parent.insertBefore(tags[index].el, el)
         }
 
         return [...accumulator, tag]
-      } else if (oldItem.index !== index) {
-        const tag = oldTags[oldItem.index]
-        parent.insertBefore(oldTags[index].el, tag.el)
 
-        children.set(item, {
+      } else if (oldItem.index !== index) {
+        const tag = tags[oldItem.index]
+
+        parent.insertBefore(tag.el, tags[index].el)
+
+        childrenMap.set(key, {
           tag,
           index
         })
 
         tag.update(context)
       } else {
-        oldTags[index].update(context)
+        tags[index].update(context)
       }
 
       return [...accumulator, oldItem.tag]
     }, [])
 
-    if (oldTags.length > newItems.length) {
-      removeRedundant(oldTags.length - newItems.length, children)
+    if (tags.length > newItems.length) {
+      removeRedundant(tags.length - newItems.length, childrenMap)
     }
 
     parent.insertBefore(fragment, this.placeholder)
 
-    this.tags = newTags
-
     return this
   },
   unmount() {
-    removeRedundant(this.tags.length, this.children)
+    removeRedundant(this.tags.length, this.childrenMap)
 
     return this
   }
 })
 
-
-function removeRedundant(length, children) {
-  const entries = Array.from(children.entries())
+function removeRedundant(length, childrenMap) {
+  const entries = Array.from(childrenMap.entries())
 
   return Array(length).fill(null).map(() => {
     const [item, value] = entries[entries.length - 1]
     const { tag } = value
-    remove(tag, item, children)
+    remove(tag, item, childrenMap)
     return item
   })
 }
 
-function remove(tag, item, children) {
+function mustFilterItem(condition, oldItem, context) {
+  return !!oldItem && condition ? condition(context) : false
+}
+
+function remove(tag, item, childrenMap) {
   tag.unmount(item, true)
-  children.delete(item)
+  childrenMap.delete(item)
 }
 
-function extendScope(itemName, indexName, index, item, scope) {
-  return Object.assign({}, indexName ? {
-    [indexName]: index
-  } : null, {
-    [itemName]: item
-  }, scope)
+function getContext(itemName, indexName, index, item, scope) {
+  const context = {
+    [itemName]: item,
+    ...scope
+  }
+
+  if (indexName) {
+    return {
+      [indexName]: index,
+      ...context
+    }
+  }
+
+  return context
 }
 
-export default function create(node, { evaluate, condition, itemName, indexName, key, template }) {
+export default function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
   const placeholder = document.createTextNode('')
   const parent = node.parentNode
   const root = node.cloneNode()
@@ -119,16 +134,17 @@ export default function create(node, { evaluate, condition, itemName, indexName,
   parent.insertBefore(placeholder, node)
   parent.removeChild(node)
 
-  return Object.assign({}, eachBinding, {
-    children: new Map(),
+  return {
+    ...eachBinding,
+    childrenMap: new Map(),
     node,
     root,
     condition,
     evaluate,
     template,
-    key,
+    getKey,
     indexName,
     itemName,
     placeholder
-  })
+  }
 }

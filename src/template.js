@@ -7,6 +7,13 @@ import createFragment from './util/create-fragment'
  * @type {Object}
  */
 export const TemplateChunk = Object.seal({
+  // Static props
+  bindings: null,
+  bindingsData: null,
+  dom: null,
+  el: null,
+
+  // API methods
   /**
    * Attatch the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
@@ -77,8 +84,9 @@ export const TemplateChunk = Object.seal({
 export default function create(html, bindings = []) {
   const dom = typeof html === 'string' ? createFragment(html).content : html
 
-  return Object.assign({}, TemplateChunk, {
+  return {
+    ...TemplateChunk,
     dom,
     bindingsData: bindings
-  })
+  }
 }

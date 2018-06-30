@@ -52,10 +52,11 @@ function swap(inNode, outNode) {
 }
 
 export default function create(node, { evaluate, template }) {
-  return Object.assign({}, ifBinding, {
+  return {
+    ...ifBinding,
     node,
     evaluate,
     placeholder: document.createTextNode(''),
     template
-  })
+  }
 }
