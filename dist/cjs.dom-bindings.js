@@ -14,6 +14,19 @@ function cleanNode(node) {
 
 /* WIP */
 const eachBinding = Object.seal({
+  // dynamic binding properties
+  children: null,
+  node: null,
+  root: null,
+  condition: null,
+  evaluate: null,
+  template: null,
+  key: null,
+  indexName: null,
+  itemName: null,
+  placeholder: null,
+
+  // API methods
   mount(scope) {
     return this.update(scope)
   },
@@ -138,6 +151,13 @@ function create(node, { evaluate, condition, itemName, indexName, key, template 
  * Binding responsible for the `if` directive
  */
 const ifBinding = Object.seal({
+  // dynamic binding properties
+  node: null,
+  evaluate: null,
+  placeholder: null,
+  template: '',
+
+  // API methods
   mount(scope) {
     swap(this.placeholder, this.node);
     return this.update(scope)
@@ -189,6 +209,9 @@ function create$1(node, { evaluate, template }) {
   })
 }
 
+const REMOVE_ATTRIBUTE = 'removeAttribute';
+const SET_ATTIBUTE = 'setAttribute';
+
 /**
  * This methods handles the DOM attributes updates
  * @param   {HTMLElement} node - target node
@@ -226,7 +249,7 @@ function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value ? 'setAttribute' : 'removeAttribute'
+  return value ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
 }
 
 /**

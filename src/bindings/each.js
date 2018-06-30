@@ -1,5 +1,18 @@
 /* WIP */
 export const eachBinding = Object.seal({
+  // dynamic binding properties
+  children: null,
+  node: null,
+  root: null,
+  condition: null,
+  evaluate: null,
+  template: null,
+  key: null,
+  indexName: null,
+  itemName: null,
+  placeholder: null,
+
+  // API methods
   mount(scope) {
     return this.update(scope)
   },

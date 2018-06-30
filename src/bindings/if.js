@@ -2,6 +2,13 @@
  * Binding responsible for the `if` directive
  */
 export const ifBinding = Object.seal({
+  // dynamic binding properties
+  node: null,
+  evaluate: null,
+  placeholder: null,
+  template: '',
+
+  // API methods
   mount(scope) {
     swap(this.placeholder, this.node)
     return this.update(scope)
