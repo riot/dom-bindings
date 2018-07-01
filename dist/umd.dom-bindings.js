@@ -23,8 +23,8 @@
     condition: null,
     evaluate: null,
     template: null,
-    getKey: null,
     tags: [],
+    getKey: null,
     indexName: null,
     itemName: null,
     placeholder: null,
@@ -34,27 +34,30 @@
       return this.update(scope)
     },
     update(scope) {
-      const { condition, offset, template, childrenMap, itemName, getKey, tags, indexName, root } = this;
+      const { condition, offset, template, childrenMap, itemName, getKey, indexName, root } = this;
       const newItems = Array.from(this.evaluate(scope)) || [];
+      const oldTags = this.tags.slice(); // eslint-disable-line
       const fragment = document.createDocumentFragment();
       const parent = this.placeholder.parentNode;
       const filteredItems = new Set();
 
-      this.tags = newItems.reduce((accumulator, item, i) => {
+      this.tags = [];
+
+      newItems.forEach((item, i) => {
         // the real item index should be subtracted to the items that were filtered
         const index = i - filteredItems.size;
-        const children = Array.from(parent.children);
+        const children = parent.children;
         const context = getContext(itemName, indexName, index, item, scope);
         const key = getKey(context);
         const oldItem = childrenMap.get(key);
-        const mustAppend = index >= tags.length;
+        const mustAppend = index >= oldTags.length;
         const child = children[index + offset];
         let tag; // eslint-disable-line
 
         if (mustFilterItem(condition, oldItem, context)) {
           remove(oldItem.tag, item, childrenMap);
           filteredItems.add(oldItem);
-          return accumulator
+          return
         }
 
         if (!oldItem) {
@@ -66,10 +69,10 @@
           if (mustAppend) {
             fragment.appendChild(el);
           } else {
-            parent.insertBefore(tags[index].el, el);
+            parent.insertBefore(oldTags[index].el, el);
           }
         } else if (oldItem.index !== index) {
-          tag = tags[oldItem.index];
+          tag = oldTags[oldItem.index];
 
           childrenMap.set(key, {
             tag,
@@ -78,12 +81,12 @@
 
           tag.update(context);
         } else {
-          tag = tags[index];
+          tag = oldTags[index];
           tag.update(context);
         }
 
         if (oldItem && child !== tag.el) {
-          parent.insertBefore(tag.el, child.nextSibling);
+          parent.insertBefore(tag.el, child);
         }
 
         childrenMap.set(key, {
@@ -91,14 +94,14 @@
           index
         });
 
-        return [...accumulator, tag]
-      }, []);
+        this.tags.push(tag); // eslint-disable-line
+      });
 
-      if (tags.length > newItems.length) {
-        removeRedundant(tags.length - newItems.length, childrenMap);
+      if (oldTags.length > newItems.length) {
+        removeRedundant(oldTags.length - newItems.length, childrenMap);
       }
 
-      parent.insertBefore(fragment, this.placeholder.nextSibling);
+      parent.insertBefore(fragment, this.placeholder);
 
       return this
     },
