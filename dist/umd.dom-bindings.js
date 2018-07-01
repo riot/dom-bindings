@@ -24,8 +24,7 @@
     evaluate: null,
     template: null,
     getKey: null,
-    tags: null,
-    items: null,
+    tags: [],
     indexName: null,
     itemName: null,
     placeholder: null,
@@ -35,7 +34,7 @@
       return this.update(scope)
     },
     update(scope) {
-      const { condition, template, childrenMap, itemName, getKey, indexName, root } = this;
+      const { condition, offset, template, childrenMap, itemName, getKey, tags, indexName, root } = this;
       const newItems = Array.from(this.evaluate(scope)) || [];
       const fragment = document.createDocumentFragment();
       const parent = this.placeholder.parentNode;
@@ -44,10 +43,13 @@
       this.tags = newItems.reduce((accumulator, item, i) => {
         // the real item index should be subtracted to the items that were filtered
         const index = i - filteredItems.size;
+        const children = Array.from(parent.children);
         const context = getContext(itemName, indexName, index, item, scope);
         const key = getKey(context);
         const oldItem = childrenMap.get(key);
-        const mustAppend = index >= this.tags.length;
+        const mustAppend = index >= tags.length;
+        const child = children[index + offset];
+        let tag; // eslint-disable-line
 
         if (mustFilterItem(condition, oldItem, context)) {
           remove(oldItem.tag, item, childrenMap);
@@ -56,30 +58,18 @@
         }
 
         if (!oldItem) {
-          const tag = template.clone();
+          tag = template.clone();
           const el = root.cloneNode();
-
-          childrenMap.set(key, {
-            tag,
-            index
-          });
 
           tag.mount(el, context);
 
           if (mustAppend) {
             fragment.appendChild(el);
           } else {
-            parent.insertBefore(this.tags[index].el, el);
+            parent.insertBefore(tags[index].el, el);
           }
-
-          return [...accumulator, tag]
-
         } else if (oldItem.index !== index) {
-          const tag = this.tags[oldItem.index];
-          const otherTagkey = getKey(getContext(itemName, indexName, index, this.items[index], scope));
-          const otherTag = childrenMap.get(otherTagkey);
-
-          parent.insertBefore(tag.el, otherTag.tag.el);
+          tag = tags[oldItem.index];
 
           childrenMap.set(key, {
             tag,
@@ -88,19 +78,27 @@
 
           tag.update(context);
         } else {
-          this.tags[index].update(context);
+          tag = tags[index];
+          tag.update(context);
         }
 
-        return [...accumulator, oldItem.tag]
+        if (oldItem && child !== tag.el) {
+          parent.insertBefore(tag.el, child.nextSibling);
+        }
+
+        childrenMap.set(key, {
+          tag,
+          index
+        });
+
+        return [...accumulator, tag]
       }, []);
 
-      if (this.tags.length > newItems.length) {
-        removeRedundant(this.tags.length - newItems.length, childrenMap);
+      if (tags.length > newItems.length) {
+        removeRedundant(tags.length - newItems.length, childrenMap);
       }
 
-      parent.insertBefore(fragment, this.placeholder);
-
-      this.items = newItems;
+      parent.insertBefore(fragment, this.placeholder.nextSibling);
 
       return this
     },
@@ -151,6 +149,7 @@
     const placeholder = document.createTextNode('');
     const parent = node.parentNode;
     const root = node.cloneNode();
+    const offset = Array.from(parent.children).indexOf(node);
 
     parent.insertBefore(placeholder, node);
     parent.removeChild(node);
@@ -160,8 +159,7 @@
       childrenMap: new Map(),
       node,
       root,
-      tags: [],
-      items: [],
+      offset,
       condition,
       evaluate,
       template,
@@ -331,7 +329,7 @@
    * @returns {string} hopefully a string
    */
   function normalizeValue$1(value) {
-    return value || ''
+    return value != null ? value : ''
   }
 
   /**

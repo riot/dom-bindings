@@ -36,10 +36,24 @@ describe('text specs', () => {
       expressions: [
         { type: 'text', childNodeIndex: 1, evaluate(scope) { return scope.val }}
       ]
-    }]).mount(target, { val: false })
+    }]).mount(target, { val: null })
 
     const p = target.querySelector('p')
 
     expect(p.innerHTML).to.be.equal('<span>hello</span>')
+  })
+
+  it('render non null values', () => {
+    const target = document.createElement('div')
+    template('<p expr0><!----></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.val }}
+      ]
+    }]).mount(target, { val: 0 })
+
+    const p = target.querySelector('p')
+
+    expect(p.textContent).to.be.equal('0')
   })
 })
