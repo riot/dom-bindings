@@ -67,7 +67,7 @@ const eachBinding = Object.seal({
         if (mustAppend) {
           fragment.appendChild(el);
         } else {
-          parent.insertBefore(oldTags[index].el, el);
+          parent.insertBefore(el, oldTags[index].el);
         }
       } else if (oldItem.index !== index) {
         tag = oldTags[oldItem.index];
