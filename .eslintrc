@@ -7,3 +7,6 @@ parserOptions:
 globals:
   sinon: true
   expect: true
+
+rules:
+  fp/no-mutating-methods: false

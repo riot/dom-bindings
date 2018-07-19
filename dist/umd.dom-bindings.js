@@ -52,6 +52,7 @@
         const oldItem = childrenMap.get(key);
         const mustAppend = index >= oldTags.length;
         const child = children[index + offset];
+
         let tag; // eslint-disable-line
 
         if (mustFilterItem(condition, oldItem, context)) {
@@ -71,17 +72,8 @@
           } else {
             parent.insertBefore(el, oldTags[index].el);
           }
-        } else if (oldItem.index !== index) {
-          tag = oldTags[oldItem.index];
-
-          childrenMap.set(key, {
-            tag,
-            index
-          });
-
-          tag.update(context);
         } else {
-          tag = oldTags[index];
+          tag = oldItem.index !== index ? oldTags[oldItem.index] : oldTags[index];
           tag.update(context);
         }
 
@@ -116,10 +108,10 @@
     const entries = Array.from(childrenMap.entries());
 
     return Array(length).fill(null).map(() => {
-      const [item, value] = entries[entries.length - 1];
+      const [key, value] = entries[entries.length - 1];
       const { tag } = value;
-      remove(tag, item, childrenMap);
-      return item
+      remove(tag, key, childrenMap);
+      return key
     })
   }
 
