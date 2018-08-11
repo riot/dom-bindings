@@ -183,8 +183,8 @@ describe('each bindings', () => {
       expect(lisAfter[index].textContent).to.be.equal(`${item}`)
     })
   })
-// todo: fix me
-/*  it('List shift', () => {
+
+  it('List shift', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
     const el = template('<ul><li expr0></li></ul>', [{
@@ -221,5 +221,5 @@ describe('each bindings', () => {
     items.forEach((item, index) => {
       expect(lisAfter[index].textContent).to.be.equal(`${item}`)
     })
-  })*/
+  })
 })

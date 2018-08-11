@@ -33,29 +33,24 @@ const eachBinding = Object.seal({
   },
   update(scope) {
     const { condition, offset, template, childrenMap, itemName, getKey, indexName, root } = this;
-    const newItems = Array.from(this.evaluate(scope)) || [];
-    const oldTags = this.tags.slice(); // eslint-disable-line
+    const items = Array.from(this.evaluate(scope)) || [];
+    const redundantTagsMap = tagsLookupFromChildrenMap(this.childrenMap);
+    const oldTagsLength = this.childrenMap.size;
     const fragment = document.createDocumentFragment();
     const parent = this.placeholder.parentNode;
     const filteredItems = new Set();
 
-    this.tags = [];
-
-    newItems.forEach((item, i) => {
+    items.forEach((item, i) => {
       // the real item index should be subtracted to the items that were filtered
       const index = i - filteredItems.size;
       const children = parent.children;
-      const context = getContext(itemName, indexName, index, item, scope);
+      const context = getContext({itemName, indexName, index, item, scope});
       const key = getKey(context);
       const oldItem = childrenMap.get(key);
-      const mustAppend = index >= oldTags.length;
+      const mustAppend = index >= oldTagsLength;
       const child = children[index + offset];
 
-      if (mustFilterItem(condition, oldItem, context)) {
-        if (oldItem) {
-          remove(oldItem.tag, item, childrenMap);
-        }
-
+      if (mustFilterItem(condition, context)) {
         filteredItems.add(oldItem);
         return
       }
@@ -78,16 +73,18 @@ const eachBinding = Object.seal({
         parent.insertBefore(tag.el, child);
       }
 
+      // this tag is not redundant we don't need to remove it
+      redundantTagsMap.delete(tag);
+
       childrenMap.set(key, {
         tag,
+        context,
         index
       });
-
-      this.tags.push(tag); // eslint-disable-line
     });
 
-    if (oldTags.length > newItems.length) {
-      removeRedundant(oldTags.length - newItems.length, childrenMap);
+    if (redundantTagsMap.size) {
+      removeRedundant(redundantTagsMap, childrenMap);
     }
 
     parent.insertBefore(fragment, this.placeholder);
@@ -95,33 +92,62 @@ const eachBinding = Object.seal({
     return this
   },
   unmount() {
-    removeRedundant(this.tags.length, this.childrenMap);
+    removeRedundant(
+      tagsLookupFromChildrenMap(this.childrenMap),
+      this.childrenMap
+    );
 
     return this
   }
 });
 
-function removeRedundant(length, childrenMap) {
-  const entries = Array.from(childrenMap.entries());
+/**
+ * Unmount the redundant tags removing them from the children map and from DOM
+ * @param   {Map<tag, key>} redundantTagsMap - map containing the redundant tags
+ * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
+ * @returns {Tag} the tag objects just unmounted
+ */
+function removeRedundant(redundantTagsMap, childrenMap) {
+  return [...redundantTagsMap.entries()].map(([tag, key]) => {
+    const { context } = childrenMap.get(key);
+    tag.unmount(context, true);
+    childrenMap.delete(key);
 
-  return Array(length).fill(null).map(() => {
-    const [key, value] = entries[entries.length - 1];
-    const { tag } = value;
-    remove(tag, key, childrenMap);
-    return key
+    return tag
   })
 }
 
-function mustFilterItem(condition, oldItem, context) {
-  return !!oldItem && condition ? condition(context) : false
+/**
+ * Check whether a tag must be fildered from a loop
+ * @param   {Function} condition - filter function
+ * @param   {Object} context - argument passed to the filter function
+ * @returns {boolean} true if this item should be skipped
+ */
+function mustFilterItem(condition, context) {
+  return condition ? condition(context) : false
 }
 
-function remove(tag, item, childrenMap) {
-  tag.unmount(item, true);
-  childrenMap.delete(item);
+
+/**
+ * It creates a javascript Map<(tag, key)> from the children map received
+ * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
+ * @returns {Map} <tag,key> lookup map
+ */
+function tagsLookupFromChildrenMap(childrenMap) {
+  return [...childrenMap.entries()]
+    .reduce((tags, [key, {tag}]) => tags.set(tag, key), new Map())
 }
 
-function getContext(itemName, indexName, index, item, scope) {
+/**
+ * Get the context of the looped tag
+ * @param   {string} options.itemName - key to identify the looped item in the new context
+ * @param   {string} options.indexName - key to identify the index of the loope item
+ * @param   {number} options.index - current intex
+ * @param   {*} options.item - collection item looped
+ * @param   {*} options.scope - current parent scope
+ * @returns {Object} enhanced scope object
+ */
+function getContext({itemName, indexName, index, item, scope}) {
   const context = {
     [itemName]: item,
     ...scope
