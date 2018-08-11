@@ -57,7 +57,7 @@ const eachBinding = Object.seal({
       const tag = oldItem ? oldItem.tag : template.clone();
       const shouldNodeBeAppended = index >= oldTagsLength;
       const shouldNodeBeMoved = oldItem && child !== tag.el;
-      const shuldNodeBeInserted = !shouldNodeBeAppended;
+      const shuldNodeBeInserted = !oldItem && !shouldNodeBeAppended;
 
       if (!oldItem) {
         const el = root.cloneNode();
