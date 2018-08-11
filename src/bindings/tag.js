@@ -22,9 +22,10 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk
     expressions: attributes.map(attr => {
-      return Object.assign({
-        type: 'attribute'
-      }, attr)
+      return {
+        type: 'attribute',
+        ...attr
+      }
     })
   }])
 }
@@ -43,7 +44,8 @@ function slotsToMarkup(slots) {
 export default function create(node, { name, slots, bindings, attributes }) {
   const tag = getTag(name, slots, bindings, attributes)
 
-  return Object.assign(tag, {
+  return {
+    ...tag,
     mount: curry(tag.mount.bind(tag))(node)
-  })
+  }
 }

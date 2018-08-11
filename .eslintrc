@@ -1,5 +1,12 @@
 extends: eslint-config-riot
 
+parserOptions:
+  ecmaFeatures:
+    experimentalObjectRestSpread: true
+
 globals:
   sinon: true
   expect: true
+
+rules:
+  fp/no-mutating-methods: false

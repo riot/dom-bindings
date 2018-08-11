@@ -25,5 +25,5 @@ export default function textExpression(node, { childNodeIndex }, value) {
  * @returns {string} hopefully a string
  */
 function normalizeValue(value) {
-  return value || ''
+  return value != null ? value : ''
 }

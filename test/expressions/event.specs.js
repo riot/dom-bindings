@@ -1,10 +1,5 @@
 const { template } = require('../../')
-
-function fireEvent(el, name) {
-  const e = document.createEvent('HTMLEvents')
-  e.initEvent(name, false, true)
-  el.dispatchEvent(e)
-}
+const { fireEvent } = require('../util')
 
 describe('event specs', () => {
   it('dom events get properly bound', () => {

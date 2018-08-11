@@ -14,49 +14,191 @@ function cleanNode(node) {
 
 /* WIP */
 const eachBinding = Object.seal({
+  // dynamic binding properties
+  childrenMap: null,
+  node: null,
+  root: null,
+  condition: null,
+  evaluate: null,
+  template: null,
+  tags: [],
+  getKey: null,
+  indexName: null,
+  itemName: null,
+  placeholder: null,
+
+  // API methods
   mount(scope) {
     return this.update(scope)
   },
-  /* eslint-disable */
   update(scope) {
-    const value = this.evaulate(scope);
-    const parent = this.placeholder.parentNode;
+    const { condition, offset, template, childrenMap, itemName, getKey, indexName, root } = this;
+    const items = Array.from(this.evaluate(scope)) || [];
+    const redundantTagsMap = tagsLookupFromChildrenMap(this.childrenMap);
+    const oldTagsLength = this.childrenMap.size;
     const fragment = document.createDocumentFragment();
+    const parent = this.placeholder.parentNode;
+    const filteredItems = new Set();
 
-    // [...] @TODO: implement list updates
+    items.forEach((item, i) => {
+      // the real item index should be subtracted to the items that were filtered
+      const index = i - filteredItems.size;
+      const children = parent.children;
+      const context = getContext({itemName, indexName, index, item, scope});
+      const key = getKey(context);
+      const oldItem = childrenMap.get(key);
+      const mustAppend = index >= oldTagsLength;
+      const child = children[index + offset];
 
-    this.value = value;
-    this.expressionsBatch.update();
+      if (mustFilterItem(condition, context)) {
+        filteredItems.add(oldItem);
+        return
+      }
+
+      const tag = oldItem ? oldItem.tag : template.clone();
+
+      if (!oldItem) {
+        const el = root.cloneNode();
+
+        tag.mount(el, context);
+
+        if (mustAppend) {
+          fragment.appendChild(el);
+        }
+      } else {
+        tag.update(context);
+      }
+
+      if (oldItem && child !== tag.el || !oldItem && !mustAppend) {
+        parent.insertBefore(tag.el, child);
+      }
+
+      // this tag is not redundant we don't need to remove it
+      redundantTagsMap.delete(tag);
+
+      childrenMap.set(key, {
+        tag,
+        context,
+        index
+      });
+    });
+
+    if (redundantTagsMap.size) {
+      removeRedundant(redundantTagsMap, childrenMap);
+    }
+
+    parent.insertBefore(fragment, this.placeholder);
 
     return this
   },
   unmount() {
-    this.expressionsBatch.unmount();
+    removeRedundant(
+      tagsLookupFromChildrenMap(this.childrenMap),
+      this.childrenMap
+    );
+
     return this
   }
 });
-/* eslint-enable */
 
-function create(node, { evaluate, template, expressions }) {
+/**
+ * Unmount the redundant tags removing them from the children map and from DOM
+ * @param   {Map<tag, key>} redundantTagsMap - map containing the redundant tags
+ * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
+ * @returns {Tag} the tag objects just unmounted
+ */
+function removeRedundant(redundantTagsMap, childrenMap) {
+  return [...redundantTagsMap.entries()].map(([tag, key]) => {
+    const { context } = childrenMap.get(key);
+    tag.unmount(context, true);
+    childrenMap.delete(key);
+
+    return tag
+  })
+}
+
+/**
+ * Check whether a tag must be fildered from a loop
+ * @param   {Function} condition - filter function
+ * @param   {Object} context - argument passed to the filter function
+ * @returns {boolean} true if this item should be skipped
+ */
+function mustFilterItem(condition, context) {
+  return condition ? condition(context) : false
+}
+
+
+/**
+ * It creates a javascript Map<(tag, key)> from the children map received
+ * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
+ * @returns {Map} <tag,key> lookup map
+ */
+function tagsLookupFromChildrenMap(childrenMap) {
+  return [...childrenMap.entries()]
+    .reduce((tags, [key, {tag}]) => tags.set(tag, key), new Map())
+}
+
+/**
+ * Get the context of the looped tag
+ * @param   {string} options.itemName - key to identify the looped item in the new context
+ * @param   {string} options.indexName - key to identify the index of the loope item
+ * @param   {number} options.index - current intex
+ * @param   {*} options.item - collection item looped
+ * @param   {*} options.scope - current parent scope
+ * @returns {Object} enhanced scope object
+ */
+function getContext({itemName, indexName, index, item, scope}) {
+  const context = {
+    [itemName]: item,
+    ...scope
+  };
+
+  if (indexName) {
+    return {
+      [indexName]: index,
+      ...context
+    }
+  }
+
+  return context
+}
+
+function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
   const placeholder = document.createTextNode('');
   const parent = node.parentNode;
+  const root = node.cloneNode();
+  const offset = Array.from(parent.children).indexOf(node);
 
   parent.insertBefore(placeholder, node);
   parent.removeChild(node);
 
-  return Object.assign({}, eachBinding, {
+  return {
+    ...eachBinding,
+    childrenMap: new Map(),
     node,
+    root,
+    offset,
+    condition,
     evaluate,
     template,
-    expressions,
+    getKey,
+    indexName,
+    itemName,
     placeholder
-  })
+  }
 }
 
 /**
  * Binding responsible for the `if` directive
  */
 const ifBinding = Object.seal({
+  // dynamic binding properties
+  node: null,
+  evaluate: null,
+  placeholder: null,
+  template: '',
+
+  // API methods
   mount(scope) {
     swap(this.placeholder, this.node);
     return this.update(scope)
@@ -100,13 +242,17 @@ function swap(inNode, outNode) {
 }
 
 function create$1(node, { evaluate, template }) {
-  return Object.assign({}, ifBinding, {
+  return {
+    ...ifBinding,
     node,
     evaluate,
     placeholder: document.createTextNode(''),
     template
-  })
+  }
 }
+
+const REMOVE_ATTRIBUTE = 'removeAttribute';
+const SET_ATTIBUTE = 'setAttribute';
 
 /**
  * This methods handles the DOM attributes updates
@@ -145,7 +291,7 @@ function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value ? 'setAttribute' : 'removeAttribute'
+  return value ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
 }
 
 /**
@@ -201,7 +347,7 @@ function textExpression(node, { childNodeIndex }, value) {
  * @returns {string} hopefully a string
  */
 function normalizeValue$1(value) {
-  return value || ''
+  return value != null ? value : ''
 }
 
 /**
@@ -223,6 +369,11 @@ var expressions = {
 }
 
 const Expression = Object.seal({
+  // Static props
+  node: null,
+  value: null,
+
+  // API methods
   /**
    * Mount the expression evaluating its inital value
    * @param   {*} scope - argument passed to the expression to evaluate its current values
@@ -273,10 +424,12 @@ function apply(expression, value) {
   return expressions[expression.type](expression.node, expression, value, expression.value)
 }
 
-function create$2(node, expression) {
-  return Object.assign({}, Expression, expression, {
+function create$2(node, data) {
+  return {
+    ...Expression,
+    ...data,
     node
-  })
+  }
 }
 
 /**
@@ -289,19 +442,22 @@ function create$2(node, expression) {
  */
 function flattenCollectionMethods(collection, methods, context) {
   return methods.reduce((acc, method) => {
-    return Object.assign(acc, {
+    return {
+      ...acc,
       [method]: (scope) => {
         return collection.map(item => item[method](scope)) && context
       }
-    })
+    }
   }, {})
 }
 
 function create$3(node, { expressions }) {
-  return Object.assign({}, flattenCollectionMethods(
-    expressions.map(expression => create$2(node, expression)),
-    ['mount', 'update', 'unmount']
-  ))
+  return {
+    ...flattenCollectionMethods(
+      expressions.map(expression => create$2(node, expression)),
+      ['mount', 'update', 'unmount']
+    )
+  }
 }
 
 /**
@@ -347,9 +503,10 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk
     expressions: attributes.map(attr => {
-      return Object.assign({
-        type: 'attribute'
-      }, attr)
+      return {
+        type: 'attribute',
+        ...attr
+      }
     })
   }])
 }
@@ -368,9 +525,10 @@ function slotsToMarkup(slots) {
 function create$4(node, { name, slots, bindings, attributes }) {
   const tag = getTag(name, slots, bindings, attributes);
 
-  return Object.assign(tag, {
+  return {
+    ...tag,
     mount: curry(tag.mount.bind(tag))(node)
-  })
+  }
 }
 
 var bindings = {
@@ -396,9 +554,10 @@ function create$5(root, binding) {
   // init the binding
   return (bindings[type] || bindings.simple)(
     node,
-    Object.assign({}, binding, {
+    {
+      ...binding,
       expressions: expressions || []
-    })
+    }
   )
 }
 
@@ -418,6 +577,13 @@ function createFragment(html) {
  * @type {Object}
  */
 const TemplateChunk = Object.seal({
+  // Static props
+  bindings: null,
+  bindingsData: null,
+  dom: null,
+  el: null,
+
+  // API methods
   /**
    * Attatch the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
@@ -453,13 +619,19 @@ const TemplateChunk = Object.seal({
   /**
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
+   * @param   {boolean} mustRemoveRoot - if true remove the root element
    * @returns {TemplateChunk} self
    */
-  unmount(scope) {
+  unmount(scope, mustRemoveRoot) {
     if (!this.el) throw new Error('This template was never mounted before')
 
     this.bindings.forEach(b => b.unmount(scope));
     cleanNode(this.el);
+
+    if (mustRemoveRoot) {
+      this.el.parentNode.removeChild(this.el);
+    }
+
     this.el = null;
 
     return this
@@ -482,10 +654,11 @@ const TemplateChunk = Object.seal({
 function create$6(html, bindings = []) {
   const dom = typeof html === 'string' ? createFragment(html).content : html;
 
-  return Object.assign({}, TemplateChunk, {
+  return {
+    ...TemplateChunk,
     dom,
     bindingsData: bindings
-  })
+  }
 }
 
 /**

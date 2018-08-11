@@ -1,3 +1,6 @@
+const REMOVE_ATTRIBUTE = 'removeAttribute'
+const SET_ATTIBUTE = 'setAttribute'
+
 /**
  * This methods handles the DOM attributes updates
  * @param   {HTMLElement} node - target node
@@ -35,7 +38,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value ? 'setAttribute' : 'removeAttribute'
+  return value ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
 }
 
 /**

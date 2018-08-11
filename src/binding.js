@@ -16,8 +16,9 @@ export default function create(root, binding) {
   // init the binding
   return (bindings[type] || bindings.simple)(
     node,
-    Object.assign({}, binding, {
+    {
+      ...binding,
       expressions: expressions || []
-    })
+    }
   )
 }

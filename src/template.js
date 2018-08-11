@@ -7,6 +7,13 @@ import createFragment from './util/create-fragment'
  * @type {Object}
  */
 export const TemplateChunk = Object.seal({
+  // Static props
+  bindings: null,
+  bindingsData: null,
+  dom: null,
+  el: null,
+
+  // API methods
   /**
    * Attatch the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
@@ -42,13 +49,19 @@ export const TemplateChunk = Object.seal({
   /**
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
+   * @param   {boolean} mustRemoveRoot - if true remove the root element
    * @returns {TemplateChunk} self
    */
-  unmount(scope) {
+  unmount(scope, mustRemoveRoot) {
     if (!this.el) throw new Error('This template was never mounted before')
 
     this.bindings.forEach(b => b.unmount(scope))
     cleanNode(this.el)
+
+    if (mustRemoveRoot) {
+      this.el.parentNode.removeChild(this.el)
+    }
+
     this.el = null
 
     return this
@@ -71,8 +84,9 @@ export const TemplateChunk = Object.seal({
 export default function create(html, bindings = []) {
   const dom = typeof html === 'string' ? createFragment(html).content : html
 
-  return Object.assign({}, TemplateChunk, {
+  return {
+    ...TemplateChunk,
     dom,
     bindingsData: bindings
-  })
+  }
 }

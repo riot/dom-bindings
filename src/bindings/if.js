@@ -2,6 +2,13 @@
  * Binding responsible for the `if` directive
  */
 export const ifBinding = Object.seal({
+  // dynamic binding properties
+  node: null,
+  evaluate: null,
+  placeholder: null,
+  template: '',
+
+  // API methods
   mount(scope) {
     swap(this.placeholder, this.node)
     return this.update(scope)
@@ -45,10 +52,11 @@ function swap(inNode, outNode) {
 }
 
 export default function create(node, { evaluate, template }) {
-  return Object.assign({}, ifBinding, {
+  return {
+    ...ifBinding,
     node,
     evaluate,
     placeholder: document.createTextNode(''),
     template
-  })
+  }
 }

@@ -12,6 +12,7 @@ describe('dom-bindings', () => {
   require('./core.specs')
 
   describe('bindings', () => {
+    require('./bindings/each.specs')
     require('./bindings/if.specs')
     require('./bindings/simple.specs')
     require('./bindings/tag.specs')
