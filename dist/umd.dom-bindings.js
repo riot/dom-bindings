@@ -49,7 +49,6 @@
         const context = getContext({itemName, indexName, index, item, scope});
         const key = getKey(context);
         const oldItem = childrenMap.get(key);
-        const mustAppend = index >= oldTagsLength;
         const child = children[index + offset];
 
         if (mustFilterItem(condition, context)) {
@@ -58,26 +57,30 @@
         }
 
         const tag = oldItem ? oldItem.tag : template.clone();
+        const shouldNodeBeAppended = index >= oldTagsLength;
+        const shouldNodeBeMoved = oldItem && child !== tag.el;
+        const shuldNodeBeInserted = !shouldNodeBeAppended;
 
         if (!oldItem) {
           const el = root.cloneNode();
-
           tag.mount(el, context);
 
-          if (mustAppend) {
+          if (shouldNodeBeAppended) {
             fragment.appendChild(el);
           }
         } else {
           tag.update(context);
         }
 
-        if (oldItem && child !== tag.el || !oldItem && !mustAppend) {
+        // move or insert the new element
+        if (shouldNodeBeMoved || shuldNodeBeInserted) {
           parent.insertBefore(tag.el, child);
         }
 
         // this tag is not redundant we don't need to remove it
         redundantTagsMap.delete(tag);
 
+        // update the children map
         childrenMap.set(key, {
           tag,
           context,
@@ -85,10 +88,12 @@
         });
       });
 
+      // unmount the redundant tags
       if (redundantTagsMap.size) {
         removeRedundant(redundantTagsMap, childrenMap);
       }
 
+      // append the new tags
       parent.insertBefore(fragment, this.placeholder);
 
       return this

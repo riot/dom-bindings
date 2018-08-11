@@ -8,8 +8,8 @@ function compareNodesContents(target, selector, items) {
   })
 }
 
-function createDummyListTemplate() {
-  return template('<ul><li expr0></li></ul>', [{
+function createDummyListTemplate(options = {}) {
+  return template('<ul><li expr0></li></ul>', [{...{
     selector: '[expr0]',
     type: 'each',
     itemName: 'val',
@@ -24,7 +24,7 @@ function createDummyListTemplate() {
         }
       ]
     }])
-  }])
+  }, ...options}])
 }
 
 describe('each bindings', () => {
@@ -103,5 +103,26 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+  })
+
+  it('List filters', () => {
+    const items = [0, 1, 2, 3, 4, 5]
+    const target = document.createElement('div')
+    const el = createDummyListTemplate({
+      condition(scope) {
+        return scope.val % 2 !== 0
+      }
+    }).mount(target, { items })
+
+    const beforeLis = target.querySelectorAll('li')
+
+    expect(beforeLis).to.have.length(3)
+
+    items.push(6)
+    el.update({ items })
+
+    const afterLis = target.querySelectorAll('li')
+
+    expect(afterLis).to.have.length(4)
   })
 })
