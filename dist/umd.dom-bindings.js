@@ -53,31 +53,30 @@
         const mustAppend = index >= oldTags.length;
         const child = children[index + offset];
 
-        let tag; // eslint-disable-line
-
         if (mustFilterItem(condition, oldItem, context)) {
-          remove(oldItem.tag, item, childrenMap);
+          if (oldItem) {
+            remove(oldItem.tag, item, childrenMap);
+          }
+
           filteredItems.add(oldItem);
           return
         }
 
+        const tag = oldItem ? oldItem.tag : template.clone();
+
         if (!oldItem) {
-          tag = template.clone();
           const el = root.cloneNode();
 
           tag.mount(el, context);
 
           if (mustAppend) {
             fragment.appendChild(el);
-          } else {
-            parent.insertBefore(el, oldTags[index].el);
           }
         } else {
-          tag = oldItem.index !== index ? oldTags[oldItem.index] : oldTags[index];
           tag.update(context);
         }
 
-        if (oldItem && child !== tag.el) {
+        if (oldItem && child !== tag.el || !oldItem && !mustAppend) {
           parent.insertBefore(tag.el, child);
         }
 
