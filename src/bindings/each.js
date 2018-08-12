@@ -25,15 +25,16 @@ export const eachBinding = Object.seal({
     const fragment = document.createDocumentFragment()
     const parent = this.placeholder.parentNode
     const filteredItems = new Set()
+    const moves = []
+    const updates = []
 
+    // diffing
     items.forEach((item, i) => {
       // the real item index should be subtracted to the items that were filtered
       const index = i - filteredItems.size
-      const children = parent.children
       const context = getContext({itemName, indexName, index, item, scope})
       const key = getKey(context)
       const oldItem = childrenMap.get(key)
-      const child = children[index + offset]
 
       if (mustFilterItem(condition, context)) {
         filteredItems.add(oldItem)
@@ -42,7 +43,7 @@ export const eachBinding = Object.seal({
 
       const tag = oldItem ? oldItem.tag : template.clone()
       const shouldNodeBeAppended = index >= oldTagsLength
-      const shouldNodeBeMoved = oldItem && child !== tag.el
+      const shouldNodeBeMoved = oldItem && oldItem.index !== index
       const shuldNodeBeInserted = !oldItem && !shouldNodeBeAppended
 
       if (!oldItem) {
@@ -53,12 +54,12 @@ export const eachBinding = Object.seal({
           fragment.appendChild(el)
         }
       } else {
-        tag.update(context)
+        updates.push(() => tag.update(context))
       }
 
       // move or insert the new element
       if (shouldNodeBeMoved || shuldNodeBeInserted) {
-        parent.insertBefore(tag.el, child)
+        moves.push([tag, index])
       }
 
       // this tag is not redundant we don't need to remove it
@@ -72,13 +73,26 @@ export const eachBinding = Object.seal({
       })
     })
 
+    /**
+     * DOM Updates
+     */
+
+    // append the new tags
+    parent.insertBefore(fragment, this.placeholder)
+
+    // trigger the mount
+    const children = parent.children
+    moves.forEach(([tag, index]) => {
+      parent.insertBefore(tag.el, children[index + offset])
+    })
+
     // unmount the redundant tags
     if (redundantTagsMap.size) {
       removeRedundant(redundantTagsMap, childrenMap)
     }
 
-    // append the new tags
-    parent.insertBefore(fragment, this.placeholder)
+    // trigger the updates
+    updates.forEach(fn => fn())
 
     return this
   },
