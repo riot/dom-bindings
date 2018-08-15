@@ -15,6 +15,7 @@
 ```js
 import { template } from 'riot-dom-bindings'
 
+// Create the app template
 const tmpl = template('<p><!----></p>', [{
   selector: 'p',
   expressions: [
@@ -26,11 +27,12 @@ const tmpl = template('<p><!----></p>', [{
   ],
 }])
 
+// Mount the template to any DOM node
 const app = tmpl.mount(document.getElementById('app'), {
   greeting: 'Hello World'
 })
 
-// update the greeting message
+// Update the greeting message
 app.update({
   greeting: 'Goodbye'
 })
