@@ -13,7 +13,27 @@
 ## Usage
 
 ```js
-import riotDomBindings from 'riot-dom-bindings'
+import { template } from 'riot-dom-bindings'
+
+const tmpl = template('<p><!----></p>', [{
+  selector: 'p',
+  expressions: [
+    {
+      type: 'text',
+      childNodeIndex: 0,
+      evaluate(scope) { return scope.greeting },
+    },
+  ],
+}])
+
+const app = tmpl.mount(document.getElementById('app'), {
+  greeting: 'Hello World'
+})
+
+// update the greeting message
+app.update({
+  greeting: 'Goodbye'
+})
 
 ```
 
