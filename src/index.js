@@ -1,6 +1,6 @@
 /**
  * Method used to bind expressions to a DOM node
- * @param   {String} html - your static template html structure
+ * @param   {string|HTMLElement} html - your static template html structure
  * @param   {Array} bindings - list of the expressions to bind to update the markup
  * @returns {TemplateChunk} a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
  *

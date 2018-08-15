@@ -28,15 +28,11 @@ const tmpl = template('<p><!----></p>', [{
 }])
 
 // Mount the template to any DOM node
-const app = tmpl.mount(document.getElementById('app'), {
+const target = document.getElementById('app')
+
+const app = tmpl.mount(target, {
   greeting: 'Hello World'
 })
-
-// Update the greeting message
-app.update({
-  greeting: 'Goodbye'
-})
-
 ```
 
 [travis-image]:https://img.shields.io/travis/riot/dom-bindings.svg?style=flat-square
@@ -56,4 +52,50 @@ app.update({
 [codeclimate-url]:https://codeclimate.com/github/riot/dom-bindings/maintainability
 
 ## API
+
+### template(String, Array)
+
+The template method is the most important of this package.
+It will create a `TemplateChunk` that could be mounted, updated and unmounted to any DOM node
+
+A template will always need a string as first argument and a list of `Bindings` to work properly.
+Consider the following example:
+
+```js
+const tmpl = template('<p><!----></p>', [{
+  selector: 'p',
+  expressions: [
+    {
+      type: 'text',
+      childNodeIndex: 0,
+      evaluate(scope) { return scope.greeting },
+    },
+  ],
+}])
+```
+
+The template object above will bind a [simple binding](#simple-binding) to the `<p>` tag.
+
+
+### register(String, Function)
+
+The register method can be used to store custom tags template implementations.
+If a custom tag template was previously registered, its template will be mounted via [tag binding](#tag-binding)
+
+```js
+// Store a custom tag implementation
+registry.set('my-tag', function({ slots, bindings, attributes }) {
+  const tmpl = template('hello world')
+  return tmpl
+})
+
+// The <my-tag> will be automatically mounted with the "hello world" text in it
+const tmpl = template('<section><my-tag class="a-custom-tag"/></section>', [{
+  selector: '.a-custom-tag',
+  type: 'tag',
+  name: 'my-tag',
+}])
+```
+
+
 

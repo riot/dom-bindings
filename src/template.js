@@ -77,7 +77,7 @@ export const TemplateChunk = Object.seal({
 
 /**
  * Create a template chunk wiring also the bindings
- * @param   {string} html - template string
+ * @param   {string|HTMLElement} html - template string
  * @param   {Array} bindings - bindings collection
  * @returns {TemplateChunk} a new TemplateChunk copy
  */

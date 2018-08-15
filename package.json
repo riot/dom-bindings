@@ -14,7 +14,6 @@
     "build": "rollup -c",
     "pretest": "npm run build",
     "postest": "npm run cov-html",
-    "doc": "documentation readme index.next.js -s API",
     "test": "npm run lint && nyc mocha test/index.js",
     "test-debug": "mocha --inspect --inspect-brk test/index.js",
     "prepublishOnly": "npm run test"
