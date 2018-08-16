@@ -12,7 +12,165 @@ function cleanNode(node) {
   children.forEach(n => node.removeChild(n));
 }
 
-/* WIP */
+/*! (c) 2017 Andrea Giammarchi (ISC) */
+
+/**
+ * This code is a revisited port of the snabbdom vDOM diffing logic,
+ * the same that fuels as fork Vue.js or other libraries.
+ * @credits https://github.com/snabbdom/snabbdom
+ */
+
+const eqeq = (a, b) => a == b;
+
+const identity = O => O;
+
+const remove = (get, parentNode, before, after) => {
+  if (after == null) {
+    parentNode.removeChild(get(before, -1));
+  } else {
+    const range = parentNode.ownerDocument.createRange();
+    range.setStartBefore(get(before, -1));
+    range.setEndAfter(get(after, -1));
+    range.deleteContents();
+  }
+};
+
+const domdiff = (
+  parentNode,     // where changes happen
+  currentNodes,   // Array of current items/nodes
+  futureNodes,    // Array of future items/nodes
+  options         // optional object with one of the following properties
+                  //  before: domNode
+                  //  compare(generic, generic) => true if same generic
+                  //  node(generic) => Node
+) => {
+  if (!options)
+    options = {};
+  const compare = options.compare || eqeq;
+  const get = options.node || identity;
+  const before = options.before == null ? null : get(options.before, 0);
+  let currentStart = 0, futureStart = 0;
+  let currentEnd = currentNodes.length - 1;
+  let currentStartNode = currentNodes[0];
+  let currentEndNode = currentNodes[currentEnd];
+  let futureEnd = futureNodes.length - 1;
+  let futureStartNode = futureNodes[0];
+  let futureEndNode = futureNodes[futureEnd];
+  while (currentStart <= currentEnd && futureStart <= futureEnd) {
+    if (currentStartNode == null) {
+      currentStartNode = currentNodes[++currentStart];
+    }
+    else if (currentEndNode == null) {
+      currentEndNode = currentNodes[--currentEnd];
+    }
+    else if (futureStartNode == null) {
+      futureStartNode = futureNodes[++futureStart];
+    }
+    else if (futureEndNode == null) {
+      futureEndNode = futureNodes[--futureEnd];
+    }
+    else if (compare(currentStartNode, futureStartNode)) {
+      currentStartNode = currentNodes[++currentStart];
+      futureStartNode = futureNodes[++futureStart];
+    }
+    else if (compare(currentEndNode, futureEndNode)) {
+      currentEndNode = currentNodes[--currentEnd];
+      futureEndNode = futureNodes[--futureEnd];
+    }
+    else if (compare(currentStartNode, futureEndNode)) {
+      parentNode.insertBefore(
+        get(currentStartNode, 1),
+        get(currentEndNode, -0).nextSibling
+      );
+      currentStartNode = currentNodes[++currentStart];
+      futureEndNode = futureNodes[--futureEnd];
+    }
+    else if (compare(currentEndNode, futureStartNode)) {
+      parentNode.insertBefore(
+        get(currentEndNode, 1),
+        get(currentStartNode, 0)
+      );
+      currentEndNode = currentNodes[--currentEnd];
+      futureStartNode = futureNodes[++futureStart];
+    }
+    else {
+      let index = currentNodes.indexOf(futureStartNode);
+      if (index < 0) {
+        parentNode.insertBefore(
+          get(futureStartNode, 1),
+          get(currentStartNode, 0)
+        );
+        futureStartNode = futureNodes[++futureStart];
+      }
+      else {
+        let i = index;
+        let f = futureStart;
+        while (
+          i <= currentEnd &&
+          f <= futureEnd &&
+          currentNodes[i] === futureNodes[f]
+        ) {
+          i++;
+          f++;
+        }
+        if (1 < (i - index)) {
+          if (--index === currentStart) {
+            parentNode.removeChild(get(currentStartNode, -1));
+          } else {
+            remove(
+              get,
+              parentNode,
+              currentStartNode,
+              currentNodes[index]
+            );
+          }
+          currentStart = i;
+          futureStart = f;
+          currentStartNode = currentNodes[i];
+          futureStartNode = futureNodes[f];
+        } else {
+          const el = currentNodes[index];
+          currentNodes[index] = null;
+          parentNode.insertBefore(get(el, 1), get(currentStartNode, 0));
+          futureStartNode = futureNodes[++futureStart];
+        }
+      }
+    }
+  }
+  if (currentStart <= currentEnd || futureStart <= futureEnd) {
+    if (currentStart > currentEnd) {
+      const pin = futureNodes[futureEnd + 1];
+      const place = pin == null ? before : get(pin, 0);
+      if (futureStart === futureEnd) {
+        parentNode.insertBefore(get(futureNodes[futureStart], 1), place);
+      }
+      else {
+        const fragment = parentNode.ownerDocument.createDocumentFragment();
+        while (futureStart <= futureEnd) {
+          fragment.appendChild(get(futureNodes[futureStart++], 1));
+        }
+        parentNode.insertBefore(fragment, place);
+      }
+    }
+    else {
+      if (currentNodes[currentStart] == null)
+        currentStart++;
+      if (currentStart === currentEnd) {
+        parentNode.removeChild(get(currentNodes[currentStart], -1));
+      }
+      else {
+        remove(
+          get,
+          parentNode,
+          currentNodes[currentStart],
+          currentNodes[currentEnd]
+        );
+      }
+    }
+  }
+  return futureNodes;
+};
+
 const eachBinding = Object.seal({
   // dynamic binding properties
   childrenMap: null,
@@ -34,14 +192,13 @@ const eachBinding = Object.seal({
   update(scope) {
     const { condition, offset, template, childrenMap, itemName, getKey, indexName, root } = this;
     const items = Array.from(this.evaluate(scope)) || [];
-    const redundantTagsMap = tagsLookupFromChildrenMap(this.childrenMap);
-    const oldTagsLength = this.childrenMap.size;
-    const fragment = document.createDocumentFragment();
     const parent = this.placeholder.parentNode;
     const filteredItems = new Set();
-    const moves = [];
-    const updates = [];
+    const newChildrenMap = new Map();
+    const batches = [];
+    const futureNodes = [];
 
+    // diffing
     items.forEach((item, i) => {
       // the real item index should be subtracted to the items that were filtered
       const index = i - filteredItems.size;
@@ -55,81 +212,50 @@ const eachBinding = Object.seal({
       }
 
       const tag = oldItem ? oldItem.tag : template.clone();
-      const shouldNodeBeAppended = index >= oldTagsLength;
-      const shouldNodeBeMoved = oldItem && oldItem.index !== index;
-      const shuldNodeBeInserted = !oldItem && !shouldNodeBeAppended;
+      const el = oldItem ? tag.el : root.cloneNode();
 
       if (!oldItem) {
-        const el = root.cloneNode();
-        tag.mount(el, context);
-
-        if (shouldNodeBeAppended) {
-          fragment.appendChild(el);
-        }
+        batches.push(() => tag.mount(el, context));
       } else {
-        updates.push(() => tag.update(context));
+        batches.push(() => tag.update(context));
       }
 
-      // move or insert the new element
-      if (shouldNodeBeMoved || shuldNodeBeInserted) {
-        moves.push([tag, index]);
-      }
-
-      // this tag is not redundant we don't need to remove it
-      redundantTagsMap.delete(tag);
+      futureNodes.push(el || tag.el);
 
       // update the children map
-      childrenMap.set(key, {
+      newChildrenMap.set(key, {
         tag,
         context,
         index
       });
     });
 
-    // append the new tags
-    parent.insertBefore(fragment, this.placeholder);
+    /**
+     * DOM Updates
+     */
+    const currentChildNodes = Array.from(parent.children).slice(offset);
+    domdiff(parent, currentChildNodes, futureNodes);
 
-    // trigger the mount
-    const children = parent.children;
-    moves.forEach(([tag, index]) => {
-      parent.insertBefore(tag.el, children[index + offset]);
-    });
+    // trigger the mounts and the updates
+    batches.forEach(fn => fn());
 
-    // unmount the redundant tags
-    if (redundantTagsMap.size) {
-      removeRedundant(redundantTagsMap, childrenMap);
-    }
-
-    // trigger the updates
-    updates.forEach(fn => fn());
+    // update the children map
+    this.childrenMap = newChildrenMap;
 
     return this
   },
   unmount() {
-    removeRedundant(
-      tagsLookupFromChildrenMap(this.childrenMap),
-      this.childrenMap
-    );
+    Array
+      .from(this.childrenMap.entries())
+      .forEach(([tag, key]) => {
+        const { context } = this.childrenMap.get(key);
+        tag.unmount(context, true);
+        this.childrenMap.delete(key);
+      });
 
     return this
   }
 });
-
-/**
- * Unmount the redundant tags removing them from the children map and from DOM
- * @param   {Map<tag, key>} redundantTagsMap - map containing the redundant tags
- * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
- * @returns {Tag} the tag objects just unmounted
- */
-function removeRedundant(redundantTagsMap, childrenMap) {
-  return [...redundantTagsMap.entries()].map(([tag, key]) => {
-    const { context } = childrenMap.get(key);
-    tag.unmount(context, true);
-    childrenMap.delete(key);
-
-    return tag
-  })
-}
 
 /**
  * Check whether a tag must be fildered from a loop
@@ -139,17 +265,6 @@ function removeRedundant(redundantTagsMap, childrenMap) {
  */
 function mustFilterItem(condition, context) {
   return condition ? condition(context) : false
-}
-
-
-/**
- * It creates a javascript Map<(tag, key)> from the children map received
- * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
- * @returns {Map} <tag,key> lookup map
- */
-function tagsLookupFromChildrenMap(childrenMap) {
-  return [...childrenMap.entries()]
-    .reduce((tags, [key, {tag}]) => tags.set(tag, key), new Map())
 }
 
 /**
@@ -661,7 +776,7 @@ const TemplateChunk = Object.seal({
 
 /**
  * Create a template chunk wiring also the bindings
- * @param   {string} html - template string
+ * @param   {string|HTMLElement} html - template string
  * @param   {Array} bindings - bindings collection
  * @returns {TemplateChunk} a new TemplateChunk copy
  */
@@ -676,36 +791,61 @@ function create$6(html, bindings = []) {
 }
 
 /**
- * Method used to bind expressions to a DOM tree structure
- * @param   {HTMLElement|String} root - the root node where to start applying the bindings
- * @param   {Array} bindings - list of the expressions to bind
+ * Method used to bind expressions to a DOM node
+ * @param   {string|HTMLElement} html - your static template html structure
+ * @param   {Array} bindings - list of the expressions to bind to update the markup
  * @returns {TemplateChunk} a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
  *
  * @example
- * riotDOMBindings.template(`<div expr0> </div><div><p expr1> <section expr2></section></p>`, [
- *   {
- *     selector: '[expr0]',
- *     redundantAttribute: 'expr0',
- *     expressions: [
- *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.time }}
- *     ]
- *   },
- *   {
- *     selector: '[expr1]',
- *     redundantAttribute: 'expr1',
- *     expressions: [
- *       { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.name }},
- *      { type: 'attribute', name: 'style', evaluate(scope) { return scope.style }}
- *    ]
- *  },
- *  {
- *    selector: '[expr2]',
- *    redundantAttribute: 'expr2',
- *    type: 'if',
- *    evaluate(scope) { return scope.isVisible },
- *    template: riotDOMBindings.template('hello there')
- *  }
- * ])
+ *
+ * riotDOMBindings
+ *  .template(
+ *   `<div expr0><!----></div><div><p expr1><!----><section expr2></section></p>`,
+ *   [
+ *     {
+ *       selector: '[expr0]',
+ *       redundantAttribute: 'expr0',
+ *       expressions: [
+ *         {
+ *           type: 'text',
+ *           childNodeIndex: 0,
+ *           evaluate(scope) {
+ *             return scope.time;
+ *           },
+ *         },
+ *       ],
+ *     },
+ *     {
+ *       selector: '[expr1]',
+ *       redundantAttribute: 'expr1',
+ *       expressions: [
+ *         {
+ *           type: 'text',
+ *           childNodeIndex: 0,
+ *           evaluate(scope) {
+ *             return scope.name;
+ *           },
+ *         },
+ *         {
+ *           type: 'attribute',
+ *           name: 'style',
+ *           evaluate(scope) {
+ *             return scope.style;
+ *           },
+ *         },
+ *       ],
+ *     },
+ *     {
+ *       selector: '[expr2]',
+ *       redundantAttribute: 'expr2',
+ *       type: 'if',
+ *       evaluate(scope) {
+ *         return scope.isVisible;
+ *       },
+ *       template: riotDOMBindings.template('hello there'),
+ *     },
+ *   ]
+ * )
  */
 
 exports.template = create$6;

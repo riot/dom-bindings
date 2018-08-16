@@ -1,4 +1,5 @@
-/* WIP */
+import domdiff from 'domdiff'
+
 export const eachBinding = Object.seal({
   // dynamic binding properties
   childrenMap: null,
@@ -20,13 +21,11 @@ export const eachBinding = Object.seal({
   update(scope) {
     const { condition, offset, template, childrenMap, itemName, getKey, indexName, root } = this
     const items = Array.from(this.evaluate(scope)) || []
-    const redundantTagsMap = tagsLookupFromChildrenMap(this.childrenMap)
-    const oldTagsLength = this.childrenMap.size
-    const fragment = document.createDocumentFragment()
     const parent = this.placeholder.parentNode
     const filteredItems = new Set()
-    const moves = []
-    const updates = []
+    const newChildrenMap = new Map()
+    const batches = []
+    const futureNodes = []
 
     // diffing
     items.forEach((item, i) => {
@@ -42,31 +41,18 @@ export const eachBinding = Object.seal({
       }
 
       const tag = oldItem ? oldItem.tag : template.clone()
-      const shouldNodeBeAppended = index >= oldTagsLength
-      const shouldNodeBeMoved = oldItem && oldItem.index !== index
-      const shuldNodeBeInserted = !oldItem && !shouldNodeBeAppended
+      const el = oldItem ? tag.el : root.cloneNode()
 
       if (!oldItem) {
-        const el = root.cloneNode()
-        tag.mount(el, context)
-
-        if (shouldNodeBeAppended) {
-          fragment.appendChild(el)
-        }
+        batches.push(() => tag.mount(el, context))
       } else {
-        updates.push(() => tag.update(context))
+        batches.push(() => tag.update(context))
       }
 
-      // move or insert the new element
-      if (shouldNodeBeMoved || shuldNodeBeInserted) {
-        moves.push([tag, index])
-      }
-
-      // this tag is not redundant we don't need to remove it
-      redundantTagsMap.delete(tag)
+      futureNodes.push(el || tag.el)
 
       // update the children map
-      childrenMap.set(key, {
+      newChildrenMap.set(key, {
         tag,
         context,
         index
@@ -76,51 +62,29 @@ export const eachBinding = Object.seal({
     /**
      * DOM Updates
      */
+    const currentChildNodes = Array.from(parent.children).slice(offset)
+    domdiff(parent, currentChildNodes, futureNodes)
 
-    // append the new tags
-    parent.insertBefore(fragment, this.placeholder)
+    // trigger the mounts and the updates
+    batches.forEach(fn => fn())
 
-    // trigger the mount
-    const children = parent.children
-    moves.forEach(([tag, index]) => {
-      parent.insertBefore(tag.el, children[index + offset])
-    })
-
-    // unmount the redundant tags
-    if (redundantTagsMap.size) {
-      removeRedundant(redundantTagsMap, childrenMap)
-    }
-
-    // trigger the updates
-    updates.forEach(fn => fn())
+    // update the children map
+    this.childrenMap = newChildrenMap
 
     return this
   },
   unmount() {
-    removeRedundant(
-      tagsLookupFromChildrenMap(this.childrenMap),
-      this.childrenMap
-    )
+    Array
+      .from(this.childrenMap.entries())
+      .forEach(([tag, key]) => {
+        const { context } = this.childrenMap.get(key)
+        tag.unmount(context, true)
+        this.childrenMap.delete(key)
+      })
 
     return this
   }
 })
-
-/**
- * Unmount the redundant tags removing them from the children map and from DOM
- * @param   {Map<tag, key>} redundantTagsMap - map containing the redundant tags
- * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
- * @returns {Tag} the tag objects just unmounted
- */
-function removeRedundant(redundantTagsMap, childrenMap) {
-  return [...redundantTagsMap.entries()].map(([tag, key]) => {
-    const { context } = childrenMap.get(key)
-    tag.unmount(context, true)
-    childrenMap.delete(key)
-
-    return tag
-  })
-}
 
 /**
  * Check whether a tag must be fildered from a loop
@@ -130,17 +94,6 @@ function removeRedundant(redundantTagsMap, childrenMap) {
  */
 function mustFilterItem(condition, context) {
   return condition ? condition(context) : false
-}
-
-
-/**
- * It creates a javascript Map<(tag, key)> from the children map received
- * @param   {Map} childrenMap - map containing tags, keys, their context data and their current index
- * @returns {Map} <tag,key> lookup map
- */
-function tagsLookupFromChildrenMap(childrenMap) {
-  return [...childrenMap.entries()]
-    .reduce((tags, [key, {tag}]) => tags.set(tag, key), new Map())
 }
 
 /**
