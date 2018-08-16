@@ -185,16 +185,17 @@
     getKey: null,
     indexName: null,
     itemName: null,
-    placeholder: null,
+    afterPlaceholder: null,
+    beforePlaceholder: null,
 
     // API methods
     mount(scope) {
       return this.update(scope)
     },
     update(scope) {
-      const { condition, offset, template, childrenMap, itemName, getKey, indexName, root } = this;
+      const { condition, offset, afterPlaceholder, template, childrenMap, itemName, getKey, indexName, root } = this;
       const items = Array.from(this.evaluate(scope)) || [];
-      const parent = this.placeholder.parentNode;
+      const parent = this.beforePlaceholder.parentNode;
       const filteredItems = new Set();
       const newChildrenMap = new Map();
       const batches = [];
@@ -235,8 +236,10 @@
       /**
        * DOM Updates
        */
-      const currentChildNodes = Array.from(parent.children).slice(offset);
-      domdiff(parent, currentChildNodes, futureNodes);
+      const currentChildNodes = Array.from(parent.childNodes).slice(offset, this.childrenMap.size);
+      domdiff(parent, currentChildNodes, futureNodes, {
+        before: afterPlaceholder
+      });
 
       // trigger the mounts and the updates
       batches.forEach(fn => fn());
@@ -295,12 +298,14 @@
   }
 
   function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
-    const placeholder = document.createTextNode('');
+    const beforePlaceholder = document.createTextNode('');
+    const afterPlaceholder = document.createTextNode('');
     const parent = node.parentNode;
     const root = node.cloneNode();
-    const offset = Array.from(parent.children).indexOf(node);
+    const offset = Array.from(parent.childNodes).indexOf(node);
 
-    parent.insertBefore(placeholder, node);
+    parent.insertBefore(beforePlaceholder, node);
+    parent.insertBefore(afterPlaceholder, node);
     parent.removeChild(node);
 
     return {
@@ -315,7 +320,8 @@
       getKey,
       indexName,
       itemName,
-      placeholder
+      afterPlaceholder,
+      beforePlaceholder
     }
   }
 

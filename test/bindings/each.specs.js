@@ -27,6 +27,25 @@ function createDummyListTemplate(options = {}) {
   }, ...options}])
 }
 
+function createDummyListWithSiblingsTemplate(options = {}) {
+  return template('<ul><li>first</li><li expr0></li><li>last</li></ul>', [{...{
+    selector: '[expr0]',
+    type: 'each',
+    itemName: 'val',
+    getKey(scope) { return scope.val },
+    evaluate(scope) { return scope.items },
+    template: template('<!---->', [{
+      expressions: [
+        {
+          type: 'text',
+          childNodeIndex: 0,
+          evaluate(scope) { return scope.val }
+        }
+      ]
+    }])
+  }, ...options}])
+}
+
 describe('each bindings', () => {
   it('List reverse', () => {
     const items = [0, 1, 2, 3, 4, 5]
@@ -124,5 +143,25 @@ describe('each bindings', () => {
     const afterLis = target.querySelectorAll('li')
 
     expect(afterLis).to.have.length(4)
+  })
+
+  it('List having siblings nodes', () => {
+    const items = [0, 1, 2, 3, 4, 5]
+    const target = document.createElement('div')
+    const el = createDummyListWithSiblingsTemplate().mount(target, { items })
+
+    const beforeLis = target.querySelectorAll('li')
+
+    expect(beforeLis).to.have.length(8)
+    expect(beforeLis[0].textContent).to.be.equal('first')
+    expect(beforeLis[beforeLis.length - 1].textContent).to.be.equal('last')
+
+    el.update({ items: items.reverse() })
+
+    const afterLis = target.querySelectorAll('li')
+
+    expect(afterLis).to.have.length(8)
+    expect(beforeLis[0].textContent).to.be.equal('first')
+    expect(beforeLis[beforeLis.length - 1].textContent).to.be.equal('last')
   })
 })
