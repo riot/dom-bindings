@@ -33,7 +33,7 @@ export const eachBinding = Object.seal({
       // the real item index should be subtracted to the items that were filtered
       const index = i - filteredItems.size
       const context = getContext({itemName, indexName, index, item, scope})
-      const key = getKey(context)
+      const key = getKey ? getKey(context) : index
       const oldItem = childrenMap.get(key)
 
       if (mustFilterItem(condition, context)) {
@@ -79,12 +79,13 @@ export const eachBinding = Object.seal({
   },
   unmount() {
     Array
-      .from(this.childrenMap.entries())
-      .forEach(([tag, key]) => {
-        const { context } = this.childrenMap.get(key)
+      .from(this.childrenMap.values())
+      .forEach(({tag, context}) => {
         tag.unmount(context, true)
-        this.childrenMap.delete(key)
       })
+
+    this.childrenMap = new Map()
+    this.tags = []
 
     return this
   }

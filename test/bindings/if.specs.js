@@ -21,7 +21,10 @@ describe('if bindings', () => {
 
     expect(target.querySelector('b').textContent).to.be.equal('hello')
     el.update({ text: 'hello', isVisible: false })
+
     expect(target.querySelector('b')).to.be.not.ok
+
+    el.unmount()
   })
 
   it('Update nested expressions in an conditional statement', () => {
@@ -33,5 +36,7 @@ describe('if bindings', () => {
     expect(b.textContent).to.be.equal('hello')
     el.update({ text: 'goodbye', isVisible: true })
     expect(b.textContent).to.be.equal('goodbye')
+
+    el.unmount()
   })
 })

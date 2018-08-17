@@ -14,13 +14,15 @@ describe('simple bindings', () => {
   it('A simple binding will only evaluate the expressions without modifying the DOM structure', () => {
     const target = document.createElement('div')
 
-    createDummyTemplate().mount(target, { text: 'hello', class: 'foo' })
+    const el = createDummyTemplate().mount(target, { text: 'hello', class: 'foo' })
 
     const p = target.querySelector('p')
 
     expect(p.textContent).to.be.equal('hello')
     expect(p.getAttribute('class')).to.be.equal('foo')
     expect(p).to.be.ok
+
+    el.unmount()
   })
 
   it('A simple bindings can be updated', () => {
@@ -36,5 +38,7 @@ describe('simple bindings', () => {
 
     expect(p.textContent).to.be.equal('world')
     expect(p.getAttribute('class')).to.be.equal('bar')
+
+    el.unmount()
   })
 })

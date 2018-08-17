@@ -17,19 +17,23 @@ export const ifBinding = Object.seal({
     const value = this.evaluate(scope)
     const mustMount = !this.value && value
     const mustUnmount = this.value && !value
-    const mustUpdate = value && this.template
 
-    if (mustMount) {
+    switch (true) {
+    case mustMount:
       swap(this.node, this.placeholder)
       if (this.template) {
         this.template = this.template.clone()
         this.template.mount(this.node, scope)
       }
-    } else if (mustUnmount) {
+      break
+    case mustUnmount:
       swap(this.placeholder, this.node)
+      this.template = null
       this.unmount(scope)
-    } else if (mustUpdate) {
+      break
+    default:
       this.template.update(scope)
+      break
     }
 
     this.value = value
@@ -38,9 +42,11 @@ export const ifBinding = Object.seal({
   },
   unmount(scope) {
     const { template } = this
+
     if (template) {
       template.unmount(scope)
     }
+
     return this
   }
 })

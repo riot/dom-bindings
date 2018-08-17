@@ -6,7 +6,7 @@ import createFragment from './util/create-fragment'
  * Template Chunk model
  * @type {Object}
  */
-export const TemplateChunk = Object.seal({
+export const TemplateChunk = Object.freeze({
   // Static props
   bindings: null,
   bindingsData: null,
@@ -53,16 +53,16 @@ export const TemplateChunk = Object.seal({
    * @returns {TemplateChunk} self
    */
   unmount(scope, mustRemoveRoot) {
-    if (!this.el) throw new Error('This template was never mounted before')
+    if (this.el) {
+      this.bindings.forEach(b => b.unmount(scope))
+      cleanNode(this.el)
 
-    this.bindings.forEach(b => b.unmount(scope))
-    cleanNode(this.el)
+      if (mustRemoveRoot) {
+        this.el.parentNode.removeChild(this.el)
+      }
 
-    if (mustRemoveRoot) {
-      this.el.parentNode.removeChild(this.el)
+      this.el = null
     }
-
-    this.el = null
 
     return this
   },

@@ -13,7 +13,6 @@ function createDummyListTemplate(options = {}) {
     selector: '[expr0]',
     type: 'each',
     itemName: 'val',
-    getKey(scope) { return scope.val },
     evaluate(scope) { return scope.items },
     template: template('<!---->', [{
       expressions: [
@@ -32,7 +31,6 @@ function createDummyListWithSiblingsTemplate(options = {}) {
     selector: '[expr0]',
     type: 'each',
     itemName: 'val',
-    getKey(scope) { return scope.val },
     evaluate(scope) { return scope.items },
     template: template('<!---->', [{
       expressions: [
@@ -46,11 +44,11 @@ function createDummyListWithSiblingsTemplate(options = {}) {
   }, ...options}])
 }
 
-describe('each bindings', () => {
+function runTests(options) {
   it('List reverse', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate().mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, { items })
 
     compareNodesContents(target, 'li', items)
 
@@ -61,12 +59,14 @@ describe('each bindings', () => {
     el.update({ items: items.reverse() })
 
     compareNodesContents(target, 'li', items)
+
+    el.unmount()
   })
 
   it('List add', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate().mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, { items })
 
     compareNodesContents(target, 'li', items)
 
@@ -79,12 +79,14 @@ describe('each bindings', () => {
     el.update({ items: items })
 
     compareNodesContents(target, 'li', items)
+
+    el.unmount()
   })
 
   it('List insert in the middle', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate().mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, { items })
 
     compareNodesContents(target, 'li', items)
 
@@ -97,12 +99,14 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+
+    el.unmount()
   })
 
   it('List prepend', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate().mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, { items })
 
     compareNodesContents(target, 'li', items)
 
@@ -115,12 +119,14 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+
+    el.unmount()
   })
 
   it('List pop', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate().mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, { items })
 
     compareNodesContents(target, 'li', items)
 
@@ -133,12 +139,14 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+
+    el.unmount()
   })
 
   it('List shift', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate().mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, { items })
 
     compareNodesContents(target, 'li', items)
 
@@ -151,6 +159,8 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+
+    el.unmount()
   })
 
   it('List filters', () => {
@@ -159,7 +169,8 @@ describe('each bindings', () => {
     const el = createDummyListTemplate({
       condition(scope) {
         return scope.val % 2 !== 0
-      }
+      },
+      ...options
     }).mount(target, { items })
 
     const beforeLis = target.querySelectorAll('li')
@@ -172,12 +183,14 @@ describe('each bindings', () => {
     const afterLis = target.querySelectorAll('li')
 
     expect(afterLis).to.have.length(4)
+
+    el.unmount()
   })
 
   it('List having siblings nodes', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListWithSiblingsTemplate().mount(target, { items })
+    const el = createDummyListWithSiblingsTemplate(options).mount(target, { items })
 
     const beforeLis = target.querySelectorAll('li')
 
@@ -192,5 +205,19 @@ describe('each bindings', () => {
     expect(afterLis).to.have.length(8)
     expect(beforeLis[0].textContent).to.be.equal('first')
     expect(beforeLis[beforeLis.length - 1].textContent).to.be.equal('last')
+
+    el.unmount()
+  })
+}
+
+describe('each bindings', () => {
+  describe('keyed', () => {
+    runTests({
+      getKey(scope) { return scope.val }
+    })
+  })
+
+  describe('unkeyed', () => {
+    runTests({})
   })
 })

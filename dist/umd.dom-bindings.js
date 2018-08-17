@@ -206,7 +206,7 @@
         // the real item index should be subtracted to the items that were filtered
         const index = i - filteredItems.size;
         const context = getContext({itemName, indexName, index, item, scope});
-        const key = getKey(context);
+        const key = getKey ? getKey(context) : index;
         const oldItem = childrenMap.get(key);
 
         if (mustFilterItem(condition, context)) {
@@ -252,12 +252,13 @@
     },
     unmount() {
       Array
-        .from(this.childrenMap.entries())
-        .forEach(([tag, key]) => {
-          const { context } = this.childrenMap.get(key);
+        .from(this.childrenMap.values())
+        .forEach(({tag, context}) => {
           tag.unmount(context, true);
-          this.childrenMap.delete(key);
         });
+
+      this.childrenMap = new Map();
+      this.tags = [];
 
       return this
     }
@@ -342,19 +343,23 @@
       const value = this.evaluate(scope);
       const mustMount = !this.value && value;
       const mustUnmount = this.value && !value;
-      const mustUpdate = value && this.template;
 
-      if (mustMount) {
+      switch (true) {
+      case mustMount:
         swap(this.node, this.placeholder);
         if (this.template) {
           this.template = this.template.clone();
           this.template.mount(this.node, scope);
         }
-      } else if (mustUnmount) {
+        break
+      case mustUnmount:
         swap(this.placeholder, this.node);
+        this.template = null;
         this.unmount(scope);
-      } else if (mustUpdate) {
+        break
+      default:
         this.template.update(scope);
+        break
       }
 
       this.value = value;
@@ -363,9 +368,11 @@
     },
     unmount(scope) {
       const { template } = this;
+
       if (template) {
         template.unmount(scope);
       }
+
       return this
     }
   });
@@ -711,7 +718,7 @@
    * Template Chunk model
    * @type {Object}
    */
-  const TemplateChunk = Object.seal({
+  const TemplateChunk = Object.freeze({
     // Static props
     bindings: null,
     bindingsData: null,
@@ -758,16 +765,16 @@
      * @returns {TemplateChunk} self
      */
     unmount(scope, mustRemoveRoot) {
-      if (!this.el) throw new Error('This template was never mounted before')
+      if (this.el) {
+        this.bindings.forEach(b => b.unmount(scope));
+        cleanNode(this.el);
 
-      this.bindings.forEach(b => b.unmount(scope));
-      cleanNode(this.el);
+        if (mustRemoveRoot) {
+          this.el.parentNode.removeChild(this.el);
+        }
 
-      if (mustRemoveRoot) {
-        this.el.parentNode.removeChild(this.el);
+        this.el = null;
       }
-
-      this.el = null;
 
       return this
     },

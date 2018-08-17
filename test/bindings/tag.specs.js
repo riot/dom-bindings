@@ -4,7 +4,7 @@ describe('tag bindings', () => {
   it('tags not registered will fallback to default templates', () => {
     const target = document.createElement('div')
 
-    template('<section><div expr0></div></section>', [{
+    const el = template('<section><div expr0></div></section>', [{
       selector: '[expr0]',
       type: 'tag',
       name: 'my-tag',
@@ -30,12 +30,14 @@ describe('tag bindings', () => {
 
     expect(p.textContent).to.be.equal('hello')
     expect(p).to.be.ok
+
+    el.unmount()
   })
 
   it('attributes for tags not registered will be converted into expressions', () => {
     const target = document.createElement('div')
 
-    template('<section><b expr0></b></section>', [{
+    const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: 'tag',
       name: 'my-tag',
@@ -49,6 +51,8 @@ describe('tag bindings', () => {
 
     expect(b.getAttribute('class')).to.be.equal('hello')
     expect(b).to.be.ok
+
+    el.unmount()
   })
 
   it('registered tags will receive bindings slots and attributes', (done) => {
@@ -71,7 +75,7 @@ describe('tag bindings', () => {
     })
 
     // create a template with a fake custom riot tag in it
-    template('<section><b expr0></b></section>', [{
+    const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: 'tag',
       name: 'my-tag',
@@ -94,5 +98,7 @@ describe('tag bindings', () => {
         name: 'class'
       }]
     }]).mount(target, { class: 'hello' })
+
+    el.unmount()
   })
 })
