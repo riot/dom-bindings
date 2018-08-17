@@ -57,6 +57,10 @@ describe('each bindings', () => {
     el.update({ items: items.reverse() })
 
     compareNodesContents(target, 'li', items)
+
+    el.update({ items: items.reverse() })
+
+    compareNodesContents(target, 'li', items)
   })
 
   it('List add', () => {
@@ -67,6 +71,11 @@ describe('each bindings', () => {
     compareNodesContents(target, 'li', items)
 
     items.push(6)
+    el.update({ items: items })
+
+    compareNodesContents(target, 'li', items)
+
+    items.push(7)
     el.update({ items: items })
 
     compareNodesContents(target, 'li', items)
@@ -83,6 +92,11 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+
+    items.splice(3, 0, 9)
+    el.update({ items })
+
+    compareNodesContents(target, 'li', items)
   })
 
   it('List prepend', () => {
@@ -93,6 +107,11 @@ describe('each bindings', () => {
     compareNodesContents(target, 'li', items)
 
     items.unshift(-1)
+    el.update({ items })
+
+    compareNodesContents(target, 'li', items)
+
+    items.unshift(-2)
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
@@ -109,12 +128,22 @@ describe('each bindings', () => {
     el.update({ items })
 
     compareNodesContents(target, 'li', items)
+
+    items.pop()
+    el.update({ items })
+
+    compareNodesContents(target, 'li', items)
   })
 
   it('List shift', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
     const el = createDummyListTemplate().mount(target, { items })
+
+    compareNodesContents(target, 'li', items)
+
+    items.shift()
+    el.update({ items })
 
     compareNodesContents(target, 'li', items)
 

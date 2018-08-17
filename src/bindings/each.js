@@ -13,16 +13,16 @@ export const eachBinding = Object.seal({
   indexName: null,
   itemName: null,
   afterPlaceholder: null,
-  beforePlaceholder: null,
+  placeholder: null,
 
   // API methods
   mount(scope) {
     return this.update(scope)
   },
   update(scope) {
-    const { condition, offset, afterPlaceholder, template, childrenMap, itemName, getKey, indexName, root } = this
+    const { condition, placeholder, template, childrenMap, itemName, getKey, indexName, root } = this
     const items = Array.from(this.evaluate(scope)) || []
-    const parent = this.beforePlaceholder.parentNode
+    const parent = placeholder.parentNode
     const filteredItems = new Set()
     const newChildrenMap = new Map()
     const batches = []
@@ -63,9 +63,9 @@ export const eachBinding = Object.seal({
     /**
      * DOM Updates
      */
-    const currentChildNodes = Array.from(parent.childNodes).slice(offset, this.childrenMap.size)
-    domdiff(parent, currentChildNodes, futureNodes, {
-      before: afterPlaceholder
+    const before = this.tags[this.tags.length - 1]
+    domdiff(parent, this.tags, futureNodes, {
+      before: before ? before.nextSibling : placeholder.nextSibling
     })
 
     // trigger the mounts and the updates
@@ -73,6 +73,7 @@ export const eachBinding = Object.seal({
 
     // update the children map
     this.childrenMap = newChildrenMap
+    this.tags = futureNodes
 
     return this
   },
@@ -125,14 +126,12 @@ function getContext({itemName, indexName, index, item, scope}) {
 }
 
 export default function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
-  const beforePlaceholder = document.createTextNode('')
-  const afterPlaceholder = document.createTextNode('')
+  const placeholder = document.createTextNode('')
   const parent = node.parentNode
   const root = node.cloneNode()
   const offset = Array.from(parent.childNodes).indexOf(node)
 
-  parent.insertBefore(beforePlaceholder, node)
-  parent.insertBefore(afterPlaceholder, node)
+  parent.insertBefore(placeholder, node)
   parent.removeChild(node)
 
   return {
@@ -147,7 +146,6 @@ export default function create(node, { evaluate, condition, itemName, indexName,
     getKey,
     indexName,
     itemName,
-    afterPlaceholder,
-    beforePlaceholder
+    placeholder
   }
 }
