@@ -9,6 +9,10 @@ branches:
 
 after_success: npm run cov
 
+cache:
+  directories:
+    - node_modules # NPM packages
+
 notifications:
   email: false
 
