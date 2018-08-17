@@ -1,10 +1,4 @@
-'use strict';
-
-Object.defineProperty(exports, '__esModule', { value: true });
-
-function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
-
-var domdiff = _interopDefault(require('domdiff'));
+import domdiff from 'domdiff';
 
 /**
  * Remove the child nodes from any DOM node
@@ -704,6 +698,4 @@ function create$6(html, bindings = []) {
  * )
  */
 
-exports.template = create$6;
-exports.registry = registry;
-exports.createBinding = create$5;
+export { create$6 as template, registry, create$5 as createBinding };
