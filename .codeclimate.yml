@@ -5,7 +5,9 @@ engines:
 exclude_patterns:
   - test
   - dist
+  - benchmarks
+  - polyfills
 
 ratings:
   paths:
-    - src/*.js
+    - src
