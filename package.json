@@ -1,6 +1,6 @@
 {
   "name": "riot-dom-bindings",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Riot.js DOM bindings",
   "main": "dist/cjs.dom-bindings.js",
   "browser": "dist/umd.dom-bindings.js",
