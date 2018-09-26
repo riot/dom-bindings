@@ -1,6 +1,6 @@
 import domdiff from 'domdiff'
 
-export const eachBinding = Object.seal({
+export const EachBinding = Object.seal({
   // dynamic binding properties
   childrenMap: null,
   node: null,
@@ -20,45 +20,12 @@ export const eachBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
-    const { condition, placeholder, template, childrenMap, itemName, getKey, indexName, root } = this
+    const { placeholder } = this
     const items = Array.from(this.evaluate(scope)) || []
     const parent = placeholder.parentNode
-    const filteredItems = new Set()
-    const newChildrenMap = new Map()
-    const batches = []
-    const futureNodes = []
 
-    // diffing
-    items.forEach((item, i) => {
-      // the real item index should be subtracted to the items that were filtered
-      const index = i - filteredItems.size
-      const context = getContext({itemName, indexName, index, item, scope})
-      const key = getKey ? getKey(context) : index
-      const oldItem = childrenMap.get(key)
-
-      if (mustFilterItem(condition, context)) {
-        filteredItems.add(oldItem)
-        return
-      }
-
-      const tag = oldItem ? oldItem.tag : template.clone()
-      const el = oldItem ? tag.el : root.cloneNode()
-
-      if (!oldItem) {
-        batches.push(() => tag.mount(el, context))
-      } else {
-        batches.push(() => tag.update(context))
-      }
-
-      futureNodes.push(el || tag.el)
-
-      // update the children map
-      newChildrenMap.set(key, {
-        tag,
-        context,
-        index
-      })
-    })
+    // prepare the diffing
+    const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, this)
 
     /**
      * DOM Updates
@@ -126,6 +93,62 @@ function getContext({itemName, indexName, index, item, scope}) {
   return context
 }
 
+
+/**
+ * Loop the current tag items
+ * @param   { Array } items - tag collection
+ * @param   { * } scope - tag scope
+ * @param   { EeachBinding } binding - each binding object instance
+ * @returns { Object } data
+ * @returns { Map } data.newChildrenMap - a Map containing the new children tags structure
+ * @returns { Array } data.batches - array containing functions the tags lifecycle functions to trigger
+ * @returns { Array } data.futureNodes - array containing the nodes we need to diff
+ */
+function loopItems(items, scope, binding) {
+  const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding
+  const filteredItems = new Set()
+  const newChildrenMap = new Map()
+  const batches = []
+  const futureNodes = []
+
+  items.forEach((item, i) => {
+    // the real item index should be subtracted to the items that were filtered
+    const index = i - filteredItems.size
+    const context = getContext({itemName, indexName, index, item, scope})
+    const key = getKey ? getKey(context) : index
+    const oldItem = childrenMap.get(key)
+
+    if (mustFilterItem(condition, context)) {
+      filteredItems.add(oldItem)
+      return
+    }
+
+    const tag = oldItem ? oldItem.tag : template.clone()
+    const el = oldItem ? tag.el : root.cloneNode()
+
+    if (!oldItem) {
+      batches.push(() => tag.mount(el, context))
+    } else {
+      batches.push(() => tag.update(context))
+    }
+
+    futureNodes.push(el || tag.el)
+
+    // update the children map
+    newChildrenMap.set(key, {
+      tag,
+      context,
+      index
+    })
+  })
+
+  return {
+    newChildrenMap,
+    batches,
+    futureNodes
+  }
+}
+
 export default function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
   const placeholder = document.createTextNode('')
   const parent = node.parentNode
@@ -136,7 +159,7 @@ export default function create(node, { evaluate, condition, itemName, indexName,
   parent.removeChild(node)
 
   return {
-    ...eachBinding,
+    ...EachBinding,
     childrenMap: new Map(),
     node,
     root,

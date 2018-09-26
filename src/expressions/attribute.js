@@ -2,6 +2,30 @@ const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
 
 /**
+ * Add all the attributes provided
+ * @param   {HTMLElement} node - target node
+ * @param   {Object} attributes - object containing the attributes names and values
+ * @returns {undefined} sorry it's a void function :(
+ */
+function setAllAttributes(node, attributes) {
+  Object
+    .entries(attributes)
+    .forEach(([name, value]) => attributeExpression(node, { name }, value))
+}
+
+/**
+ * Remove all the attributes provided
+ * @param   {HTMLElement} node - target node
+ * @param   {Object} attributes - object containing all the attribute names
+ * @returns {undefined} sorry it's a void function :(
+ */
+function removeAllAttributes(node, attributes) {
+  Object
+    .keys(attributes)
+    .forEach(attribute => node.removeAttribute(attribute))
+}
+
+/**
  * This methods handles the DOM attributes updates
  * @param   {HTMLElement} node - target node
  * @param   {Object} expression - expression object
@@ -15,21 +39,21 @@ export default function attributeExpression(node, { name }, value, oldValue) {
   if (!name) {
     // is the value still truthy?
     if (value) {
-      Object
-        .entries(value)
-        .forEach(([key, value]) => attributeExpression(node, { name: key }, value))
+      setAllAttributes(node, value)
     } else if (oldValue) {
       // otherwise remove all the old attributes
-      Object.keys(oldValue).forEach(key => node.removeAttribute(key))
-    }
-  } else {
-    // handle boolean attributes
-    if (typeof value === 'boolean') {
-      node[name] = value
+      removeAllAttributes(node, oldValue)
     }
 
-    node[getMethod(value)](name, normalizeValue(name, value))
+    return
   }
+
+  // handle boolean attributes
+  if (typeof value === 'boolean') {
+    node[name] = value
+  }
+
+  node[getMethod(value)](name, normalizeValue(name, value))
 }
 
 /**

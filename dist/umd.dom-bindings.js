@@ -616,7 +616,7 @@
     return futureNodes;
   };
 
-  const eachBinding = Object.seal({
+  const EachBinding = Object.seal({
     // dynamic binding properties
     childrenMap: null,
     node: null,
@@ -636,45 +636,12 @@
       return this.update(scope)
     },
     update(scope) {
-      const { condition, placeholder, template, childrenMap, itemName, getKey, indexName, root } = this;
+      const { placeholder } = this;
       const items = Array.from(this.evaluate(scope)) || [];
       const parent = placeholder.parentNode;
-      const filteredItems = new Set();
-      const newChildrenMap = new Map();
-      const batches = [];
-      const futureNodes = [];
 
-      // diffing
-      items.forEach((item, i) => {
-        // the real item index should be subtracted to the items that were filtered
-        const index = i - filteredItems.size;
-        const context = getContext({itemName, indexName, index, item, scope});
-        const key = getKey ? getKey(context) : index;
-        const oldItem = childrenMap.get(key);
-
-        if (mustFilterItem(condition, context)) {
-          filteredItems.add(oldItem);
-          return
-        }
-
-        const tag = oldItem ? oldItem.tag : template.clone();
-        const el = oldItem ? tag.el : root.cloneNode();
-
-        if (!oldItem) {
-          batches.push(() => tag.mount(el, context));
-        } else {
-          batches.push(() => tag.update(context));
-        }
-
-        futureNodes.push(el || tag.el);
-
-        // update the children map
-        newChildrenMap.set(key, {
-          tag,
-          context,
-          index
-        });
-      });
+      // prepare the diffing
+      const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, this);
 
       /**
        * DOM Updates
@@ -742,6 +709,62 @@
     return context
   }
 
+
+  /**
+   * Loop the current tag items
+   * @param   { Array } items - tag collection
+   * @param   { * } scope - tag scope
+   * @param   { EeachBinding } binding - each binding object instance
+   * @returns { Object } data
+   * @returns { Map } data.newChildrenMap - a Map containing the new children tags structure
+   * @returns { Array } data.batches - array containing functions the tags lifecycle functions to trigger
+   * @returns { Array } data.futureNodes - array containing the nodes we need to diff
+   */
+  function loopItems(items, scope, binding) {
+    const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding;
+    const filteredItems = new Set();
+    const newChildrenMap = new Map();
+    const batches = [];
+    const futureNodes = [];
+
+    items.forEach((item, i) => {
+      // the real item index should be subtracted to the items that were filtered
+      const index = i - filteredItems.size;
+      const context = getContext({itemName, indexName, index, item, scope});
+      const key = getKey ? getKey(context) : index;
+      const oldItem = childrenMap.get(key);
+
+      if (mustFilterItem(condition, context)) {
+        filteredItems.add(oldItem);
+        return
+      }
+
+      const tag = oldItem ? oldItem.tag : template.clone();
+      const el = oldItem ? tag.el : root.cloneNode();
+
+      if (!oldItem) {
+        batches.push(() => tag.mount(el, context));
+      } else {
+        batches.push(() => tag.update(context));
+      }
+
+      futureNodes.push(el || tag.el);
+
+      // update the children map
+      newChildrenMap.set(key, {
+        tag,
+        context,
+        index
+      });
+    });
+
+    return {
+      newChildrenMap,
+      batches,
+      futureNodes
+    }
+  }
+
   function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
     const placeholder = document.createTextNode('');
     const parent = node.parentNode;
@@ -752,7 +775,7 @@
     parent.removeChild(node);
 
     return {
-      ...eachBinding,
+      ...EachBinding,
       childrenMap: new Map(),
       node,
       root,
@@ -770,7 +793,7 @@
   /**
    * Binding responsible for the `if` directive
    */
-  const ifBinding = Object.seal({
+  const IfBinding = Object.seal({
     // dynamic binding properties
     node: null,
     evaluate: null,
@@ -828,7 +851,7 @@
 
   function create$1(node, { evaluate, template }) {
     return {
-      ...ifBinding,
+      ...IfBinding,
       node,
       evaluate,
       placeholder: document.createTextNode(''),
@@ -838,6 +861,30 @@
 
   const REMOVE_ATTRIBUTE = 'removeAttribute';
   const SET_ATTIBUTE = 'setAttribute';
+
+  /**
+   * Add all the attributes provided
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} attributes - object containing the attributes names and values
+   * @returns {undefined} sorry it's a void function :(
+   */
+  function setAllAttributes(node, attributes) {
+    Object
+      .entries(attributes)
+      .forEach(([name, value]) => attributeExpression(node, { name }, value));
+  }
+
+  /**
+   * Remove all the attributes provided
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} attributes - object containing all the attribute names
+   * @returns {undefined} sorry it's a void function :(
+   */
+  function removeAllAttributes(node, attributes) {
+    Object
+      .keys(attributes)
+      .forEach(attribute => node.removeAttribute(attribute));
+  }
 
   /**
    * This methods handles the DOM attributes updates
@@ -853,21 +900,21 @@
     if (!name) {
       // is the value still truthy?
       if (value) {
-        Object
-          .entries(value)
-          .forEach(([key, value]) => attributeExpression(node, { name: key }, value));
+        setAllAttributes(node, value);
       } else if (oldValue) {
         // otherwise remove all the old attributes
-        Object.keys(oldValue).forEach(key => node.removeAttribute(key));
-      }
-    } else {
-      // handle boolean attributes
-      if (typeof value === 'boolean') {
-        node[name] = value;
+        removeAllAttributes(node, oldValue);
       }
 
-      node[getMethod(value)](name, normalizeValue(name, value));
+      return
     }
+
+    // handle boolean attributes
+    if (typeof value === 'boolean') {
+      node[name] = value;
+    }
+
+    node[getMethod(value)](name, normalizeValue(name, value));
   }
 
   /**

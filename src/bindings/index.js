@@ -1,11 +1,11 @@
-import eachBinding from './each'
-import ifBinding from './if'
-import simpleBinding from './simple'
-import tagBinding from './tag'
+import EachBinding from './each'
+import IfBinding from './if'
+import SimpleBinding from './simple'
+import TagBinding from './tag'
 
 export default {
-  if: ifBinding,
-  simple: simpleBinding,
-  each: eachBinding,
-  tag: tagBinding
+  if: IfBinding,
+  simple: SimpleBinding,
+  each: EachBinding,
+  tag: TagBinding
 }

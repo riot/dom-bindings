@@ -1,7 +1,7 @@
 /**
  * Binding responsible for the `if` directive
  */
-export const ifBinding = Object.seal({
+export const IfBinding = Object.seal({
   // dynamic binding properties
   node: null,
   evaluate: null,
@@ -59,7 +59,7 @@ function swap(inNode, outNode) {
 
 export default function create(node, { evaluate, template }) {
   return {
-    ...ifBinding,
+    ...IfBinding,
     node,
     evaluate,
     placeholder: document.createTextNode(''),
