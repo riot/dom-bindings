@@ -48,7 +48,7 @@ const app = tmpl.mount(target, {
 [coverage-image]:https://img.shields.io/coveralls/riot/dom-bindings/master.svg?style=flat-square
 [coverage-url]:https://coveralls.io/r/riot/dom-bindings/?branch=master
 
-[codeclimate-image]:https://api.codeclimate.com/v1/badges/5db4f1c96a43e3736cf0/maintainability
+[codeclimate-image]:https://api.codeclimate.com/v1/badges/d0b7c555a1673354d66f/maintainability
 [codeclimate-url]:https://codeclimate.com/github/riot/dom-bindings/maintainability
 
 ## API
