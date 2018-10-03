@@ -1,4 +1,4 @@
-const { template } = require('../../')
+import { expressionTypes, template } from '../../src'
 
 describe('attribute specs', () => {
   it('set simple attribute if it\'s truthy', () => {
@@ -6,7 +6,7 @@ describe('attribute specs', () => {
     template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'attribute', name: 'class', evaluate(scope) { return scope.attr }}
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
       ]
     }]).mount(target, { attr: 'hello' })
 
@@ -20,7 +20,7 @@ describe('attribute specs', () => {
     template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'attribute', name: 'selected', evaluate(scope) { return scope.attr }}
+        { type: expressionTypes.ATTRIBUTE, name: 'selected', evaluate(scope) { return scope.attr }}
       ]
     }]).mount(target, { attr: true })
 
@@ -35,7 +35,7 @@ describe('attribute specs', () => {
     template('<p class="hello" expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'attribute', name: 'class', evaluate(scope) { return scope.attr }}
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
       ]
     }]).mount(target, { attr: '' })
 
@@ -49,7 +49,7 @@ describe('attribute specs', () => {
     const el = template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'attribute', name: 'class', evaluate(scope) { return scope.attr }}
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
       ]
     }]).mount(target, { attr: 'hello' })
 
@@ -67,7 +67,7 @@ describe('attribute specs', () => {
     const el = template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'attribute', evaluate(scope) { return scope.attr }}
+        { type: expressionTypes.ATTRIBUTE, evaluate(scope) { return scope.attr }}
       ]
     }]).mount(target, { attr: { class: 'hello', 'name': 'world' }})
 
@@ -87,7 +87,7 @@ describe('attribute specs', () => {
     const el = template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'attribute', name: 'class', evaluate(scope) { return scope.attr }}
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
       ]
     }]).mount(target, { attr: ['hello', 'world']})
 

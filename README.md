@@ -13,14 +13,14 @@
 ## Usage
 
 ```js
-import { template } from 'riot-dom-bindings'
+import { template, expressionTypes } from 'riot-dom-bindings'
 
 // Create the app template
 const tmpl = template('<p><!----></p>', [{
   selector: 'p',
   expressions: [
     {
-      type: 'text',
+      type: expressionTypes.TEXT,
       childNodeIndex: 0,
       evaluate(scope) { return scope.greeting },
     },
@@ -66,10 +66,10 @@ const tmpl = template('<p><!----></p>', [{
   selector: 'p',
   expressions: [
     {
-      type: 'text',
+      type: expressionTypes.TEXT,
       childNodeIndex: 0,
-      evaluate(scope) { return scope.greeting },
-    },
+      evaluate: scope => scope.greeting
+    }
   ],
 }])
 ```
@@ -92,10 +92,89 @@ registry.set('my-tag', function({ slots, bindings, attributes }) {
 // The <my-tag> will be automatically mounted with the "hello world" text in it
 const tmpl = template('<section><my-tag class="a-custom-tag"/></section>', [{
   selector: '.a-custom-tag',
-  type: 'tag',
+  type: bindingTypes.TAG,
   name: 'my-tag',
 }])
 ```
+
+### bindingTypes
+
+Object containing all the type of bindings supported
+
+### expressionTypes
+
+Object containing all the expressions types supported
+
+## Bindings
+
+A binding is simply an object that will be used internally to map the data structure provided to a DOM tree.
+To create a binding object you might use the following  properties:
+  - `expressions`
+    - type: `<Array>`
+    - required: `true`
+    - description: array containing instructions to execute DOM manipulation on the node queried
+  - `type`
+    - type: `<Number>`
+    - default:`simple`
+    - optional: `true`
+    - description: id of the binding to use on the node queried
+  - `selector`
+    - type: `<String>`
+    - default: binding root **HTMLElement**
+    - optional: `true`
+    - description: property to query the node element that needs to updated
+
+The bindings supported are only of 4 different types:
+
+- `simple` to bind simply the expressions to a DOM structure
+- `if` to handle conditional DOM structures
+- `each` to render DOM lists
+- `tag` to mount registered tag templates to any DOM node
+
+Combining the bindings above we can map any javascript object to a DOM template.
+
+### Simple Binding
+
+These kind of bindings will be only used to connect the expressions to DOM nodes in order to manipulate them.<br/>
+**Simple bindings will never modify the DOM tree structure, they will only target a single node.**<br/>
+A simple binding must always contain at least one of the following expression:
+  - `attribute` to update the node attributes
+  - `event` to set the event handling
+  - `text` to update the node content
+  - `value` to update the node value
+
+For example, let's consider the following binding:
+
+```js
+const pGreetingBinding = {
+  selector: 'p',
+  expressions: [{
+    type: 'text',
+    childNodeIndex: 0,
+    evaluate: scope => scope.greeting,
+  }]
+}
+
+template('<p><!----></p>', [pGreeting])
+```
+
+In this case we have created a binding to update only the content of a `p` tag.<br/>
+*Notice that the `p` tag has an empty comment that will be replaced with the value of the binding expression whenever the template will be mounted*
+
+### Simple Binding Expressions
+
+The simple binding supports DOM manipulations only via expressions. An expression object must have always at least the following keys:
+
+  - `evaluate`
+    - type: `<Function>`
+    - description: function that will receive the current template scope and will return the current expression value
+  - `type`
+    - type: `<Number>`
+    - description: id to find the expression we need to apply to the node
+
+#### Attribute
+
+
 
 
 

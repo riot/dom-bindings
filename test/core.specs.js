@@ -1,4 +1,4 @@
-const { template, registry } = require('../')
+import { expressionTypes, registry, template } from '../src'
 
 describe('core specs', () => {
   it('The riot DOM bindings public methods get properly exported', () => {
@@ -27,7 +27,7 @@ describe('core specs', () => {
     const message = 'hello world'
     const el = template('<!---->', [{
       expressions: [{
-        type: 'text', childNodeIndex: 0, evaluate() { return message }
+        type: expressionTypes.TEXT, childNodeIndex: 0, evaluate() { return message }
       }]
     }])
 
@@ -48,7 +48,7 @@ describe('core specs', () => {
       selector: '[expr0]',
       redundantAttribute: 'expr0',
       expressions: [
-        { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }}
+        { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }}
       ]
     }]).mount(target, { text: 'hello' })
 

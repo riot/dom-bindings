@@ -16,6 +16,18 @@ function cleanNode(node) {
   children.forEach(n => node.removeChild(n));
 }
 
+const EACH = 0;
+const IF = 1;
+const SIMPLE = 2;
+const TAG = 3;
+
+var bindingTypes = {
+  EACH,
+  IF,
+  SIMPLE,
+  TAG
+};
+
 const EachBinding = Object.seal({
   // dynamic binding properties
   childrenMap: null,
@@ -259,6 +271,18 @@ function create$1(node, { evaluate, template }) {
   }
 }
 
+const ATTRIBUTE = 0;
+const EVENT = 1;
+const TEXT = 2;
+const VALUE = 3;
+
+var expressionTypes = {
+  ATTRIBUTE,
+  EVENT,
+  TEXT,
+  VALUE
+};
+
 const REMOVE_ATTRIBUTE = 'removeAttribute';
 const SET_ATTIBUTE = 'setAttribute';
 
@@ -394,10 +418,10 @@ function valueExpression(node, expression, value) {
 }
 
 var expressions = {
-  attribute: attributeExpression,
-  event: eventExpression,
-  text: textExpression,
-  value: valueExpression
+  [ATTRIBUTE]: attributeExpression,
+  [EVENT]: eventExpression,
+  [TEXT]: textExpression,
+  [VALUE]: valueExpression
 };
 
 const Expression = Object.seal({
@@ -536,7 +560,7 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
     // if we fallback to a normal template chunk
     expressions: attributes.map(attr => {
       return {
-        type: 'attribute',
+        type: ATTRIBUTE,
         ...attr
       }
     })
@@ -564,10 +588,10 @@ function create$4(node, { name, slots, bindings, attributes }) {
 }
 
 var bindings = {
-  if: create$1,
-  simple: create$3,
-  each: create,
-  tag: create$4
+  [IF]: create$1,
+  [SIMPLE]: create$3,
+  [EACH]: create,
+  [TAG]: create$4
 };
 
 /**
@@ -584,7 +608,7 @@ function create$5(root, binding) {
   if (redundantAttribute) node.removeAttribute(redundantAttribute);
 
   // init the binding
-  return (bindings[type] || bindings.simple)(
+  return (bindings[type] || bindings[SIMPLE])(
     node,
     {
       ...binding,
@@ -754,3 +778,5 @@ function create$6(html, bindings = []) {
 exports.template = create$6;
 exports.registry = registry;
 exports.createBinding = create$5;
+exports.bindingTypes = bindingTypes;
+exports.expressionTypes = expressionTypes;

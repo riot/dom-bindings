@@ -15,8 +15,8 @@
     "pretest": "npm run build",
     "postest": "npm run cov-html",
     "bench": "node benchmarks",
-    "test": "npm run lint && nyc mocha test/index.js",
-    "test-debug": "mocha --inspect --inspect-brk test/index.js",
+    "test": "npm run lint && nyc mocha -r reify test/index.js",
+    "test-debug": "mocha -r reify --inspect --inspect-brk test/index.js",
     "prepublishOnly": "npm run test"
   },
   "files": [
@@ -47,6 +47,7 @@
     "jsdom-global": "3.0.2",
     "mocha": "^5.2.0",
     "nyc": "^13.0.1",
+    "reify": "^0.17.3",
     "rollup": "^0.66.3",
     "rollup-plugin-node-resolve": "^3.4.0",
     "sinon": "^6.3.4",

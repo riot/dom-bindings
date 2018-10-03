@@ -1,5 +1,5 @@
-const { template } = require('../../')
-const { fireEvent } = require('../util')
+import { expressionTypes, template } from '../../src'
+import { fireEvent } from '../util'
 
 describe('event specs', () => {
   it('dom events get properly bound', () => {
@@ -8,7 +8,7 @@ describe('event specs', () => {
     template('<button expr0/>Click me</button>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'event', name: 'onclick', evaluate(scope) { return scope.callback }}
+        { type: expressionTypes.EVENT, name: 'onclick', evaluate(scope) { return scope.callback }}
       ]
     }]).mount(target, { callback: spy })
 
@@ -25,7 +25,7 @@ describe('event specs', () => {
     const el = template('<button expr0/>Click me</button>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'event', name: 'onclick', evaluate(scope) { return scope.callback }}
+        { type: expressionTypes.EVENT, name: 'onclick', evaluate(scope) { return scope.callback }}
       ]
     }]).mount(target, { callback: spy })
 

@@ -77,3 +77,15 @@ export { default as registry } from './registry'
  * @returns {Expression} Expression object
  */
 export { default as createBinding } from './binding'
+
+/**
+ * Object containing all the binding types
+ * @type {Object}
+ */
+export { default as bindingTypes } from './bindings/binding-types'
+
+/**
+ * Object containing all the expression types
+ * @type {Object}
+ */
+export { default as expressionTypes } from './expressions/expression-types'

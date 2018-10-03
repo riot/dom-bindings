@@ -1,3 +1,4 @@
+import { ATTRIBUTE } from '../expressions/expression-types'
 import curry from 'curri'
 import registry from '../registry'
 import template from '../template'
@@ -23,7 +24,7 @@ function getTag(name, slots = [], bindings = [], attributes = []) {
     // if we fallback to a normal template chunk
     expressions: attributes.map(attr => {
       return {
-        type: 'attribute',
+        type: ATTRIBUTE,
         ...attr
       }
     })

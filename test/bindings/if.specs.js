@@ -1,14 +1,14 @@
-const { template } = require('../../')
+import { bindingTypes, expressionTypes, template } from '../../src'
 
 function createDummyIfTemplate() {
   return template('<div></div><p expr0></p>', [{
     selector: '[expr0]',
-    type: 'if',
+    type: bindingTypes.IF,
     evaluate(scope) { return scope.isVisible },
     template: template('<b expr0><!----></b>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }}
+        { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }}
       ]
     }])
   }])

@@ -1,4 +1,4 @@
-const { template } = require('../../')
+import { expressionTypes, template } from '../../src'
 
 describe('value specs', () => {
   it('set the value properly', () => {
@@ -6,7 +6,7 @@ describe('value specs', () => {
     template('<input expr0/>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'value', evaluate(scope) { return scope.val }}
+        { type: expressionTypes.VALUE, evaluate(scope) { return scope.val }}
       ]
     }]).mount(target, { val: 'hello' })
 
@@ -21,7 +21,7 @@ describe('value specs', () => {
     const el = template('<textarea expr0/>Baz</textarea>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'value', evaluate(scope) { return scope.val }}
+        { type: expressionTypes.VALUE, evaluate(scope) { return scope.val }}
       ]
     }]).mount(target, { val: 'hello' })
 

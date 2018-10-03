@@ -1,11 +1,12 @@
+import {ATTRIBUTE, EVENT, TEXT, VALUE} from './expression-types'
 import attributeExpression from './attribute'
 import eventExpression from './event'
 import textExpression from './text'
 import valueExpression from './value'
 
 export default {
-  attribute: attributeExpression,
-  event: eventExpression,
-  text: textExpression,
-  value: valueExpression
+  [ATTRIBUTE]: attributeExpression,
+  [EVENT]: eventExpression,
+  [TEXT]: textExpression,
+  [VALUE]: valueExpression
 }

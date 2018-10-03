@@ -1,4 +1,4 @@
-const { template, tag, registry } = require('../../') // eslint-disable-line
+import { bindingTypes, expressionTypes, registry, template } from '../../src'
 
 describe('tag bindings', () => {
   it('tags not registered will fallback to default templates', () => {
@@ -6,7 +6,7 @@ describe('tag bindings', () => {
 
     const el = template('<section><div expr0></div></section>', [{
       selector: '[expr0]',
-      type: 'tag',
+      type: bindingTypes.TAG,
       name: 'my-tag',
       slots: [
         {
@@ -17,7 +17,7 @@ describe('tag bindings', () => {
       bindings: [{
         selector: '[expr1]',
         expressions: [{
-          type: 'text',
+          type: expressionTypes.TEXT,
           childNodeIndex: 0,
           evaluate(scope) {
             return scope.text
@@ -39,7 +39,7 @@ describe('tag bindings', () => {
 
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
-      type: 'tag',
+      type: bindingTypes.TAG,
       name: 'my-tag',
       attributes: [{
         evaluate(scope) { return scope.class },
@@ -77,7 +77,7 @@ describe('tag bindings', () => {
     // create a template with a fake custom riot tag in it
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
-      type: 'tag',
+      type: bindingTypes.TAG,
       name: 'my-tag',
       slots: [{
         id: 'default',
@@ -86,7 +86,7 @@ describe('tag bindings', () => {
       bindings: [{
         selector: '[expr1]',
         expressions: [{
-          type: 'text',
+          type: expressionTypes.TEXT,
           childNodeIndex: 0,
           evaluate(scope) {
             return scope.text

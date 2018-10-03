@@ -14,6 +14,18 @@
     children.forEach(n => node.removeChild(n));
   }
 
+  const EACH = 0;
+  const IF = 1;
+  const SIMPLE = 2;
+  const TAG = 3;
+
+  var bindingTypes = {
+    EACH,
+    IF,
+    SIMPLE,
+    TAG
+  };
+
   const append = (get, parent, children, start, end, before) => {
     if ((end - start) < 2)
       parent.insertBefore(get(children[start], 1), before);
@@ -859,6 +871,18 @@
     }
   }
 
+  const ATTRIBUTE = 0;
+  const EVENT = 1;
+  const TEXT = 2;
+  const VALUE = 3;
+
+  var expressionTypes = {
+    ATTRIBUTE,
+    EVENT,
+    TEXT,
+    VALUE
+  };
+
   const REMOVE_ATTRIBUTE = 'removeAttribute';
   const SET_ATTIBUTE = 'setAttribute';
 
@@ -994,10 +1018,10 @@
   }
 
   var expressions = {
-    attribute: attributeExpression,
-    event: eventExpression,
-    text: textExpression,
-    value: valueExpression
+    [ATTRIBUTE]: attributeExpression,
+    [EVENT]: eventExpression,
+    [TEXT]: textExpression,
+    [VALUE]: valueExpression
   };
 
   const Expression = Object.seal({
@@ -1136,7 +1160,7 @@
       // if we fallback to a normal template chunk
       expressions: attributes.map(attr => {
         return {
-          type: 'attribute',
+          type: ATTRIBUTE,
           ...attr
         }
       })
@@ -1164,10 +1188,10 @@
   }
 
   var bindings = {
-    if: create$1,
-    simple: create$3,
-    each: create,
-    tag: create$4
+    [IF]: create$1,
+    [SIMPLE]: create$3,
+    [EACH]: create,
+    [TAG]: create$4
   };
 
   /**
@@ -1184,7 +1208,7 @@
     if (redundantAttribute) node.removeAttribute(redundantAttribute);
 
     // init the binding
-    return (bindings[type] || bindings.simple)(
+    return (bindings[type] || bindings[SIMPLE])(
       node,
       {
         ...binding,
@@ -1354,6 +1378,8 @@
   exports.template = create$6;
   exports.registry = registry;
   exports.createBinding = create$5;
+  exports.bindingTypes = bindingTypes;
+  exports.expressionTypes = expressionTypes;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 

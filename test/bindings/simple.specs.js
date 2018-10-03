@@ -1,11 +1,11 @@
-const { template } = require('../../')
+import { expressionTypes, template } from '../../src'
 
 function createDummyTemplate() {
   return template('<p expr0><!----></p>', [{
     selector: '[expr0]',
     expressions: [
-      { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }},
-      { type: 'attribute', name: 'class', evaluate(scope) { return scope.class }}
+      { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }},
+      { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.class }}
     ]
   }])
 }
