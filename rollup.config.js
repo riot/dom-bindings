@@ -17,19 +17,14 @@ export default [
       file: 'dist/umd.dom-bindings.js',
       format: 'umd'
     }]
-
   },
   {
     ...base,
-    external: ['domdiff'],
+    external: ['domdiff', 'curri'],
     output: [{
-      file: 'dist/cjs.dom-bindings.js',
-      format: 'cjs'
-    }, {
       file: 'dist/esm.dom-bindings.js',
       format: 'esm'
     }]
-
   }
 ]
 
