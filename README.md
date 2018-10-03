@@ -115,9 +115,9 @@ To create a binding object you might use the following  properties:
     - description: array containing instructions to execute DOM manipulation on the node queried
   - `type`
     - type: `<Number>`
-    - default:`simple`
+    - default:`bindingTypes.SIMPLE`
     - optional: `true`
-    - description: id of the binding to use on the node queried
+    - description: id of the binding to use on the node queried. This id must be one of the keys available in the `bindingTypes` object
   - `selector`
     - type: `<String>`
     - default: binding root **HTMLElement**
@@ -170,11 +170,65 @@ The simple binding supports DOM manipulations only via expressions. An expressio
     - description: function that will receive the current template scope and will return the current expression value
   - `type`
     - type: `<Number>`
-    - description: id to find the expression we need to apply to the node
+    - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
 
-#### Attribute
+#### Attribute Expression
 
+The attribute expression allows to update all the DOM node attributes
+This expression might contain the optional `name` key to update a single attribute for example:
 
+```js
+// update only the class attribute
+{ type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
+```
 
+If the `name` key will not be defined and the return of the `evaluate` function will be an object, this expression will set all the pairs `key, value` as DOM attributes. <br/>
+Given the current scope `{ attr: { class: 'hello', 'name': 'world' }}`, the following expression will allow to set all the object attributes:
+
+```js
+{ type: expressionTypes.ATTRIBUTE, evaluate(scope) { return scope.attr }}
+```
+
+If the return value of the evaluate function will be a `Boolean` the attribute will be considered a boolean attribute like `checked` or `selected`...
+
+#### Event Expression
+
+The event expression is really simple, It must contain the `name` attribute and it will set the callback as `dom[name] = callback`. For example:
+
+```js
+// add an event listener
+{ type: expressionTypes.EVENT, evaluate(scope) { return function() { console.log('Hello There') } }}
+```
+
+To remove an event listener you should only `return null` via evaluate function:
+
+```js
+// remove the event listener
+{ type: expressionTypes.EVENT, evaluate(scope) { return null } }}
+```
+
+#### Text Expression
+
+The text expression must contain the `childNodeIndex` that will be used to identify which childNode from the `element.childNodes` collection will need to update its text content.
+Given for example the following template:
+
+```html
+<p><b>Your name is:</b><i>user_icon</i><!----></p>
+```
+
+we could use the following text expression to replace the CommentNode with a TextNode
+
+```js
+{ type: expressionTypes.TEXT, childNodeIndex: 2, evaluate(scope) { return 'Gianluca' } }}
+```
+
+#### Value Expression
+
+The value expression will just set the `element.value` with the value received from the evaluate function.
+It should be used only for form elements and it might look like the example below:
+
+```js
+{ type: expressionTypes.VALUE, evaluate(scope) { return scope.val }}
+```
 
 
