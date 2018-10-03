@@ -998,7 +998,7 @@
     event: eventExpression,
     text: textExpression,
     value: valueExpression
-  }
+  };
 
   const Expression = Object.seal({
     // Static props
@@ -1113,7 +1113,7 @@
    * Tags registry
    * It will contain the pair { `tag-name`: tag creation function }
    */
-  var registry = new Map()
+  var registry = new Map();
 
   /**
    * Create a new tag object if it was registered before, othewise fallback to the simple
@@ -1168,7 +1168,7 @@
     simple: create$3,
     each: create,
     tag: create$4
-  }
+  };
 
   /**
    * Bind a new expression object to a DOM node
