@@ -56,7 +56,10 @@ const app = tmpl.mount(target, {
 ### template(String, Array)
 
 The template method is the most important of this package.
-It will create a `TemplateChunk` that could be mounted, updated and unmounted to any DOM node
+It will create a `TemplateChunk` that could be mounted, updated and unmounted to any DOM node.
+
+<details>
+ <summary>Details</summary>
 
 A template will always need a string as first argument and a list of `Bindings` to work properly.
 Consider the following example:
@@ -76,10 +79,14 @@ const tmpl = template('<p><!----></p>', [{
 
 The template object above will bind a [simple binding](#simple-binding) to the `<p>` tag.
 
+</details>
+
 
 ### register(String, Function)
 
 The register method can be used to store custom tags template implementations.
+<details>
+ <summary>Details</summary>
 If a custom tag template was previously registered, its template will be mounted via [tag binding](#tag-binding)
 
 ```js
@@ -96,6 +103,7 @@ const tmpl = template('<section><my-tag class="a-custom-tag"/></section>', [{
   name: 'my-tag',
 }])
 ```
+</details>
 
 ### bindingTypes
 
@@ -108,6 +116,9 @@ Object containing all the expressions types supported
 ## Bindings
 
 A binding is simply an object that will be used internally to map the data structure provided to a DOM tree.
+
+<details>
+ <summary>Details</summary>
 To create a binding object you might use the following  properties:
   - `expressions`
     - type: `<Array>`
@@ -133,9 +144,14 @@ The bindings supported are only of 4 different types:
 
 Combining the bindings above we can map any javascript object to a DOM template.
 
+</details>
+
 ### Simple Binding
 
-These kind of bindings will be only used to connect the expressions to DOM nodes in order to manipulate them.<br/>
+These kind of bindings will be only used to connect the expressions to DOM nodes in order to manipulate them.
+
+<details>
+ <summary>Details</summary>
 **Simple bindings will never modify the DOM tree structure, they will only target a single node.**<br/>
 A simple binding must always contain at least one of the following expression:
   - `attribute` to update the node attributes
@@ -161,9 +177,15 @@ template('<p><!----></p>', [pGreeting])
 In this case we have created a binding to update only the content of a `p` tag.<br/>
 *Notice that the `p` tag has an empty comment that will be replaced with the value of the binding expression whenever the template will be mounted*
 
-### Simple Binding Expressions
+</details>
 
-The simple binding supports DOM manipulations only via expressions. An expression object must have always at least the following keys:
+#### Simple Binding Expressions
+
+The simple binding supports DOM manipulations only via expressions.
+
+<details>
+ <summary>Details</summary>
+An expression object must have always at least the following keys:
 
   - `evaluate`
     - type: `<Function>`
@@ -172,28 +194,38 @@ The simple binding supports DOM manipulations only via expressions. An expressio
     - type: `<Number>`
     - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
 
-#### Attribute Expression
+</details>
 
-The attribute expression allows to update all the DOM node attributes
-This expression might contain the optional `name` key to update a single attribute for example:
+##### Attribute Expression
 
-```js
-// update only the class attribute
-{ type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
-```
+The attribute expression allows to update all the DOM node attributes.
 
-If the `name` key will not be defined and the return of the `evaluate` function will be an object, this expression will set all the pairs `key, value` as DOM attributes. <br/>
-Given the current scope `{ attr: { class: 'hello', 'name': 'world' }}`, the following expression will allow to set all the object attributes:
+<details>
+ <summary>Details</summary>
+  This expression might contain the optional `name` key to update a single attribute for example:
 
-```js
-{ type: expressionTypes.ATTRIBUTE, evaluate(scope) { return scope.attr }}
-```
+  ```js
+  // update only the class attribute
+  { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
+  ```
 
-If the return value of the evaluate function will be a `Boolean` the attribute will be considered a boolean attribute like `checked` or `selected`...
+  If the `name` key will not be defined and the return of the `evaluate` function will be an object, this expression will set all the pairs `key, value` as DOM attributes. <br/>
+  Given the current scope `{ attr: { class: 'hello', 'name': 'world' }}`, the following expression will allow to set all the object attributes:
 
-#### Event Expression
+  ```js
+  { type: expressionTypes.ATTRIBUTE, evaluate(scope) { return scope.attr }}
+  ```
 
-The event expression is really simple, It must contain the `name` attribute and it will set the callback as `dom[name] = callback`. For example:
+  If the return value of the evaluate function will be a `Boolean` the attribute will be considered a boolean attribute like `checked` or `selected`...
+</details>
+
+##### Event Expression
+
+The event expression is really simple, It must contain the `name` attribute and it will set the callback as `dom[name] = callback`.
+
+<details>
+ <summary>Details</summary>
+For example:
 
 ```js
 // add an event listener
@@ -203,13 +235,18 @@ The event expression is really simple, It must contain the `name` attribute and 
 To remove an event listener you should only `return null` via evaluate function:
 
 ```js
-// remove the event listener
+// remove an event listener
 { type: expressionTypes.EVENT, evaluate(scope) { return null } }}
 ```
 
-#### Text Expression
+</details>
+
+##### Text Expression
 
 The text expression must contain the `childNodeIndex` that will be used to identify which childNode from the `element.childNodes` collection will need to update its text content.
+
+<details>
+ <summary>Details</summary>
 Given for example the following template:
 
 ```html
@@ -221,14 +258,20 @@ we could use the following text expression to replace the CommentNode with a Tex
 ```js
 { type: expressionTypes.TEXT, childNodeIndex: 2, evaluate(scope) { return 'Gianluca' } }}
 ```
+</details>
 
-#### Value Expression
+##### Value Expression
 
 The value expression will just set the `element.value` with the value received from the evaluate function.
+
+<details>
+ <summary>Details</summary>
 It should be used only for form elements and it might look like the example below:
 
 ```js
 { type: expressionTypes.VALUE, evaluate(scope) { return scope.val }}
 ```
+
+</details>
 
 
