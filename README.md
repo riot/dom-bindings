@@ -82,9 +82,10 @@ The template object above will bind a [simple binding](#simple-binding) to the `
 </details>
 
 
-### register(String, Function)
+### registry<Map>
 
-The register method can be used to store custom tags template implementations.
+The registry Map can be used to store custom tags template implementations.
+
 <details>
   <summary>Details</summary>
 If a custom tag template was previously registered, its template will be mounted via [tag binding](#tag-binding)
@@ -121,16 +122,16 @@ A binding is simply an object that will be used internally to map the data struc
   <summary>Details</summary>
 To create a binding object you might use the following  properties:
   - `expressions`
-    - type: `<Array>`
+    - type: `Array<Expression>`
     - required: `true`
     - description: array containing instructions to execute DOM manipulation on the node queried
   - `type`
-    - type: `<Number>`
+    - type: `Number`
     - default:`bindingTypes.SIMPLE`
     - optional: `true`
     - description: id of the binding to use on the node queried. This id must be one of the keys available in the `bindingTypes` object
   - `selector`
-    - type: `<String>`
+    - type: `String`
     - default: binding root **HTMLElement**
     - optional: `true`
     - description: property to query the node element that needs to updated
@@ -188,10 +189,10 @@ The simple binding supports DOM manipulations only via expressions.
 An expression object must have always at least the following properties:
 
   - `evaluate`
-    - type: `<Function>`
+    - type: `Function`
     - description: function that will receive the current template scope and will return the current expression value
   - `type`
-    - type: `<Number>`
+    - type: `Number`
     - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
 
 </details>
@@ -284,23 +285,23 @@ The `each` binding is used to create multiple DOM nodes of the same type. This b
 **`each` bindings will need a template that will be cloned, mounted and updated for all the instances of the collection.**<br/>
 An each binding should contain the following properties:
   - `itemName`
-    - type: `<String>`
+    - type: `String`
     - required: `true`
     - description: name to identify the item object of the current iteration
   - `indexName`
-    - type: `<Number>`
+    - type: `Number`
     - optional: `true`
     - description: name to identify the current item index
   - `evaluate`
-    - type: `<Function>`
+    - type: `Function`
     - required: `true`
     - description: function that will return the collection to iterate
   - `template`
-    - type: `<TemplateChunk>`
+    - type: `TemplateChunk`
     - required: `true`
     - description: a dom-bindings template that will be used as skeleton for the DOM elements created
   - `condition`
-    - type: `<Function>`
+    - type: `Function`
     - optional: `true`
     - description: function that can be used to filter the items from the collection
 
@@ -335,14 +336,14 @@ The `if` bindings are needed to handle conditionally entire parts of your compon
 <details>
   <summary>Details</summary>
 
-**`If` bindings will need a template that will be mounted and unmounted depending on the return value of the evaluate function.**<br/>
+**`if` bindings will need a template that will be mounted and unmounted depending on the return value of the evaluate function.**<br/>
 An if binding should contain the following properties:
   - `evaluate`
-    - type: `<Function>`
+    - type: `Function`
     - required: `true`
     - description: if this function will return truthy values the template will be mounted otherwise unmounted
   - `template`
-    - type: `<TemplateChunk>`
+    - type: `TemplateChunk`
     - required: `true`
     - description: a dom-bindings template that will be used as skeleton for the DOM element created
 
@@ -370,11 +371,72 @@ template('<p>Hello there <b></b></p>', [ifBinding])
 
 ### Tag Binding
 
-The `tag` bindings are needed to mount tags templates stored via [`register`](registerstring-function) methods
+The `tag` bindings are needed to mount tags templates stored via [`register`](#registerstring-function) method
 
 <details>
   <summary>Details</summary>
 
+`tag` bindings will enhance any child node with a template previously registered via `register`. These templates are likely components that must be mounted as children in a parent component template
+
+An tag binding might contain the following properties:
+  - `name`
+    - type: `String`
+    - required: `true`
+    - description: id of the template to mount
+  - `slots`
+    - type: `Array<Slot>`
+    - optional: `true`
+    - description: array containing the slots that must be mounted into the child tag
+  - `attributes`
+    - type: `Array<AttributeExpression>`
+    - optional: `true`
+    - description: array containing the attribute values that should be passed to the child tag
+
+The following tag binding will upgrade the `time` tag using the `human-readable-time` template.
+This is how the `human-readable-time` template might look like
+
+```js
+import moment from 'moment'
+
+// register a template tag
+registry.set('human-readable-time', function({ attributes }) {
+  const dateTimeAttr = attributes.find(({ name }) => name === 'datetime')
+  return template('<!---->', [{
+    expressions: [{
+      type: expressionTypes.TEXT,
+      childNodeIndex: 0,
+      evaluate(scope) {
+        const dateTimeValue = dateTimeAttr.evaluate(scope)
+        return moment(new Date(dateTimeValue)).fromNow()
+      }
+    }, ...attributes.map(attr => {
+      return {
+        ...attr,
+        type: expressionTypes.ATTRIBUTE
+      }
+    })]
+  }])
+})
+```
+
+Here it's how the previous tag might be used in a `tag` binding
+```js
+const tagBinding = {
+  type: bindingTypes.TAG,
+  name: 'human-readable-time',
+  selector: 'time',
+  attributes: [{
+    evaluate: scope => scope.time,
+    name: 'datetime'
+  }]
+}
+
+template('<p>Your last commit was: <time></time></p>', [tagBinding]).mount(app, {
+  time: '2017-02-14'
+})
+```
+
+The `tag` bindings have always a lower priority compared to the `if` and `each` bindings
 </details>
 
 

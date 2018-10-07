@@ -11,17 +11,17 @@ describe('tag bindings', () => {
       slots: [
         {
           id: 'default',
+          bindings: [{
+            selector: '[expr1]',
+            expressions: [{
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: scope => scope.text
+            }]
+          }],
           html: '<p expr1><!----></p>'
         }
-      ],
-      bindings: [{
-        selector: '[expr1]',
-        expressions: [{
-          type: expressionTypes.TEXT,
-          childNodeIndex: 0,
-          evaluate: scope => scope.text
-        }]
-      }]
+      ]
     }]).mount(target, { text: 'hello' })
 
     const p = target.querySelector('p')
@@ -57,10 +57,9 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
 
     // fake tag
-    registry.set('my-tag', function({ slots, bindings, attributes }) {
+    registry.set('my-tag', function({ slots, attributes }) {
       expect(slots).to.be.ok
       expect(attributes).to.be.ok
-      expect(bindings).to.be.ok
 
       return {
         mount(el, scope) {
@@ -77,18 +76,6 @@ describe('tag bindings', () => {
       selector: '[expr0]',
       type: bindingTypes.TAG,
       name: 'my-tag',
-      slots: [{
-        id: 'default',
-        html: '<p expr1>hello</p>'
-      }],
-      bindings: [{
-        selector: '[expr1]',
-        expressions: [{
-          type: expressionTypes.TEXT,
-          childNodeIndex: 0,
-          evaluate:scope => scope.text
-        }]
-      }],
       attributes: [{
         evaluate: scope => scope.class,
         name: 'class'

@@ -1144,27 +1144,39 @@
    * template chunk
    * @param   {string} name - tag name
    * @param   {Array<Object>} slots - array containing the slots markup
-   * @param   {Array} bindings - DOM bindings
    * @param   {Array} attributes - dynamic attributes that will be received by the tag element
    * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
    */
-  function getTag(name, slots = [], bindings = [], attributes = []) {
+  function getTag(name, slots = [], attributes = []) {
     // if this tag was registered before we will return its implementation
     if (registry.has(name)) {
-      return registry.get(name)({ slots, bindings, attributes })
+      return registry.get(name)({ slots, attributes })
     }
 
     // otherwise we return a template chunk
-    return create$6(slotsToMarkup(slots), [...bindings, {
+    return create$6(slotsToMarkup(slots), [
+      // all the slot bindings should be flatten to query agains a single template chunk
+      ...slotBindings(slots), {
       // the attributes should be registered as binding
       // if we fallback to a normal template chunk
-      expressions: attributes.map(attr => {
-        return {
-          type: ATTRIBUTE,
-          ...attr
-        }
-      })
-    }])
+        expressions: attributes.map(attr => {
+          return {
+            type: ATTRIBUTE,
+            ...attr
+          }
+        })
+      }
+    ])
+  }
+
+
+  /**
+   * Merge all the slots bindings into a single array
+   * @param   {Array<Object>} slots - slots collection
+   * @returns {Array<Bindings>} flatten bindings array
+   */
+  function slotBindings(slots) {
+    return slots.reduce((acc, { bindings }) => acc.concat(bindings), [])
   }
 
   /**
@@ -1178,8 +1190,8 @@
     }, '')
   }
 
-  function create$4(node, { name, slots, bindings, attributes }) {
-    const tag = getTag(name, slots, bindings, attributes);
+  function create$4(node, { name, slots, attributes }) {
+    const tag = getTag(name, slots, attributes);
 
     return {
       ...tag,
