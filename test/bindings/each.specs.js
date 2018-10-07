@@ -13,13 +13,13 @@ function createDummyListTemplate(options = {}) {
     selector: '[expr0]',
     type: bindingTypes.EACH,
     itemName: 'val',
-    evaluate(scope) { return scope.items },
+    evaluate: scope => scope.items,
     template: template('<!---->', [{
       expressions: [
         {
           type: expressionTypes.TEXT,
           childNodeIndex: 0,
-          evaluate(scope) { return scope.val }
+          evaluate: scope => scope.val
         }
       ]
     }])
@@ -31,13 +31,13 @@ function createDummyListWithSiblingsTemplate(options = {}) {
     selector: '[expr0]',
     type: bindingTypes.EACH,
     itemName: 'val',
-    evaluate(scope) { return scope.items },
+    evaluate: scope => scope.items,
     template: template('<!---->', [{
       expressions: [
         {
           type: expressionTypes.TEXT,
           childNodeIndex: 0,
-          evaluate(scope) { return scope.val }
+          evaluate: scope => scope.val
         }
       ]
     }])

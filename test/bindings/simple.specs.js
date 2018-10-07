@@ -4,8 +4,8 @@ function createDummyTemplate() {
   return template('<p expr0><!----></p>', [{
     selector: '[expr0]',
     expressions: [
-      { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }},
-      { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.class }}
+      { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate: scope => scope.text },
+      { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.class }
     ]
   }])
 }

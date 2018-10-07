@@ -22,7 +22,7 @@ const tmpl = template('<p><!----></p>', [{
     {
       type: expressionTypes.TEXT,
       childNodeIndex: 0,
-      evaluate(scope) { return scope.greeting },
+      evaluate: scope => scope.greeting,
     },
   ],
 }])
@@ -171,7 +171,7 @@ const pGreetingBinding = {
   }]
 }
 
-template('<p><!----></p>', [pGreeting])
+template('<article><p><!----></p></article>', [pGreeting])
 ```
 
 In this case we have created a binding to update only the content of a `p` tag.<br/>
@@ -276,7 +276,7 @@ It should be used only for form elements and it might look like the example belo
 
 ### Each Binding
 
-The each binding is used to create multiple DOM nodes of the same type. This binding is typically used in to render javascript collections.
+The `each` binding is used to create multiple DOM nodes of the same type. This binding is typically used in to render javascript collections.
 
 <details>
   <summary>Details</summary>
@@ -298,7 +298,7 @@ An each binding should contain the following properties:
   - `template`
     - type: `<TemplateChunk>`
     - required: `true`
-    - description: a dom-bindings template that will be used as skeleton for and DOM element created
+    - description: a dom-bindings template that will be used as skeleton for the DOM elements created
   - `condition`
     - type: `<Function>`
     - optional: `true`
@@ -325,6 +325,47 @@ const eachBinding = {
 }
 
 template('<p></p>', [eachBinding])
+```
+</details>
+
+
+### If Binding
+
+The `if` bindings are needed to handle conditionally entire parts of your components templates
+
+<details>
+  <summary>Details</summary>
+
+**If bindings will need a template that will be mounted and unmounted depending on the return value of the evaluate function.**<br/>
+An if binding should contain the following properties:
+  - `evaluate`
+    - type: `<Function>`
+    - required: `true`
+    - description: if this function will return truthy values the template will be mounted otherwise unmounted
+  - `template`
+    - type: `<TemplateChunk>`
+    - required: `true`
+    - description: a dom-bindings template that will be used as skeleton for the DOM element created
+
+The following binding will render the `b` tag only if the `scope.isVisible` property will be truthy. Otherwise the `b` tag will be removed from the template
+
+```js
+const ifBinding = {
+  type: bindingTypes.IF,
+  evaluate: scope => scope.isVisible,
+  selector: 'b'
+  template: template('<!---->', [{
+    expressions: [
+      {
+        type: expressionTypes.TEXT,
+        childNodeIndex: 0,
+        evaluate: scope => scope.name
+      }
+    ]
+  }])
+}
+
+template('<p>Hello there <b></b></p>', [ifBinding])
 ```
 </details>
 

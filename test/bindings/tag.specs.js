@@ -19,9 +19,7 @@ describe('tag bindings', () => {
         expressions: [{
           type: expressionTypes.TEXT,
           childNodeIndex: 0,
-          evaluate(scope) {
-            return scope.text
-          }
+          evaluate: scope => scope.text
         }]
       }]
     }]).mount(target, { text: 'hello' })
@@ -42,7 +40,7 @@ describe('tag bindings', () => {
       type: bindingTypes.TAG,
       name: 'my-tag',
       attributes: [{
-        evaluate(scope) { return scope.class },
+        evaluate: scope => scope.class,
         name: 'class'
       }]
     }]).mount(target, { class: 'hello' })
@@ -88,13 +86,11 @@ describe('tag bindings', () => {
         expressions: [{
           type: expressionTypes.TEXT,
           childNodeIndex: 0,
-          evaluate(scope) {
-            return scope.text
-          }
+          evaluate:scope => scope.text
         }]
       }],
       attributes: [{
-        evaluate(scope) { return scope.class },
+        evaluate: scope => scope.class,
         name: 'class'
       }]
     }]).mount(target, { class: 'hello' })
