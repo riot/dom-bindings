@@ -154,6 +154,7 @@ These kind of bindings will be only used to connect the expressions to DOM nodes
 
 <details>
   <summary>Details</summary>
+
 **Simple bindings will never modify the DOM tree structure, they will only target a single node.**<br/>
 A simple binding must always contain at least one of the following expression:
 
