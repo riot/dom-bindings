@@ -59,7 +59,7 @@ The template method is the most important of this package.
 It will create a `TemplateChunk` that could be mounted, updated and unmounted to any DOM node.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 
 A template will always need a string as first argument and a list of `Bindings` to work properly.
 Consider the following example:
@@ -86,7 +86,7 @@ The template object above will bind a [simple binding](#simple-binding) to the `
 
 The register method can be used to store custom tags template implementations.
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 If a custom tag template was previously registered, its template will be mounted via [tag binding](#tag-binding)
 
 ```js
@@ -118,7 +118,7 @@ Object containing all the expressions types supported
 A binding is simply an object that will be used internally to map the data structure provided to a DOM tree.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 To create a binding object you might use the following  properties:
   - `expressions`
     - type: `<Array>`
@@ -137,10 +137,10 @@ To create a binding object you might use the following  properties:
 
 The bindings supported are only of 4 different types:
 
-- `simple` to bind simply the expressions to a DOM structure
-- `if` to handle conditional DOM structures
-- `each` to render DOM lists
-- `tag` to mount registered tag templates to any DOM node
+- [`simple`](#simple-binding) to bind simply the expressions to a DOM structure
+- [`each`](#each-binding) to render DOM lists
+- [`if`](#if-binding) to handle conditional DOM structures
+- [`tag`](#tag-binding) to mount registered tag templates to any DOM node
 
 Combining the bindings above we can map any javascript object to a DOM template.
 
@@ -151,7 +151,7 @@ Combining the bindings above we can map any javascript object to a DOM template.
 These kind of bindings will be only used to connect the expressions to DOM nodes in order to manipulate them.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 **Simple bindings will never modify the DOM tree structure, they will only target a single node.**<br/>
 A simple binding must always contain at least one of the following expression:
   - `attribute` to update the node attributes
@@ -165,7 +165,7 @@ For example, let's consider the following binding:
 const pGreetingBinding = {
   selector: 'p',
   expressions: [{
-    type: 'text',
+    type: expressionTypes.Text,
     childNodeIndex: 0,
     evaluate: scope => scope.greeting,
   }]
@@ -184,8 +184,8 @@ In this case we have created a binding to update only the content of a `p` tag.<
 The simple binding supports DOM manipulations only via expressions.
 
 <details>
- <summary>Details</summary>
-An expression object must have always at least the following keys:
+  <summary>Details</summary>
+An expression object must have always at least the following properties:
 
   - `evaluate`
     - type: `<Function>`
@@ -201,7 +201,7 @@ An expression object must have always at least the following keys:
 The attribute expression allows to update all the DOM node attributes.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
   This expression might contain the optional `name` key to update a single attribute for example:
 
   ```js
@@ -224,7 +224,7 @@ The attribute expression allows to update all the DOM node attributes.
 The event expression is really simple, It must contain the `name` attribute and it will set the callback as `dom[name] = callback`.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 For example:
 
 ```js
@@ -246,7 +246,7 @@ To remove an event listener you should only `return null` via evaluate function:
 The text expression must contain the `childNodeIndex` that will be used to identify which childNode from the `element.childNodes` collection will need to update its text content.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 Given for example the following template:
 
 ```html
@@ -265,7 +265,7 @@ we could use the following text expression to replace the CommentNode with a Tex
 The value expression will just set the `element.value` with the value received from the evaluate function.
 
 <details>
- <summary>Details</summary>
+  <summary>Details</summary>
 It should be used only for form elements and it might look like the example below:
 
 ```js
@@ -273,5 +273,60 @@ It should be used only for form elements and it might look like the example belo
 ```
 
 </details>
+
+### Each Binding
+
+The each binding is used to create multiple DOM nodes of the same type. This binding is typically used in to render javascript collections.
+
+<details>
+  <summary>Details</summary>
+
+**Each bindings will need a template that will be cloned, mounted and updated for all the instances of the collection.**<br/>
+An each binding should contain the following properties:
+  - `itemName`
+    - type: `<String>`
+    - required: `true`
+    - description: name to identify the item object of the current iteration
+  - `indexName`
+    - type: `<Number>`
+    - optional: `true`
+    - description: name to identify the current item index
+  - `evaluate`
+    - type: `<Function>`
+    - required: `true`
+    - description: function that will return the collection to iterate
+  - `template`
+    - type: `<TemplateChunk>`
+    - required: `true`
+    - description: a dom-bindings template that will be used as skeleton for and DOM element created
+  - `condition`
+    - type: `<Function>`
+    - optional: `true`
+    - description: function that can be used to filter the items from the collection
+
+The each bindings have the highest [hierarchical priority](#bindings-hierarchy) compared to the other riot bindings.
+The following binding will loop through the `scope.items` collection creating several `p` tags having as TextNode child value dependent loop item received
+
+```js
+const eachBinding = {
+  type: bindingTypes.EACH,
+  itemName: 'val',
+  indexName: 'index'
+  evaluate(scope) { return scope.items },
+  template: template('<!---->', [{
+    expressions: [
+      {
+        type: expressionTypes.TEXT,
+        childNodeIndex: 0,
+        evaluate: scope => `${scope.val} - ${scope.index}`
+      }
+    ]
+  }
+}
+
+template('<p></p>', [eachBinding])
+```
+</details>
+
 
 
