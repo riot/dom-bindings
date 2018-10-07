@@ -121,20 +121,21 @@ A binding is simply an object that will be used internally to map the data struc
 <details>
   <summary>Details</summary>
 To create a binding object you might use the following  properties:
-  - `expressions`
-    - type: `Array<Expression>`
-    - required: `true`
-    - description: array containing instructions to execute DOM manipulation on the node queried
-  - `type`
-    - type: `Number`
-    - default:`bindingTypes.SIMPLE`
-    - optional: `true`
-    - description: id of the binding to use on the node queried. This id must be one of the keys available in the `bindingTypes` object
-  - `selector`
-    - type: `String`
-    - default: binding root **HTMLElement**
-    - optional: `true`
-    - description: property to query the node element that needs to updated
+
+- `expressions`
+  - type: `Array<Expression>`
+  - required: `true`
+  - description: array containing instructions to execute DOM manipulation on the node queried
+- `type`
+  - type: `Number`
+  - default:`bindingTypes.SIMPLE`
+  - optional: `true`
+  - description: id of the binding to use on the node queried. This id must be one of the keys available in the `bindingTypes` object
+- `selector`
+  - type: `String`
+  - default: binding root **HTMLElement**
+  - optional: `true`
+  - description: property to query the node element that needs to updated
 
 The bindings supported are only of 4 different types:
 
@@ -155,10 +156,11 @@ These kind of bindings will be only used to connect the expressions to DOM nodes
   <summary>Details</summary>
 **Simple bindings will never modify the DOM tree structure, they will only target a single node.**<br/>
 A simple binding must always contain at least one of the following expression:
-  - `attribute` to update the node attributes
-  - `event` to set the event handling
-  - `text` to update the node content
-  - `value` to update the node value
+
+- `attribute` to update the node attributes
+- `event` to set the event handling
+- `text` to update the node content
+- `value` to update the node value
 
 For example, let's consider the following binding:
 
@@ -188,12 +190,12 @@ The simple binding supports DOM manipulations only via expressions.
   <summary>Details</summary>
 An expression object must have always at least the following properties:
 
-  - `evaluate`
-    - type: `Function`
-    - description: function that will receive the current template scope and will return the current expression value
-  - `type`
-    - type: `Number`
-    - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
+- `evaluate`
+  - type: `Function`
+  - description: function that will receive the current template scope and will return the current expression value
+- `type`
+  - type: `Number`
+  - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
 
 </details>
 
@@ -284,26 +286,27 @@ The `each` binding is used to create multiple DOM nodes of the same type. This b
 
 **`each` bindings will need a template that will be cloned, mounted and updated for all the instances of the collection.**<br/>
 An each binding should contain the following properties:
-  - `itemName`
-    - type: `String`
-    - required: `true`
-    - description: name to identify the item object of the current iteration
-  - `indexName`
-    - type: `Number`
-    - optional: `true`
-    - description: name to identify the current item index
-  - `evaluate`
-    - type: `Function`
-    - required: `true`
-    - description: function that will return the collection to iterate
-  - `template`
-    - type: `TemplateChunk`
-    - required: `true`
-    - description: a dom-bindings template that will be used as skeleton for the DOM elements created
-  - `condition`
-    - type: `Function`
-    - optional: `true`
-    - description: function that can be used to filter the items from the collection
+
+- `itemName`
+  - type: `String`
+  - required: `true`
+  - description: name to identify the item object of the current iteration
+- `indexName`
+  - type: `Number`
+  - optional: `true`
+  - description: name to identify the current item index
+- `evaluate`
+  - type: `Function`
+  - required: `true`
+  - description: function that will return the collection to iterate
+- `template`
+  - type: `TemplateChunk`
+  - required: `true`
+  - description: a dom-bindings template that will be used as skeleton for the DOM elements created
+- `condition`
+  - type: `Function`
+  - optional: `true`
+  - description: function that can be used to filter the items from the collection
 
 The each bindings have the highest [hierarchical priority](#bindings-hierarchy) compared to the other riot bindings.
 The following binding will loop through the `scope.items` collection creating several `p` tags having as TextNode child value dependent loop item received
@@ -338,14 +341,15 @@ The `if` bindings are needed to handle conditionally entire parts of your compon
 
 **`if` bindings will need a template that will be mounted and unmounted depending on the return value of the evaluate function.**<br/>
 An if binding should contain the following properties:
-  - `evaluate`
-    - type: `Function`
-    - required: `true`
-    - description: if this function will return truthy values the template will be mounted otherwise unmounted
-  - `template`
-    - type: `TemplateChunk`
-    - required: `true`
-    - description: a dom-bindings template that will be used as skeleton for the DOM element created
+
+- `evaluate`
+  - type: `Function`
+  - required: `true`
+  - description: if this function will return truthy values the template will be mounted otherwise unmounted
+- `template`
+  - type: `TemplateChunk`
+  - required: `true`
+  - description: a dom-bindings template that will be used as skeleton for the DOM element created
 
 The following binding will render the `b` tag only if the `scope.isVisible` property will be truthy. Otherwise the `b` tag will be removed from the template
 
@@ -379,18 +383,19 @@ The `tag` bindings are needed to mount tags templates stored in the [`registry`]
 `tag` bindings will enhance any child node with a template previously registered via `registry.set`. These templates are likely components that must be mounted as children in a parent component template
 
 An tag binding might contain the following properties:
-  - `name`
-    - type: `String`
-    - required: `true`
-    - description: id of the template to mount
-  - `slots`
-    - type: `Array<Slot>`
-    - optional: `true`
-    - description: array containing the slots that must be mounted into the child tag
-  - `attributes`
-    - type: `Array<AttributeExpression>`
-    - optional: `true`
-    - description: array containing the attribute values that should be passed to the child tag
+
+- `name`
+  - type: `String`
+  - required: `true`
+  - description: id of the template to mount
+- `slots`
+  - type: `Array<Slot>`
+  - optional: `true`
+  - description: array containing the slots that must be mounted into the child tag
+- `attributes`
+  - type: `Array<AttributeExpression>`
+  - optional: `true`
+  - description: array containing the attribute values that should be passed to the child tag
 
 The following tag binding will upgrade the `time` tag using the `human-readable-time` template.
 This is how the `human-readable-time` template might look like
