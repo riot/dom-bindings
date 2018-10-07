@@ -8,7 +8,7 @@ describe('event specs', () => {
     template('<button expr0/>Click me</button>', [{
       selector: '[expr0]',
       expressions: [
-        { type: expressionTypes.EVENT, name: 'onclick', evaluate(scope) { return scope.callback }}
+        { type: expressionTypes.EVENT, name: 'onclick', evaluate: scope => scope.callback }
       ]
     }]).mount(target, { callback: spy })
 
@@ -25,7 +25,7 @@ describe('event specs', () => {
     const el = template('<button expr0/>Click me</button>', [{
       selector: '[expr0]',
       expressions: [
-        { type: expressionTypes.EVENT, name: 'onclick', evaluate(scope) { return scope.callback }}
+        { type: expressionTypes.EVENT, name: 'onclick', evaluate: scope => scope.callback }
       ]
     }]).mount(target, { callback: spy })
 

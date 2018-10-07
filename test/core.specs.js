@@ -27,7 +27,9 @@ describe('core specs', () => {
     const message = 'hello world'
     const el = template('<!---->', [{
       expressions: [{
-        type: expressionTypes.TEXT, childNodeIndex: 0, evaluate() { return message }
+        type: expressionTypes.TEXT,
+        childNodeIndex: 0,
+        evaluate: () => message
       }]
     }])
 
@@ -48,7 +50,11 @@ describe('core specs', () => {
       selector: '[expr0]',
       redundantAttribute: 'expr0',
       expressions: [
-        { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }}
+        {
+          type: expressionTypes.TEXT,
+          childNodeIndex: 0,
+          evaluate: scope => scope.text
+        }
       ]
     }]).mount(target, { text: 'hello' })
 

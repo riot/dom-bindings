@@ -281,7 +281,7 @@ The `each` binding is used to create multiple DOM nodes of the same type. This b
 <details>
   <summary>Details</summary>
 
-**Each bindings will need a template that will be cloned, mounted and updated for all the instances of the collection.**<br/>
+**`each` bindings will need a template that will be cloned, mounted and updated for all the instances of the collection.**<br/>
 An each binding should contain the following properties:
   - `itemName`
     - type: `<String>`
@@ -312,7 +312,7 @@ const eachBinding = {
   type: bindingTypes.EACH,
   itemName: 'val',
   indexName: 'index'
-  evaluate(scope) { return scope.items },
+  evaluate: scope => scope.items,
   template: template('<!---->', [{
     expressions: [
       {
@@ -328,7 +328,6 @@ template('<p></p>', [eachBinding])
 ```
 </details>
 
-
 ### If Binding
 
 The `if` bindings are needed to handle conditionally entire parts of your components templates
@@ -336,7 +335,7 @@ The `if` bindings are needed to handle conditionally entire parts of your compon
 <details>
   <summary>Details</summary>
 
-**If bindings will need a template that will be mounted and unmounted depending on the return value of the evaluate function.**<br/>
+**`If` bindings will need a template that will be mounted and unmounted depending on the return value of the evaluate function.**<br/>
 An if binding should contain the following properties:
   - `evaluate`
     - type: `<Function>`
@@ -367,6 +366,15 @@ const ifBinding = {
 
 template('<p>Hello there <b></b></p>', [ifBinding])
 ```
+</details>
+
+### Tag Binding
+
+The `tag` bindings are needed to mount tags templates stored via [`register`](registerstring-function) methods
+
+<details>
+  <summary>Details</summary>
+
 </details>
 
 
