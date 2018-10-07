@@ -371,12 +371,12 @@ template('<p>Hello there <b></b></p>', [ifBinding])
 
 ### Tag Binding
 
-The `tag` bindings are needed to mount tags templates stored via [`register`](#registerstring-function) method
+The `tag` bindings are needed to mount tags templates stored in the [`registry`](#registry) map
 
 <details>
   <summary>Details</summary>
 
-`tag` bindings will enhance any child node with a template previously registered via `register`. These templates are likely components that must be mounted as children in a parent component template
+`tag` bindings will enhance any child node with a template previously registered via `registry.set`. These templates are likely components that must be mounted as children in a parent component template
 
 An tag binding might contain the following properties:
   - `name`
