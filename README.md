@@ -439,5 +439,8 @@ template('<p>Your last commit was: <time></time></p>', [tagBinding]).mount(app, 
 The `tag` bindings have always a lower priority compared to the `if` and `each` bindings
 </details>
 
+## Bindings Hierarchy
+
+
 
 
