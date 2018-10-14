@@ -447,6 +447,53 @@ The `tag` bindings have always a lower priority compared to the `if` and `each` 
 
 ## Bindings Hierarchy
 
+If the same DOM node has multiple bindings bound to it, they should be created following the order below:
+
+1. Each Binding
+2. If Binding
+3. Tag Binding
+
+Let's see some cases where we might combine multiple bindings on the same DOM node and how to handle them properly.
+
+### Each and If Bindings
+Let's consider for example a DOM node that sould handle in parallel the Each and If bindings.
+In that case we could skip the `If Binding` and just use the `condition` function provided by the [`Each Binding`](#eachbinding)
+Each bindings will handle conditional rendering internally without the need of extra logic.
+
+### Each and Tag Bindings
+A custom tag having an Each Binding bound to it should be handled giving the priority to the Eeach Binding. For example:
+
+```js
+const el = template('<ul><li expr0></li></ul>', [{
+  type: bindingTypes.EACH,
+  itemName: 'val',
+  selector: '[expr0]',
+  evaluate: scope => scope.items,
+  template: template(null, [{
+    type: bindingTypes.TAG,
+    name: 'my-tag'
+  }])
+}]).mount(target, { items: [1, 2] })
+```
+
+The template for the Each Binding above will be created receiving `null` as first argument because we suppose that the custom tag template was already stored and registered somewhere else.
+
+### If and Tag Bindings
+Similar to the previous example, If Bindings have always the priority on the Tag Bindings. For example:
+
+```js
+const el = template('<ul><li expr0></li></ul>', [{
+  type: bindingTypes.IF,
+  selector: '[expr0]',
+  evaluate: scope => scope.isVisible,
+  template: template(null, [{
+    type: bindingTypes.TAG,
+    name: 'my-tag'
+  }])
+}]).mount(target, { isVisible: true })
+```
+
+The template for the IF Binding will mount/unmount the Tag Binding on its own DOM node.
 
 
 
