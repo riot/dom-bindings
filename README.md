@@ -89,7 +89,7 @@ If a custom tag template was previously registered, its template will be mounted
 
 ```js
 // Store a custom tag implementation
-registry.set('my-tag', function({ slots, bindings, attributes }) {
+registry.set('my-tag', function({ slots, attributes }) {
   const tmpl = template('hello world')
   return tmpl
 })
