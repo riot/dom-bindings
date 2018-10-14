@@ -7,9 +7,6 @@
 [![MIT License][license-image]][license-url]
 [![Coverage Status][coverage-image]][coverage-url]
 
-# This project is a WIP 🚧 🚧 🚧
-## Come back soon...
-
 ## Usage
 
 ```js
@@ -453,6 +450,9 @@ If the same DOM node has multiple bindings bound to it, they should be created f
 2. If Binding
 3. Tag Binding
 
+<details>
+  <summary>Details</summary>
+
 Let's see some cases where we might combine multiple bindings on the same DOM node and how to handle them properly.
 
 ### Each and If Bindings
@@ -495,5 +495,5 @@ const el = template('<ul><li expr0></li></ul>', [{
 
 The template for the IF Binding will mount/unmount the Tag Binding on its own DOM node.
 
-
+</details>
 
