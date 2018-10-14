@@ -5,12 +5,13 @@ const SET_ATTIBUTE = 'setAttribute'
  * Add all the attributes provided
  * @param   {HTMLElement} node - target node
  * @param   {Object} attributes - object containing the attributes names and values
+ * @param   {*} oldValue - the old expression cached value
  * @returns {undefined} sorry it's a void function :(
  */
-function setAllAttributes(node, attributes) {
+function setAllAttributes(node, attributes, oldValue) {
   Object
     .entries(attributes)
-    .forEach(([name, value]) => attributeExpression(node, { name }, value))
+    .forEach(([name, value]) => attributeExpression(node, { name }, value, oldValue))
 }
 
 /**
@@ -39,7 +40,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
   if (!name) {
     // is the value still truthy?
     if (value) {
-      setAllAttributes(node, value)
+      setAllAttributes(node, value, oldValue)
     } else if (oldValue) {
       // otherwise remove all the old attributes
       removeAllAttributes(node, oldValue)
