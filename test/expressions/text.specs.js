@@ -1,4 +1,4 @@
-const { template } = require('../../')
+import { expressionTypes, template } from '../../src'
 
 describe('text specs', () => {
   it('set the content of a text node (comment placeholder)', () => {
@@ -6,7 +6,7 @@ describe('text specs', () => {
     template('<p expr0><----></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.val }}
+        { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate: scope => scope.val }
       ]
     }]).mount(target, { val: 'hello' })
 
@@ -20,7 +20,7 @@ describe('text specs', () => {
     template('<p expr0><span>hello</span> </p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'text', childNodeIndex: 1, evaluate(scope) { return scope.val }}
+        { type: expressionTypes.TEXT, childNodeIndex: 1, evaluate: scope => scope.val }
       ]
     }]).mount(target, { val: 'world' })
 
@@ -34,7 +34,7 @@ describe('text specs', () => {
     template('<p expr0><span>hello</span> </p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'text', childNodeIndex: 1, evaluate(scope) { return scope.val }}
+        { type: expressionTypes.TEXT, childNodeIndex: 1, evaluate: scope => scope.val }
       ]
     }]).mount(target, { val: null })
 
@@ -48,7 +48,7 @@ describe('text specs', () => {
     template('<p expr0><!----></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.val }}
+        { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate: scope => scope.val }
       ]
     }]).mount(target, { val: 0 })
 

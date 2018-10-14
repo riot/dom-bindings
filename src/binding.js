@@ -1,3 +1,4 @@
+import { SIMPLE } from './bindings/binding-types'
 import bindings from './bindings'
 
 /**
@@ -14,7 +15,7 @@ export default function create(root, binding) {
   if (redundantAttribute) node.removeAttribute(redundantAttribute)
 
   // init the binding
-  return (bindings[type] || bindings.simple)(
+  return (bindings[type] || bindings[SIMPLE])(
     node,
     {
       ...binding,

@@ -1,4 +1,4 @@
-const { template } = require('../../')
+import { bindingTypes, expressionTypes, template } from '../../src'
 
 function compareNodesContents(target, selector, items) {
   const domNodes = target.querySelectorAll(selector)
@@ -11,15 +11,15 @@ function compareNodesContents(target, selector, items) {
 function createDummyListTemplate(options = {}) {
   return template('<ul><li expr0></li></ul>', [{...{
     selector: '[expr0]',
-    type: 'each',
+    type: bindingTypes.EACH,
     itemName: 'val',
-    evaluate(scope) { return scope.items },
+    evaluate: scope => scope.items,
     template: template('<!---->', [{
       expressions: [
         {
-          type: 'text',
+          type: expressionTypes.TEXT,
           childNodeIndex: 0,
-          evaluate(scope) { return scope.val }
+          evaluate: scope => scope.val
         }
       ]
     }])
@@ -29,15 +29,15 @@ function createDummyListTemplate(options = {}) {
 function createDummyListWithSiblingsTemplate(options = {}) {
   return template('<ul><li>first</li><li expr0></li><li>last</li></ul>', [{...{
     selector: '[expr0]',
-    type: 'each',
+    type: bindingTypes.EACH,
     itemName: 'val',
-    evaluate(scope) { return scope.items },
+    evaluate: scope => scope.items,
     template: template('<!---->', [{
       expressions: [
         {
-          type: 'text',
+          type: expressionTypes.TEXT,
           childNodeIndex: 0,
-          evaluate(scope) { return scope.val }
+          evaluate: scope => scope.val
         }
       ]
     }])

@@ -1,4 +1,5 @@
 import domdiff from 'domdiff';
+import curry from 'curri';
 
 /**
  * Remove the child nodes from any DOM node
@@ -9,6 +10,18 @@ function cleanNode(node) {
   const children = node.childNodes;
   children.forEach(n => node.removeChild(n));
 }
+
+const EACH = 0;
+const IF = 1;
+const SIMPLE = 2;
+const TAG = 3;
+
+var bindingTypes = {
+  EACH,
+  IF,
+  SIMPLE,
+  TAG
+};
 
 const EachBinding = Object.seal({
   // dynamic binding properties
@@ -253,6 +266,18 @@ function create$1(node, { evaluate, template }) {
   }
 }
 
+const ATTRIBUTE = 0;
+const EVENT = 1;
+const TEXT = 2;
+const VALUE = 3;
+
+var expressionTypes = {
+  ATTRIBUTE,
+  EVENT,
+  TEXT,
+  VALUE
+};
+
 const REMOVE_ATTRIBUTE = 'removeAttribute';
 const SET_ATTIBUTE = 'setAttribute';
 
@@ -388,10 +413,10 @@ function valueExpression(node, expression, value) {
 }
 
 var expressions = {
-  attribute: attributeExpression,
-  event: eventExpression,
-  text: textExpression,
-  value: valueExpression
+  [ATTRIBUTE]: attributeExpression,
+  [EVENT]: eventExpression,
+  [TEXT]: textExpression,
+  [VALUE]: valueExpression
 };
 
 const Expression = Object.seal({
@@ -487,23 +512,6 @@ function create$3(node, { expressions }) {
 }
 
 /**
- * Function to curry any javascript method
- * @param   {Function}  fn - the target function we want to curry
- * @param   {...[args]} acc - initial arguments
- * @returns {Function|*} it will return a function until the target function
- *                       will receive all of its arguments
- */
-function curry(fn, ...acc) {
-  return (...args) => {
-    args = [...acc, ...args];
-
-    return args.length < fn.length ?
-      curry(fn, ...args) :
-      fn(...args)
-  }
-}
-
-/**
  * Tags registry
  * It will contain the pair { `tag-name`: tag creation function }
  */
@@ -514,27 +522,39 @@ var registry = new Map();
  * template chunk
  * @param   {string} name - tag name
  * @param   {Array<Object>} slots - array containing the slots markup
- * @param   {Array} bindings - DOM bindings
  * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
  */
-function getTag(name, slots = [], bindings = [], attributes = []) {
+function getTag(name, slots = [], attributes = []) {
   // if this tag was registered before we will return its implementation
   if (registry.has(name)) {
-    return registry.get(name)({ slots, bindings, attributes })
+    return registry.get(name)({ slots, attributes })
   }
 
   // otherwise we return a template chunk
-  return create$6(slotsToMarkup(slots), [...bindings, {
+  return create$6(slotsToMarkup(slots), [
+    // all the slot bindings should be flatten to query agains a single template chunk
+    ...slotBindings(slots), {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk
-    expressions: attributes.map(attr => {
-      return {
-        type: 'attribute',
-        ...attr
-      }
-    })
-  }])
+      expressions: attributes.map(attr => {
+        return {
+          type: ATTRIBUTE,
+          ...attr
+        }
+      })
+    }
+  ])
+}
+
+
+/**
+ * Merge all the slots bindings into a single array
+ * @param   {Array<Object>} slots - slots collection
+ * @returns {Array<Bindings>} flatten bindings array
+ */
+function slotBindings(slots) {
+  return slots.reduce((acc, { bindings }) => acc.concat(bindings), [])
 }
 
 /**
@@ -548,8 +568,8 @@ function slotsToMarkup(slots) {
   }, '')
 }
 
-function create$4(node, { name, slots, bindings, attributes }) {
-  const tag = getTag(name, slots, bindings, attributes);
+function create$4(node, { name, slots, attributes }) {
+  const tag = getTag(name, slots, attributes);
 
   return {
     ...tag,
@@ -558,10 +578,10 @@ function create$4(node, { name, slots, bindings, attributes }) {
 }
 
 var bindings = {
-  if: create$1,
-  simple: create$3,
-  each: create,
-  tag: create$4
+  [IF]: create$1,
+  [SIMPLE]: create$3,
+  [EACH]: create,
+  [TAG]: create$4
 };
 
 /**
@@ -578,7 +598,7 @@ function create$5(root, binding) {
   if (redundantAttribute) node.removeAttribute(redundantAttribute);
 
   // init the binding
-  return (bindings[type] || bindings.simple)(
+  return (bindings[type] || bindings[SIMPLE])(
     node,
     {
       ...binding,
@@ -745,4 +765,4 @@ function create$6(html, bindings = []) {
  * )
  */
 
-export { create$6 as template, registry, create$5 as createBinding };
+export { create$6 as template, registry, create$5 as createBinding, bindingTypes, expressionTypes };
