@@ -19,8 +19,21 @@ describe('core specs', () => {
     expect(el).to.respondTo('clone')
   })
 
-  it('The template method throws in case of missing arguments', () => {
-    expect(() => template()).to.throw
+  it('The template.mount method throws in case of missing target element', () => {
+    const el = template('hello')
+
+    expect(() => el.mount(null)).to.throw(Error)
+  })
+
+  it('The template.mount triggered on already mounted element will unmount the previous template', () => {
+    const el = template('hello')
+    const target = document.createElement('div')
+
+    el.mount(target)
+    expect(target.textContent).to.be.equal('hello')
+
+    el.mount(target)
+    expect(target.textContent).to.be.equal('hello')
   })
 
   it('A template can be easily cloned', () => {

@@ -649,7 +649,8 @@
     },
     update(scope) {
       const { placeholder } = this;
-      const items = Array.from(this.evaluate(scope)) || [];
+      const collection = this.evaluate(scope);
+      const items = collection ? Array.from(collection) : [];
       const parent = placeholder.parentNode;
 
       // prepare the diffing
@@ -760,7 +761,7 @@
         batches.push(() => tag.update(context));
       }
 
-      futureNodes.push(el || tag.el);
+      futureNodes.push(el);
 
       // update the children map
       newChildrenMap.set(key, {

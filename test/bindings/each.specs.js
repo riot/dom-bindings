@@ -208,6 +208,46 @@ function runTests(options) {
 
     el.unmount()
   })
+
+  it('Each bindings should not throw if no array will be received', () => {
+    const items = null
+    const target = document.createElement('div')
+    const el = createDummyListWithSiblingsTemplate(options).mount(target, { items })
+
+    const lis = target.querySelectorAll('li')
+
+    expect(lis).to.have.length(2)
+
+    el.unmount()
+  })
+
+  it('Items indexes can be handled via "indexName" property', () => {
+    const items = ['a', 'b']
+    const target = document.createElement('div')
+    const el = template('<div expr0></div>', [{
+      selector: '[expr0]',
+      type: bindingTypes.EACH,
+      indexName: 'index',
+      itemName: 'val',
+      evaluate: scope => scope.items,
+      template: template('<!---->', [{
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.index
+          }
+        ]
+      }])
+    }]).mount(target, { items })
+
+    const divs = target.querySelectorAll('div')
+
+    expect(divs[0].textContent).to.be.equal('0')
+    expect(divs[1].textContent).to.be.equal('1')
+
+    el.unmount()
+  })
 }
 
 describe('each bindings', () => {

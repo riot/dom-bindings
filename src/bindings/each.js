@@ -21,7 +21,8 @@ export const EachBinding = Object.seal({
   },
   update(scope) {
     const { placeholder } = this
-    const items = Array.from(this.evaluate(scope)) || []
+    const collection = this.evaluate(scope)
+    const items = collection ? Array.from(collection) : []
     const parent = placeholder.parentNode
 
     // prepare the diffing
@@ -132,7 +133,7 @@ function loopItems(items, scope, binding) {
       batches.push(() => tag.update(context))
     }
 
-    futureNodes.push(el || tag.el)
+    futureNodes.push(el)
 
     // update the children map
     newChildrenMap.set(key, {
