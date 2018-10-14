@@ -457,7 +457,7 @@ Let's see some cases where we might combine multiple bindings on the same DOM no
 
 ### Each and If Bindings
 Let's consider for example a DOM node that sould handle in parallel the Each and If bindings.
-In that case we could skip the `If Binding` and just use the `condition` function provided by the [`Each Binding`](#eachbinding)
+In that case we could skip the `If Binding` and just use the `condition` function provided by the [`Each Binding`](#each-binding)
 Each bindings will handle conditional rendering internally without the need of extra logic.
 
 ### Each and Tag Bindings
