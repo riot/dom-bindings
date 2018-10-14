@@ -286,13 +286,12 @@ const SET_ATTIBUTE = 'setAttribute';
  * Add all the attributes provided
  * @param   {HTMLElement} node - target node
  * @param   {Object} attributes - object containing the attributes names and values
- * @param   {*} oldValue - the old expression cached value
  * @returns {undefined} sorry it's a void function :(
  */
-function setAllAttributes(node, attributes, oldValue) {
+function setAllAttributes(node, attributes) {
   Object
     .entries(attributes)
-    .forEach(([name, value]) => attributeExpression(node, { name }, value, oldValue));
+    .forEach(([name, value]) => attributeExpression(node, { name }, value));
 }
 
 /**
@@ -318,25 +317,23 @@ function removeAllAttributes(node, attributes) {
  */
 function attributeExpression(node, { name }, value, oldValue) {
   // is it a spread operator? {...attributes}
-  if (!name) {
+  if (name) {
+    // handle boolean attributes
+    if (typeof value === 'boolean') {
+      node[name] = value;
+    }
+
+    node[getMethod(value)](name, normalizeValue(name, value));
+
+  } else {
     // is the value still truthy?
     if (value) {
-      setAllAttributes(node, value, oldValue);
+      setAllAttributes(node, value);
     } else if (oldValue) {
-      console.log('hello'); // eslint-disable-line
       // otherwise remove all the old attributes
       removeAllAttributes(node, oldValue);
     }
-
-    return
   }
-
-  // handle boolean attributes
-  if (typeof value === 'boolean') {
-    node[name] = value;
-  }
-
-  node[getMethod(value)](name, normalizeValue(name, value));
 }
 
 /**

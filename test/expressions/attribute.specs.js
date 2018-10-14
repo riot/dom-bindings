@@ -57,7 +57,7 @@ describe('attribute specs', () => {
 
     expect(p.getAttribute('class')).to.be.equal('hello')
 
-    el.update({ attr: false })
+    el.update({ attr: null })
 
     expect(p.hasAttribute('class')).to.be.not.ok
   })
@@ -76,9 +76,9 @@ describe('attribute specs', () => {
     expect(p.getAttribute('class')).to.be.equal('hello')
     expect(p.getAttribute('name')).to.be.equal('world')
 
-    el.update({ attr: false })
+    el.update({ attr: null })
 
-    expect(p.hasAttribute('class')).to.be.not.ok
+    expect(p.hasAttribute('class')).to.be.equal
     expect(p.hasAttribute('name')).to.be.not.ok
   })
 
@@ -95,7 +95,7 @@ describe('attribute specs', () => {
 
     expect(p.getAttribute('class')).to.be.equal('hello world')
 
-    el.update({ attr: false })
+    el.update({ attr: null })
 
     expect(p.hasAttribute('class')).to.be.not.ok
   })
