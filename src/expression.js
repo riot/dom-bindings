@@ -7,7 +7,7 @@ export const Expression = Object.seal({
 
   // API methods
   /**
-   * Mount the expression evaluating its inital value
+   * Mount the expression evaluating its initial value
    * @param   {*} scope - argument passed to the expression to evaluate its current values
    * @returns {Expression} self
    */

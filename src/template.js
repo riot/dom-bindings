@@ -1,6 +1,7 @@
 import cleanNode from './util/clean-node'
 import createBinding from './binding'
-import createFragment from './util/create-fragment'
+import createDOMTree from './util/create-DOM-tree'
+import injectDOM from './util/inject-DOM'
 
 /**
  * Template Chunk model
@@ -10,12 +11,13 @@ export const TemplateChunk = Object.freeze({
   // Static props
   bindings: null,
   bindingsData: null,
+  html: null,
   dom: null,
   el: null,
 
   // API methods
   /**
-   * Attatch the template to a DOM node
+   * Attach the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
    * @param   {*} scope - template data
    * @returns {TemplateChunk} self
@@ -27,8 +29,14 @@ export const TemplateChunk = Object.freeze({
 
     this.el = el
 
-    // clone the template DOM and append it to the target node
-    if (this.dom) el.appendChild(this.dom.cloneNode(true))
+    // create lazily the template fragment only once if it hasn't been created before
+    if (this.html && !this.dom) {
+      this.dom = typeof this.html === 'string' ?
+        createDOMTree(el, this.html) :
+        this.html
+    }
+
+    if (this.dom) injectDOM(el, this.dom)
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding))
@@ -68,10 +76,13 @@ export const TemplateChunk = Object.freeze({
   },
   /**
    * Clone the template chunk
-   * @returns {TemplateChunk} a new template chunk
+   * @returns {TemplateChunk} a clone of this object resetting the this.el property
    */
   clone() {
-    return create(this.dom, this.bindingsData)
+    return {
+      ...this,
+      el: null
+    }
   }
 })
 
@@ -82,11 +93,9 @@ export const TemplateChunk = Object.freeze({
  * @returns {TemplateChunk} a new TemplateChunk copy
  */
 export default function create(html, bindings = []) {
-  const dom = typeof html === 'string' ? createFragment(html).content : html
-
   return {
     ...TemplateChunk,
-    dom,
+    html,
     bindingsData: bindings
   }
 }

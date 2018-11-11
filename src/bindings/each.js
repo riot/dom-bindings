@@ -60,7 +60,7 @@ export const EachBinding = Object.seal({
 })
 
 /**
- * Check whether a tag must be fildered from a loop
+ * Check whether a tag must be filtered from a loop
  * @param   {Function} condition - filter function
  * @param   {Object} context - argument passed to the filter function
  * @returns {boolean} true if this item should be skipped
@@ -72,8 +72,8 @@ function mustFilterItem(condition, context) {
 /**
  * Get the context of the looped tag
  * @param   {string} options.itemName - key to identify the looped item in the new context
- * @param   {string} options.indexName - key to identify the index of the loope item
- * @param   {number} options.index - current intex
+ * @param   {string} options.indexName - key to identify the index of the looped item
+ * @param   {number} options.index - current index
  * @param   {*} options.item - collection item looped
  * @param   {*} options.scope - current parent scope
  * @returns {Object} enhanced scope object

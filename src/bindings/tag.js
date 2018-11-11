@@ -4,7 +4,7 @@ import registry from '../registry'
 import template from '../template'
 
 /**
- * Create a new tag object if it was registered before, othewise fallback to the simple
+ * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
  * @param   {string} name - tag name
  * @param   {Array<Object>} slots - array containing the slots markup
@@ -19,7 +19,6 @@ function getTag(name, slots = [], attributes = []) {
 
   // otherwise we return a template chunk
   return template(slotsToMarkup(slots), [
-    // all the slot bindings should be flatten to query agains a single template chunk
     ...slotBindings(slots), {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk

@@ -7,8 +7,11 @@ describe('core specs', () => {
   })
 
   it('The template method creates a valid DOM element', () => {
-    expect(template('<div></div>').dom).to.be.ok
-    expect(template(document.createElement('div')).dom).to.be.ok
+    const stringTemplate = template('<div></div>').mount(document.createElement('div'))
+    const DOMTemplate = template(document.createElement('div')).mount(document.createElement('div'))
+
+    expect(stringTemplate.dom).to.be.ok
+    expect(DOMTemplate.dom).to.be.ok
   })
 
   it('The template has all the public methods', () => {
@@ -76,4 +79,21 @@ describe('core specs', () => {
     expect(p.textContent).to.be.equal('hello')
     expect(p.hasAttribute('expr0')).to.be.not.ok
   })
+
+/*
+  it('Svg fragments could be created properly', () => {
+    const target = document.createElement('div')
+
+    template('<div><svg expr0></svg></div>', [{
+      selector: '[expr0]',
+      type: bindingTypes.IF,
+      redundantAttribute: 'expr0',
+      evaluate: () => true,
+      template: template('<image href="some/path.jpg" x="0" y="0" height="100" width="100"/>')
+    }]).mount(target)
+
+    const svg = target.querySelector('svg')
+
+    expect(svg.querySelector('image')).to.be.ok
+  })*/
 })

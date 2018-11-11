@@ -14,7 +14,7 @@ export const IfBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
-    const value = this.evaluate(scope)
+    const value = !!this.evaluate(scope)
     const mustMount = !this.value && value
     const mustUnmount = this.value && !value
 
@@ -28,12 +28,10 @@ export const IfBinding = Object.seal({
       break
     case mustUnmount:
       swap(this.placeholder, this.node)
-      this.template = null
       this.unmount(scope)
       break
     default:
-      this.template.update(scope)
-      break
+      if (value) this.template.update(scope)
     }
 
     this.value = value

@@ -83,7 +83,7 @@ const EachBinding = Object.seal({
 });
 
 /**
- * Check whether a tag must be fildered from a loop
+ * Check whether a tag must be filtered from a loop
  * @param   {Function} condition - filter function
  * @param   {Object} context - argument passed to the filter function
  * @returns {boolean} true if this item should be skipped
@@ -95,8 +95,8 @@ function mustFilterItem(condition, context) {
 /**
  * Get the context of the looped tag
  * @param   {string} options.itemName - key to identify the looped item in the new context
- * @param   {string} options.indexName - key to identify the index of the loope item
- * @param   {number} options.index - current intex
+ * @param   {string} options.indexName - key to identify the index of the looped item
+ * @param   {number} options.index - current index
  * @param   {*} options.item - collection item looped
  * @param   {*} options.scope - current parent scope
  * @returns {Object} enhanced scope object
@@ -214,7 +214,7 @@ const IfBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
-    const value = this.evaluate(scope);
+    const value = !!this.evaluate(scope);
     const mustMount = !this.value && value;
     const mustUnmount = this.value && !value;
 
@@ -228,12 +228,10 @@ const IfBinding = Object.seal({
       break
     case mustUnmount:
       swap(this.placeholder, this.node);
-      this.template = null;
       this.unmount(scope);
       break
     default:
-      this.template.update(scope);
-      break
+      if (value) this.template.update(scope);
     }
 
     this.value = value;
@@ -317,15 +315,7 @@ function removeAllAttributes(node, attributes) {
  */
 function attributeExpression(node, { name }, value, oldValue) {
   // is it a spread operator? {...attributes}
-  if (name) {
-    // handle boolean attributes
-    if (typeof value === 'boolean') {
-      node[name] = value;
-    }
-
-    node[getMethod(value)](name, normalizeValue(name, value));
-
-  } else {
+  if (!name) {
     // is the value still truthy?
     if (value) {
       setAllAttributes(node, value);
@@ -333,7 +323,16 @@ function attributeExpression(node, { name }, value, oldValue) {
       // otherwise remove all the old attributes
       removeAllAttributes(node, oldValue);
     }
+
+    return
   }
+
+  // handle boolean attributes
+  if (typeof value === 'boolean') {
+    node[name] = value;
+  }
+
+  node[getMethod(value)](name, normalizeValue(name, value));
 }
 
 /**
@@ -426,7 +425,7 @@ const Expression = Object.seal({
 
   // API methods
   /**
-   * Mount the expression evaluating its inital value
+   * Mount the expression evaluating its initial value
    * @param   {*} scope - argument passed to the expression to evaluate its current values
    * @returns {Expression} self
    */
@@ -518,7 +517,7 @@ function create$3(node, { expressions }) {
 var registry = new Map();
 
 /**
- * Create a new tag object if it was registered before, othewise fallback to the simple
+ * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
  * @param   {string} name - tag name
  * @param   {Array<Object>} slots - array containing the slots markup
@@ -533,7 +532,6 @@ function getTag(name, slots = [], attributes = []) {
 
   // otherwise we return a template chunk
   return create$6(slotsToMarkup(slots), [
-    // all the slot bindings should be flatten to query agains a single template chunk
     ...slotBindings(slots), {
     // the attributes should be registered as binding
     // if we fallback to a normal template chunk
@@ -608,14 +606,81 @@ function create$5(root, binding) {
 }
 
 /**
- * Create a template node
- * @param   {string} html - template inner html
- * @returns {HTMLElement} the new template node just created
+ * Check if an element is part of an svg
+ * @param   {HTMLElement}  el - element to check
+ * @returns {boolean} true if we are in an svg context
  */
-function createFragment(html) {
+function isSvg(el) {
+  const owner = el.ownerSVGElement;
+
+  return !!owner || owner === null
+}
+
+// in this case a simple innerHTML is enough
+function createHTMLTree(html) {
   const template = document.createElement('template');
   template.innerHTML = html;
-  return template
+  return template.content
+}
+
+// for svg nodes we need a bit more work
+function creteSVGTree(html, container) {
+  // create the SVGNode
+  const svgNode = container.ownerDocument.importNode(
+    new DOMParser()
+      .parseFromString(
+        `<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>`,
+        'application/xml'
+      )
+      .documentElement,
+    true
+  );
+
+  return svgNode
+}
+
+/**
+ * Create the DOM that will be injected
+ * @param {Object} root - DOM node to find out the context where the fragment will be created
+ * @param   {string} html - DOM to create as string
+ * @returns {HTMLDocumentFragment|HTMLElement} a new html fragment
+ */
+function createDOMTree(root, html) {
+  if (isSvg(root)) return creteSVGTree(html, root)
+
+  return createHTMLTree(html)
+}
+
+/**
+ * Move all the child nodes from a source tag to another
+ * @param   {HTMLElement} source - source node
+ * @param   {HTMLElement} target - target node
+ * @returns {undefined} it's a void method ¯\_(ツ)_/¯
+ */
+
+// Ignore this helper because it's needed only for svg tags
+/* istanbul ignore next */
+function moveChildren(source, target) {
+  if (source.firstChild) {
+    target.appendChild(source.firstChild);
+    moveChildren(source, target);
+  }
+}
+
+/**
+ * Inject the DOM tree into a target node
+ * @param   {HTMLElement} el - target element
+ * @param   {HTMLFragment|SVGElement} dom - dom tree to inject
+ * @returns {undefined}
+ */
+function injectDOM(el, dom) {
+  const clone = dom.cloneNode(true);
+
+  if (el.tagName === 'SVG') {
+    moveChildren(clone, el);
+  } else {
+    el.appendChild(clone);
+  }
 }
 
 /**
@@ -626,12 +691,13 @@ const TemplateChunk = Object.freeze({
   // Static props
   bindings: null,
   bindingsData: null,
+  html: null,
   dom: null,
   el: null,
 
   // API methods
   /**
-   * Attatch the template to a DOM node
+   * Attach the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
    * @param   {*} scope - template data
    * @returns {TemplateChunk} self
@@ -643,8 +709,14 @@ const TemplateChunk = Object.freeze({
 
     this.el = el;
 
-    // clone the template DOM and append it to the target node
-    if (this.dom) el.appendChild(this.dom.cloneNode(true));
+    // create lazily the template fragment only once if it hasn't been created before
+    if (this.html && !this.dom) {
+      this.dom = typeof this.html === 'string' ?
+        createDOMTree(el, this.html) :
+        this.html;
+    }
+
+    if (this.dom) injectDOM(el, this.dom);
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
@@ -684,10 +756,13 @@ const TemplateChunk = Object.freeze({
   },
   /**
    * Clone the template chunk
-   * @returns {TemplateChunk} a new template chunk
+   * @returns {TemplateChunk} a clone of this object resetting the this.el property
    */
   clone() {
-    return create$6(this.dom, this.bindingsData)
+    return {
+      ...this,
+      el: null
+    }
   }
 });
 
@@ -698,11 +773,9 @@ const TemplateChunk = Object.freeze({
  * @returns {TemplateChunk} a new TemplateChunk copy
  */
 function create$6(html, bindings = []) {
-  const dom = typeof html === 'string' ? createFragment(html).content : html;
-
   return {
     ...TemplateChunk,
-    dom,
+    html,
     bindingsData: bindings
   }
 }
