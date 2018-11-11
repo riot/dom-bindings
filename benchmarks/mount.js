@@ -4,8 +4,8 @@ module.exports = function(suite, testName, domBindings) {
   const tag = domBindings.template('<p expr0><!----></p>', [{
     selector: '[expr0]',
     expressions: [
-      { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }},
-      { type: 'attribute', name: 'class', evaluate(scope) { return scope.class }}
+      { type: domBindings.expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }},
+      { type: domBindings.expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.class }}
     ]
   }])
 

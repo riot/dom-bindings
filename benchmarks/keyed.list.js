@@ -14,28 +14,28 @@ module.exports = function(suite, testName, domBindings) {
 
   const tag = domBindings.template('<ul><li expr0></li></ul>', [{
     selector: '[expr0]',
-    type: 'each',
+    type: domBindings.bindingTypes.EACH,
     itemName: 'item',
     getKey(scope) { return scope.item.name },
     evaluate(scope) { return scope.items },
     template: domBindings.template('<!----><p expr1></p>', [{
       expressions: [
         {
-          type: 'text',
+          type: domBindings.expressionTypes.TEXT,
           childNodeIndex: 0,
           evaluate(scope) { return scope.item.name }
         }
       ]
     }, {
       selector: '[expr1]',
-      type: 'each',
+      type: domBindings.bindingTypes.EACH,
       itemName: 'prop',
       getKey(scope) { return scope.prop.name },
       evaluate(scope) { return scope.item.props },
       template: domBindings.template('<!---->', [{
         expressions: [
           {
-            type: 'text',
+            type: domBindings.expressionTypes.TEXT,
             childNodeIndex: 0,
             evaluate(scope) { return scope.prop.name }
           }

@@ -3,12 +3,12 @@
 module.exports = function(suite, testName, domBindings) {
   const tag = domBindings.template('<div></div><p expr0></p>', [{
     selector: '[expr0]',
-    type: 'if',
+    type: domBindings.bindingTypes.IF,
     evaluate(scope) { return scope.isVisible },
     template: domBindings.template('<b expr0><!----></b>', [{
       selector: '[expr0]',
       expressions: [
-        { type: 'text', childNodeIndex: 0, evaluate(scope) { return scope.text }}
+        { type: domBindings.expressionTypes.TEXT, childNodeIndex: 0, evaluate(scope) { return scope.text }}
       ]
     }])
   }])
