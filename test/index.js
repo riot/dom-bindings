@@ -6,7 +6,6 @@ const sinonChai = require('sinon-chai')
 
 global.sinon = require('sinon')
 global.expect = chai.expect
-global.DOMParser = require('xmldom').DOMParser
 
 chai.use(sinonChai)
 

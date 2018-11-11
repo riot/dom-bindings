@@ -1,5 +1,5 @@
 {
-  "name": "riot-dom-bindings",
+  "name": "@riotjs/dom-bindings",
   "version": "0.3.0",
   "description": "Riot.js DOM bindings",
   "main": "dist/umd.dom-bindings.js",
@@ -40,7 +40,7 @@
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
     "coveralls": "^3.0.2",
-    "eslint": "^5.7.0",
+    "eslint": "^5.8.0",
     "eslint-config-riot": "^2.0.0",
     "jsdom": "12.2.0",
     "jsdom-global": "3.0.2",
@@ -49,9 +49,8 @@
     "reify": "^0.18.1",
     "rollup": "^0.66.6",
     "rollup-plugin-node-resolve": "^3.4.0",
-    "sinon": "^7.0.0",
-    "sinon-chai": "^3.2.0",
-    "xmldom": "^0.1.27"
+    "sinon": "^7.1.1",
+    "sinon-chai": "^3.2.0"
   },
   "dependencies": {
     "curri": "^1.0.0",

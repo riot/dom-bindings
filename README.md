@@ -10,7 +10,7 @@
 ## Usage
 
 ```js
-import { template, expressionTypes } from 'riot-dom-bindings'
+import { template, expressionTypes } from '@riotjs/dom-bindings'
 
 // Create the app template
 const tmpl = template('<p><!----></p>', [{
@@ -38,9 +38,9 @@ const app = tmpl.mount(target, {
 [license-image]:http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
 [license-url]:LICENSE
 
-[npm-version-image]:http://img.shields.io/npm/v/riot-dom-bindings.svg?style=flat-square
-[npm-downloads-image]:http://img.shields.io/npm/dm/riot-dom-bindings.svg?style=flat-square
-[npm-url]:https://npmjs.org/package/riot-dom-bindings
+[npm-version-image]:http://img.shields.io/npm/v/@riotjs/dom-bindings.svg?style=flat-square
+[npm-downloads-image]:http://img.shields.io/npm/dm/@riotjs/dom-bindings.svg?style=flat-square
+[npm-url]:https://npmjs.org/package/@riotjs/dom-bindings
 
 [coverage-image]:https://img.shields.io/coveralls/riot/dom-bindings/master.svg?style=flat-square
 [coverage-url]:https://coveralls.io/r/riot/dom-bindings/?branch=master

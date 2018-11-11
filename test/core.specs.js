@@ -81,6 +81,8 @@ describe('core specs', () => {
   })
 
 /*
+  JDOM can't handle SVGs :(
+
   it('Svg fragments could be created properly', () => {
     const target = document.createElement('div')
 
