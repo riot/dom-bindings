@@ -1,9 +1,8 @@
-import { bindingTypes, expressionTypes, registry, template } from '../src'
+import { bindingTypes, expressionTypes, template } from '../src'
 
 describe('core specs', () => {
   it('The riot DOM bindings public methods get properly exported', () => {
     expect(template).to.be.ok
-    expect(registry).to.be.ok
   })
 
   it('The template method creates a valid DOM element', () => {
@@ -93,6 +92,7 @@ describe('core specs', () => {
 
     const svg = target.querySelector('svg')
 
+    expect(target.querySelectorAll('svg')).to.have.length(1)
     expect(svg.querySelector('image')).to.be.ok
   })
 })

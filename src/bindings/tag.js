@@ -1,20 +1,19 @@
 import { ATTRIBUTE } from '../expressions/expression-types'
 import curry from 'curri'
-import registry from '../registry'
 import template from '../template'
 
 /**
  * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
- * @param   {string} name - tag name
+ * @param   {Function} component - component factory function
  * @param   {Array<Object>} slots - array containing the slots markup
  * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
  */
-function getTag(name, slots = [], attributes = []) {
+function getTag(component, slots = [], attributes = []) {
   // if this tag was registered before we will return its implementation
-  if (registry.has(name)) {
-    return registry.get(name)({ slots, attributes })
+  if (component) {
+    return component({ slots, attributes })
   }
 
   // otherwise we return a template chunk
@@ -53,8 +52,8 @@ function slotsToMarkup(slots) {
   }, '')
 }
 
-export default function create(node, { name, slots, attributes }) {
-  const tag = getTag(name, slots, attributes)
+export default function create(node, { component, slots, attributes }) {
+  const tag = getTag(component, slots, attributes)
 
   return {
     ...tag,

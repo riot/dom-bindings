@@ -58,19 +58,6 @@
 export { default as template } from './template'
 
 /**
- * The registry will store all the custom tags templates and implementations
- * @type {Map}
- *
- * @example
- *
- * registry.set('my-tag', function({ slots, bindings, attributes }) {
- *   const tmpl = template('hello world')
- *   return tmpl
- * })
- */
-export { default as registry } from './registry'
-
-/**
  * Bind a new expression object to a single DOM node
  * @param   {HTMLElement} root - DOM node where to bind the expression
  * @param   {Object} binding - binding data

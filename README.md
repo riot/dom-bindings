@@ -78,31 +78,6 @@ The template object above will bind a [simple binding](#simple-binding) to the `
 
 </details>
 
-
-### registry<Map>
-
-The registry Map can be used to store custom tags template implementations.
-
-<details>
-  <summary>Details</summary>
-If a custom tag template was previously registered, its template will be mounted via [tag binding](#tag-binding)
-
-```js
-// Store a custom tag implementation
-registry.set('my-tag', function({ slots, attributes }) {
-  const tmpl = template('hello world')
-  return tmpl
-})
-
-// The <my-tag> will be automatically mounted with the "hello world" text in it
-const tmpl = template('<section><my-tag class="a-custom-tag"/></section>', [{
-  selector: '.a-custom-tag',
-  type: bindingTypes.TAG,
-  name: 'my-tag',
-}])
-```
-</details>
-
 ### bindingTypes
 
 Object containing all the type of bindings supported
@@ -139,7 +114,7 @@ The bindings supported are only of 4 different types:
 - [`simple`](#simple-binding) to bind simply the expressions to a DOM structure
 - [`each`](#each-binding) to render DOM lists
 - [`if`](#if-binding) to handle conditional DOM structures
-- [`tag`](#tag-binding) to mount registered tag templates to any DOM node
+- [`tag`](#tag-binding) to mount a coustom tag template to any DOM node
 
 Combining the bindings above we can map any javascript object to a DOM template.
 
@@ -373,19 +348,19 @@ template('<p>Hello there <b></b></p>', [ifBinding])
 
 ### Tag Binding
 
-The `tag` bindings are needed to mount tags templates stored in the [`registry`](#registry) map
+The `tag` bindings are needed to mount custom components implementations
 
 <details>
   <summary>Details</summary>
 
-`tag` bindings will enhance any child node with a template previously registered via `registry.set`. These templates are likely components that must be mounted as children in a parent component template
+`tag` bindings will enhance any child node with a custom component factory function. These bindings are likely riot components that must be mounted as children in a parent component template
 
-An tag binding might contain the following properties:
+A tag binding might contain the following properties:
 
-- `name`
-  - type: `String`
+- `component`
+  - type: `Function`
   - required: `true`
-  - description: id of the template to mount
+  - description: the factory function responsible for the tag creation
 - `slots`
   - type: `Array<Slot>`
   - optional: `true`
@@ -401,9 +376,9 @@ This is how the `human-readable-time` template might look like
 ```js
 import moment from 'moment'
 
-// register a template tag
-registry.set('human-readable-time', function({ attributes }) {
+export default function HumanReadableTime({ attributes }) {
   const dateTimeAttr = attributes.find(({ name }) => name === 'datetime')
+
   return template('<!---->', [{
     expressions: [{
       type: expressionTypes.TEXT,
@@ -419,14 +394,16 @@ registry.set('human-readable-time', function({ attributes }) {
       }
     })]
   }])
-})
+}
 ```
 
 Here it's how the previous tag might be used in a `tag` binding
 ```js
+import HumanReadableTime from './human-readable-time'
+
 const tagBinding = {
   type: bindingTypes.TAG,
-  name: 'human-readable-time',
+  component: HumanReadableTime,
   selector: 'time',
   attributes: [{
     evaluate: scope => scope.time,
@@ -464,6 +441,18 @@ Each bindings will handle conditional rendering internally without the need of e
 A custom tag having an Each Binding bound to it should be handled giving the priority to the Eeach Binding. For example:
 
 ```js
+const components = {
+  'my-tag': function({ slots, attributes }) {
+    return {
+      mount(el, scope) {
+        // do stuff on the mount
+      },
+      unmount() {
+        // do stuff on the unmount
+      }
+    }
+  }
+}
 const el = template('<ul><li expr0></li></ul>', [{
   type: bindingTypes.EACH,
   itemName: 'val',
@@ -471,7 +460,7 @@ const el = template('<ul><li expr0></li></ul>', [{
   evaluate: scope => scope.items,
   template: template(null, [{
     type: bindingTypes.TAG,
-    name: 'my-tag'
+    component: components['my-tag']
   }])
 }]).mount(target, { items: [1, 2] })
 ```
@@ -488,7 +477,7 @@ const el = template('<ul><li expr0></li></ul>', [{
   evaluate: scope => scope.isVisible,
   template: template(null, [{
     type: bindingTypes.TAG,
-    name: 'my-tag'
+    component: components['my-tag']
   }])
 }]).mount(target, { isVisible: true })
 ```

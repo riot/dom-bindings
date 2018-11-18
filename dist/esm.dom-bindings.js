@@ -511,23 +511,17 @@ function create$3(node, { expressions }) {
 }
 
 /**
- * Tags registry
- * It will contain the pair { `tag-name`: tag creation function }
- */
-var registry = new Map();
-
-/**
  * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
- * @param   {string} name - tag name
+ * @param   {Function} component - component factory function
  * @param   {Array<Object>} slots - array containing the slots markup
  * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
  */
-function getTag(name, slots = [], attributes = []) {
+function getTag(component, slots = [], attributes = []) {
   // if this tag was registered before we will return its implementation
-  if (registry.has(name)) {
-    return registry.get(name)({ slots, attributes })
+  if (component) {
+    return component({ slots, attributes })
   }
 
   // otherwise we return a template chunk
@@ -566,8 +560,8 @@ function slotsToMarkup(slots) {
   }, '')
 }
 
-function create$4(node, { name, slots, attributes }) {
-  const tag = getTag(name, slots, attributes);
+function create$4(node, { component, slots, attributes }) {
+  const tag = getTag(component, slots, attributes);
 
   return {
     ...tag,
@@ -667,6 +661,8 @@ function moveChildren(source, target) {
   }
 }
 
+const SVG_RE = /svg/i;
+
 /**
  * Inject the DOM tree into a target node
  * @param   {HTMLElement} el - target element
@@ -676,7 +672,7 @@ function moveChildren(source, target) {
 function injectDOM(el, dom) {
   const clone = dom.cloneNode(true);
 
-  if (el.tagName === 'SVG') {
+  if (SVG_RE.test(el.tagName)) {
     moveChildren(clone, el);
   } else {
     el.appendChild(clone);
@@ -838,4 +834,4 @@ function create$6(html, bindings = []) {
  * )
  */
 
-export { create$6 as template, registry, create$5 as createBinding, bindingTypes, expressionTypes };
+export { create$6 as template, create$5 as createBinding, bindingTypes, expressionTypes };

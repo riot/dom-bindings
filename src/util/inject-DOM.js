@@ -1,5 +1,7 @@
 import moveChildren from './move-children'
 
+const SVG_RE = /svg/i
+
 /**
  * Inject the DOM tree into a target node
  * @param   {HTMLElement} el - target element
@@ -9,7 +11,7 @@ import moveChildren from './move-children'
 export default function injectDOM(el, dom) {
   const clone = dom.cloneNode(true)
 
-  if (el.tagName === 'SVG') {
+  if (SVG_RE.test(el.tagName)) {
     moveChildren(clone, el)
   } else {
     el.appendChild(clone)

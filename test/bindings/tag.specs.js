@@ -1,4 +1,4 @@
-import { bindingTypes, expressionTypes, registry, template } from '../../src'
+import { bindingTypes, expressionTypes, template } from '../../src'
 
 describe('tag bindings', () => {
   it('tags not registered will fallback to default templates', () => {
@@ -38,7 +38,7 @@ describe('tag bindings', () => {
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      name: 'my-tag',
+      component: null,
       attributes: [{
         evaluate: scope => scope.class,
         name: 'class'
@@ -56,27 +56,27 @@ describe('tag bindings', () => {
   it('registered tags will receive bindings slots and attributes', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
+    const components = {
+      'my-tag': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
 
-    // fake tag
-    registry.set('my-tag', function({ slots, attributes }) {
-      expect(slots).to.be.ok
-      expect(attributes).to.be.ok
-
-      return {
-        mount(el, scope) {
-          expect(el).to.be.ok
-          expect(scope).to.be.ok
-          spy()
-        },
-        unmount() {}
+        return {
+          mount(el, scope) {
+            expect(el).to.be.ok
+            expect(scope).to.be.ok
+            spy()
+          },
+          unmount() {}
+        }
       }
-    })
+    }
 
     // create a template with a fake custom riot tag in it
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      name: 'my-tag',
+      component: components['my-tag'],
       attributes: [{
         evaluate: scope => scope.class,
         name: 'class'
@@ -85,28 +85,27 @@ describe('tag bindings', () => {
 
     el.unmount()
     expect(spy).to.have.been.calledOnce
-    registry.delete('my-tag')
   })
 
   it('custom tags can be properly mounted in each bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
+    const components = {
+      'my-tag': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
 
-    // fake tag
-    registry.set('my-tag', function({ slots, attributes }) {
-      expect(slots).to.be.ok
-      expect(attributes).to.be.ok
-
-      return {
-        mount(el, scope) {
-          expect(el).to.be.ok
-          expect(el.tagName).to.be.equal('LI')
-          expect(scope).to.be.ok
-          spy()
-        },
-        unmount() {}
+        return {
+          mount(el, scope) {
+            expect(el).to.be.ok
+            expect(el.tagName).to.be.equal('LI')
+            expect(scope).to.be.ok
+            spy()
+          },
+          unmount() {}
+        }
       }
-    })
+    }
 
     const el = template('<ul><li expr0></li></ul>', [{
       type: bindingTypes.EACH,
@@ -115,34 +114,33 @@ describe('tag bindings', () => {
       evaluate: scope => scope.items,
       template: template(null, [{
         type: bindingTypes.TAG,
-        name: 'my-tag'
+        component: components['my-tag']
       }])
     }]).mount(target, { items: [1, 2] })
 
     el.unmount()
     expect(spy).to.have.been.calledTwice
-    registry.delete('my-tag')
   })
 
   it('custom tags can be properly mounted in if bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
+    const components = {
+      'my-tag': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
 
-    // fake tag
-    registry.set('my-tag', function({ slots, attributes }) {
-      expect(slots).to.be.ok
-      expect(attributes).to.be.ok
-
-      return {
-        mount(el, scope) {
-          expect(el).to.be.ok
-          expect(el.tagName).to.be.equal('LI')
-          expect(scope).to.be.ok
-          spy()
-        },
-        unmount() {}
+        return {
+          mount(el, scope) {
+            expect(el).to.be.ok
+            expect(el.tagName).to.be.equal('LI')
+            expect(scope).to.be.ok
+            spy()
+          },
+          unmount() {}
+        }
       }
-    })
+    }
 
     const el = template('<ul><li expr0></li></ul>', [{
       type: bindingTypes.IF,
@@ -150,12 +148,11 @@ describe('tag bindings', () => {
       evaluate: scope => scope.isVisible,
       template: template(null, [{
         type: bindingTypes.TAG,
-        name: 'my-tag'
+        component: components['my-tag']
       }])
     }]).mount(target, { isVisible: true })
 
     el.unmount()
     expect(spy).to.have.been.calledOnce
-    registry.delete('my-tag')
   })
 })
