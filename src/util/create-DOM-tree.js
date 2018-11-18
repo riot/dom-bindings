@@ -11,7 +11,7 @@ function createHTMLTree(html) {
 function creteSVGTree(html, container) {
   // create the SVGNode
   const svgNode = container.ownerDocument.importNode(
-    new DOMParser()
+    new window.DOMParser()
       .parseFromString(
         `<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>`,
         'application/xml'

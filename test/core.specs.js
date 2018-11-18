@@ -1,4 +1,4 @@
-import { expressionTypes, registry, template } from '../src'
+import { bindingTypes, expressionTypes, registry, template } from '../src'
 
 describe('core specs', () => {
   it('The riot DOM bindings public methods get properly exported', () => {
@@ -80,9 +80,6 @@ describe('core specs', () => {
     expect(p.hasAttribute('expr0')).to.be.not.ok
   })
 
-/*
-  JDOM can't handle SVGs :(
-
   it('Svg fragments could be created properly', () => {
     const target = document.createElement('div')
 
@@ -97,5 +94,5 @@ describe('core specs', () => {
     const svg = target.querySelector('svg')
 
     expect(svg.querySelector('image')).to.be.ok
-  })*/
+  })
 })
