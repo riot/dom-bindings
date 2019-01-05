@@ -108,7 +108,7 @@ const EachBinding = Object.seal({
  * @returns {boolean} true if this item should be skipped
  */
 function mustFilterItem(condition, context) {
-  return condition ? condition(context) : false
+  return condition ? (condition(context) === false) : false
 }
 
 /**

@@ -178,6 +178,7 @@ function runTests(options) {
     expect(beforeLis).to.have.length(3)
 
     items.push(6)
+    items.push(7)
     el.update({ items })
 
     const afterLis = target.querySelectorAll('li')
