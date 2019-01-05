@@ -628,6 +628,26 @@
     return futureNodes;
   };
 
+  /**
+   * Safe expression/bindings value evaluation, in case of errors we return a fallback value
+   * @param   {Function} fn  - function to evaluate
+   * @param   {*}        fallback - a fallback return value
+   * @param   {boolean}  debug - if true the error will be logged
+   * @returns {*} result of the computation or a fallback value
+   */
+
+  function evalOrFallback(fn, fallback, debug) {
+    try {
+      return fn()
+    } catch (error) {
+      if (debug) {
+        console.error(debug); // eslint-disable-line
+      }
+
+      return fallback
+    }
+  }
+
   const EachBinding = Object.seal({
     // dynamic binding properties
     childrenMap: null,
@@ -649,7 +669,7 @@
     },
     update(scope) {
       const { placeholder } = this;
-      const collection = this.evaluate(scope);
+      const collection = evalOrFallback(() => this.evaluate(scope), []);
       const items = collection ? Array.from(collection) : [];
       const parent = placeholder.parentNode;
 
@@ -819,7 +839,7 @@
       return this.update(scope)
     },
     update(scope) {
-      const value = !!this.evaluate(scope);
+      const value = !!evalOrFallback(() => this.evaluate(scope), false);
       const mustMount = !this.value && value;
       const mustUnmount = this.value && !value;
 

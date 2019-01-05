@@ -1,3 +1,5 @@
+import evalOrFallback from '../util/eval-or-fallback'
+
 /**
  * Binding responsible for the `if` directive
  */
@@ -14,7 +16,7 @@ export const IfBinding = Object.seal({
     return this.update(scope)
   },
   update(scope) {
-    const value = !!this.evaluate(scope)
+    const value = !!evalOrFallback(() => this.evaluate(scope), false)
     const mustMount = !this.value && value
     const mustUnmount = this.value && !value
 

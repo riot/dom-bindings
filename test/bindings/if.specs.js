@@ -1,6 +1,6 @@
 import { bindingTypes, expressionTypes, template } from '../../src'
 
-function createDummyIfTemplate() {
+function createDummyIfTemplate(options = {}) {
   return template('<div></div><p expr0></p>', [{
     selector: '[expr0]',
     type: bindingTypes.IF,
@@ -13,7 +13,8 @@ function createDummyIfTemplate() {
           evaluate: scope => scope.text
         }
       ]
-    }])
+    }]),
+    ...options
   }])
 }
 
@@ -24,6 +25,17 @@ describe('if bindings', () => {
 
     expect(target.querySelector('b').textContent).to.be.equal('hello')
     el.update({ text: 'hello', isVisible: false })
+
+    expect(target.querySelector('b')).to.be.not.ok
+
+    el.unmount()
+  })
+
+  it('Broken expressions evaluate to false', () => {
+    const target = document.createElement('div')
+    const el = createDummyIfTemplate({
+      evaluate: scope => scope.foo.bar.baz
+    }).mount(target, { text: 'hello' })
 
     expect(target.querySelector('b')).to.be.not.ok
 
