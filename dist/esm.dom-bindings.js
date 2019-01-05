@@ -1,5 +1,4 @@
 import domdiff from 'domdiff';
-import curry from 'curri';
 
 /**
  * Remove the child nodes from any DOM node
@@ -564,8 +563,15 @@ function create$4(node, { name, getComponent, slots, attributes }) {
   const tag = getTag(getComponent(name), slots, attributes);
 
   return {
-    ...tag,
-    mount: curry(tag.mount.bind(tag))(node)
+    mount(scope) {
+      return tag.mount(node, scope)
+    },
+    update(scope) {
+      return tag.update(scope)
+    },
+    unmount(scope) {
+      return tag.unmount(scope)
+    }
   }
 }
 

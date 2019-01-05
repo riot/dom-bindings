@@ -1116,23 +1116,6 @@
   }
 
   /**
-   * Function to curry any javascript method
-   * @param   {Function}  fn - the target function we want to curry
-   * @param   {...[args]} acc - initial arguments
-   * @returns {Function|*} it will return a function until the target function
-   *                       will receive all of its arguments
-   */
-  function curry(fn, ...acc) {
-    return (...args) => {
-      args = [...acc, ...args];
-
-      return args.length < fn.length ?
-        curry(fn, ...args) :
-        fn(...args)
-    }
-  }
-
-  /**
    * Create a new tag object if it was registered before, otherwise fallback to the simple
    * template chunk
    * @param   {Function} component - component factory function
@@ -1186,8 +1169,15 @@
     const tag = getTag(getComponent(name), slots, attributes);
 
     return {
-      ...tag,
-      mount: curry(tag.mount.bind(tag))(node)
+      mount(scope) {
+        return tag.mount(node, scope)
+      },
+      update(scope) {
+        return tag.update(scope)
+      },
+      unmount(scope) {
+        return tag.unmount(scope)
+      }
     }
   }
 

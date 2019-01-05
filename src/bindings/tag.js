@@ -1,5 +1,4 @@
 import { ATTRIBUTE } from '../expressions/expression-types'
-import curry from 'curri'
 import template from '../template'
 
 /**
@@ -56,7 +55,14 @@ export default function create(node, { name, getComponent, slots, attributes }) 
   const tag = getTag(getComponent(name), slots, attributes)
 
   return {
-    ...tag,
-    mount: curry(tag.mount.bind(tag))(node)
+    mount(scope) {
+      return tag.mount(node, scope)
+    },
+    update(scope) {
+      return tag.update(scope)
+    },
+    unmount(scope) {
+      return tag.unmount(scope)
+    }
   }
 }
