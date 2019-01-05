@@ -52,8 +52,8 @@ function slotsToMarkup(slots) {
   }, '')
 }
 
-export default function create(node, { component, slots, attributes }) {
-  const tag = getTag(component, slots, attributes)
+export default function create(node, { name, getComponent, slots, attributes }) {
+  const tag = getTag(getComponent(name), slots, attributes)
 
   return {
     ...tag,

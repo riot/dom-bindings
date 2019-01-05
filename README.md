@@ -357,10 +357,14 @@ The `tag` bindings are needed to mount custom components implementations
 
 A tag binding might contain the following properties:
 
-- `component`
+- `getComponent`
   - type: `Function`
   - required: `true`
   - description: the factory function responsible for the tag creation
+- `name`
+  - type: `string`
+  - optional: `true`
+  - description: the component id that will be passed as first argument to the `getComponent` function
 - `slots`
   - type: `Array<Slot>`
   - optional: `true`
@@ -403,7 +407,8 @@ import HumanReadableTime from './human-readable-time'
 
 const tagBinding = {
   type: bindingTypes.TAG,
-  component: HumanReadableTime,
+  name: 'human-readable-time',
+  getComponent: () => HumanReadableTime,
   selector: 'time',
   attributes: [{
     evaluate: scope => scope.time,
@@ -460,7 +465,11 @@ const el = template('<ul><li expr0></li></ul>', [{
   evaluate: scope => scope.items,
   template: template(null, [{
     type: bindingTypes.TAG,
-    component: components['my-tag']
+    name: 'my-tag',
+    getComponent(name) {
+      // name here will be 'my-tag'
+      return components[name]
+    }
   }])
 }]).mount(target, { items: [1, 2] })
 ```
@@ -477,7 +486,11 @@ const el = template('<ul><li expr0></li></ul>', [{
   evaluate: scope => scope.isVisible,
   template: template(null, [{
     type: bindingTypes.TAG,
-    component: components['my-tag']
+    name: 'my-tag',
+    getComponent(name) {
+      // name here will be 'my-tag'
+      return components[name]
+    }
   }])
 }]).mount(target, { isVisible: true })
 ```

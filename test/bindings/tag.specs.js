@@ -8,6 +8,9 @@ describe('tag bindings', () => {
       selector: '[expr0]',
       type: bindingTypes.TAG,
       name: 'my-tag',
+      getComponent() {
+        return null
+      },
       slots: [
         {
           id: 'default',
@@ -38,7 +41,10 @@ describe('tag bindings', () => {
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      component: null,
+      name: 'my-tag',
+      getComponent() {
+        return null
+      },
       attributes: [{
         evaluate: scope => scope.class,
         name: 'class'
@@ -76,7 +82,10 @@ describe('tag bindings', () => {
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      component: components['my-tag'],
+      name: 'my-tag',
+      getComponent(name) {
+        return components[name]
+      },
       attributes: [{
         evaluate: scope => scope.class,
         name: 'class'
@@ -114,7 +123,10 @@ describe('tag bindings', () => {
       evaluate: scope => scope.items,
       template: template(null, [{
         type: bindingTypes.TAG,
-        component: components['my-tag']
+        name: 'my-tag',
+        getComponent(name) {
+          return components[name]
+        }
       }])
     }]).mount(target, { items: [1, 2] })
 
@@ -148,7 +160,10 @@ describe('tag bindings', () => {
       evaluate: scope => scope.isVisible,
       template: template(null, [{
         type: bindingTypes.TAG,
-        component: components['my-tag']
+        name: 'my-tag',
+        getComponent(name) {
+          return components[name]
+        }
       }])
     }]).mount(target, { isVisible: true })
 

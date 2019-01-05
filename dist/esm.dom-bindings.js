@@ -560,8 +560,8 @@ function slotsToMarkup(slots) {
   }, '')
 }
 
-function create$4(node, { component, slots, attributes }) {
-  const tag = getTag(component, slots, attributes);
+function create$4(node, { name, getComponent, slots, attributes }) {
+  const tag = getTag(getComponent(name), slots, attributes);
 
   return {
     ...tag,
@@ -793,7 +793,7 @@ function create$6(html, bindings = []) {
  *       redundantAttribute: 'expr0',
  *       expressions: [
  *         {
- *           type: 'text',
+ *           type: expressionTypes.TEXT,
  *           childNodeIndex: 0,
  *           evaluate(scope) {
  *             return scope.time;
@@ -806,7 +806,7 @@ function create$6(html, bindings = []) {
  *       redundantAttribute: 'expr1',
  *       expressions: [
  *         {
- *           type: 'text',
+ *           type: expressionTypes.TEXT,
  *           childNodeIndex: 0,
  *           evaluate(scope) {
  *             return scope.name;
@@ -824,7 +824,7 @@ function create$6(html, bindings = []) {
  *     {
  *       selector: '[expr2]',
  *       redundantAttribute: 'expr2',
- *       type: 'if',
+ *       type: bindingTypes.IF,
  *       evaluate(scope) {
  *         return scope.isVisible;
  *       },
