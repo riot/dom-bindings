@@ -166,7 +166,7 @@ function loopItems(items, scope, binding) {
       return
     }
 
-    const tag = oldItem ? oldItem.tag : template.clone();
+    const tag = oldItem ? oldItem.tag : template.clone(root);
     const el = oldItem ? tag.el : root.cloneNode();
 
     if (!oldItem) {
@@ -241,7 +241,7 @@ const IfBinding = Object.seal({
     case mustMount:
       swap(this.node, this.placeholder);
       if (this.template) {
-        this.template = this.template.clone();
+        this.template = this.template.clone(this.node);
         this.template.mount(this.node, scope);
       }
       break
@@ -696,13 +696,23 @@ const SVG_RE = /svg/i;
  * @returns {undefined}
  */
 function injectDOM(el, dom) {
-  const clone = dom.cloneNode(true);
-
   if (SVG_RE.test(el.tagName)) {
-    moveChildren(clone, el);
+    moveChildren(dom, el);
   } else {
-    el.appendChild(clone);
+    el.appendChild(dom);
   }
+}
+
+/**
+ * Create the Template DOM skeleton
+ * @param   {HTMLElement} el - root node where the DOM will be injected
+ * @param   {string} html - markup that will be injected into the root node
+ * @returns {HTMLFragment} fragment that will be injected into the root node
+ */
+function createTemplateDOM(el, html) {
+  return html && (typeof html === 'string' ?
+    createDOMTree(el, html) :
+    html)
 }
 
 /**
@@ -732,13 +742,9 @@ const TemplateChunk = Object.freeze({
     this.el = el;
 
     // create lazily the template fragment only once if it hasn't been created before
-    if (this.html && !this.dom) {
-      this.dom = typeof this.html === 'string' ?
-        createDOMTree(el, this.html) :
-        this.html;
-    }
+    this.dom = this.dom || createTemplateDOM(el, this.html);
 
-    if (this.dom) injectDOM(el, this.dom);
+    if (this.dom) injectDOM(el, this.dom.cloneNode(true));
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
@@ -778,9 +784,13 @@ const TemplateChunk = Object.freeze({
   },
   /**
    * Clone the template chunk
+   * @param   {HTMLElement} el - template target DOM node
    * @returns {TemplateChunk} a clone of this object resetting the this.el property
    */
-  clone() {
+  clone(el) {
+    // make sure that the DOM gets created before cloning the template
+    this.dom = this.dom || createTemplateDOM(el, this.html);
+
     return {
       ...this,
       el: null

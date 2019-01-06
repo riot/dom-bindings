@@ -9,11 +9,9 @@ const SVG_RE = /svg/i
  * @returns {undefined}
  */
 export default function injectDOM(el, dom) {
-  const clone = dom.cloneNode(true)
-
   if (SVG_RE.test(el.tagName)) {
-    moveChildren(clone, el)
+    moveChildren(dom, el)
   } else {
-    el.appendChild(clone)
+    el.appendChild(dom)
   }
 }

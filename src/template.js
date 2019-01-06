@@ -4,6 +4,18 @@ import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
 
 /**
+ * Create the Template DOM skeleton
+ * @param   {HTMLElement} el - root node where the DOM will be injected
+ * @param   {string} html - markup that will be injected into the root node
+ * @returns {HTMLFragment} fragment that will be injected into the root node
+ */
+function createTemplateDOM(el, html) {
+  return html && (typeof html === 'string' ?
+    createDOMTree(el, html) :
+    html)
+}
+
+/**
  * Template Chunk model
  * @type {Object}
  */
@@ -30,13 +42,9 @@ export const TemplateChunk = Object.freeze({
     this.el = el
 
     // create lazily the template fragment only once if it hasn't been created before
-    if (this.html && !this.dom) {
-      this.dom = typeof this.html === 'string' ?
-        createDOMTree(el, this.html) :
-        this.html
-    }
+    this.dom = this.dom || createTemplateDOM(el, this.html)
 
-    if (this.dom) injectDOM(el, this.dom)
+    if (this.dom) injectDOM(el, this.dom.cloneNode(true))
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding))
@@ -76,9 +84,13 @@ export const TemplateChunk = Object.freeze({
   },
   /**
    * Clone the template chunk
+   * @param   {HTMLElement} el - template target DOM node
    * @returns {TemplateChunk} a clone of this object resetting the this.el property
    */
-  clone() {
+  clone(el) {
+    // make sure that the DOM gets created before cloning the template
+    this.dom = this.dom || createTemplateDOM(el, this.html)
+
     return {
       ...this,
       el: null

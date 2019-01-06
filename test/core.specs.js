@@ -49,7 +49,7 @@ describe('core specs', () => {
     }])
 
     const target = document.createElement('div')
-    el.clone().mount(target)
+    el.clone(target).mount(target)
     expect(target.textContent).to.be.equal(message)
   })
 

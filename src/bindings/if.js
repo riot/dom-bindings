@@ -24,7 +24,7 @@ export const IfBinding = Object.seal({
     case mustMount:
       swap(this.node, this.placeholder)
       if (this.template) {
-        this.template = this.template.clone()
+        this.template = this.template.clone(this.node)
         this.template.mount(this.node, scope)
       }
       break

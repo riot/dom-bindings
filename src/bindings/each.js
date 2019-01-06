@@ -125,7 +125,7 @@ function loopItems(items, scope, binding) {
       return
     }
 
-    const tag = oldItem ? oldItem.tag : template.clone()
+    const tag = oldItem ? oldItem.tag : template.clone(root)
     const el = oldItem ? tag.el : root.cloneNode()
 
     if (!oldItem) {
