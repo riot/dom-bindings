@@ -361,10 +361,10 @@ A tag binding might contain the following properties:
   - type: `Function`
   - required: `true`
   - description: the factory function responsible for the tag creation
-- `name`
-  - type: `string`
-  - optional: `true`
-  - description: the component id that will be passed as first argument to the `getComponent` function
+- `evaluate`
+  - type: `Function`
+  - required: `true`
+  - description: it will receive the current scope and it must return the component id that will be passed as first argument to the `getComponent` function
 - `slots`
   - type: `Array<Slot>`
   - optional: `true`
@@ -407,7 +407,7 @@ import HumanReadableTime from './human-readable-time'
 
 const tagBinding = {
   type: bindingTypes.TAG,
-  name: 'human-readable-time',
+  evaluate: () => 'human-readable-time',
   getComponent: () => HumanReadableTime,
   selector: 'time',
   attributes: [{
@@ -486,7 +486,7 @@ const el = template('<ul><li expr0></li></ul>', [{
   evaluate: scope => scope.isVisible,
   template: template(null, [{
     type: bindingTypes.TAG,
-    name: 'my-tag',
+    evaluate: () => 'my-tag',
     getComponent(name) {
       // name here will be 'my-tag'
       return components[name]

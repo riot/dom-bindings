@@ -579,19 +579,57 @@ function slotsToMarkup(slots) {
   }, '')
 }
 
-function create$4(node, { name, getComponent, slots, attributes }) {
-  const tag = getTag(getComponent(name), slots, attributes);
 
-  return {
-    mount(scope) {
-      return tag.mount(node, scope)
-    },
-    update(scope) {
-      return tag.update(scope)
-    },
-    unmount(scope) {
-      return tag.unmount(scope)
+const TagBinding = Object.seal({
+  // dynamic binding properties
+  node: null,
+  evaluate: null,
+  name: null,
+  slots: null,
+  tag: null,
+  attributes: null,
+  getComponent: null,
+
+  mount(scope) {
+    return this.update(scope)
+  },
+  update(scope) {
+    const name = this.evaluate(scope);
+
+    // simple update
+    if (name === this.name) {
+      this.tag.update(scope);
+    } else {
+      // unmount the old tag if it exists
+      if (this.tag) {
+        this.tag.unmount(scope);
+      }
+
+      // mount the new tag
+      this.name = name;
+      this.tag = getTag(this.getComponent(name), this.slots, this.attributes);
+      this.tag.mount(this.node, scope);
     }
+
+    return this
+  },
+  unmount(scope) {
+    if (this.tag) {
+      this.tag.unmount(scope);
+    }
+
+    return this
+  }
+});
+
+function create$4(node, { evaluate, getComponent, slots, attributes }) {
+  return {
+    ...TagBinding,
+    node,
+    evaluate,
+    slots,
+    attributes,
+    getComponent
   }
 }
 

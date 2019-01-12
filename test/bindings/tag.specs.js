@@ -7,7 +7,7 @@ describe('tag bindings', () => {
     const el = template('<section><div expr0></div></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      name: 'my-tag',
+      evaluate: () => 'my-tag',
       getComponent() {
         return null
       },
@@ -41,7 +41,7 @@ describe('tag bindings', () => {
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      name: 'my-tag',
+      evaluate: () => 'my-tag',
       getComponent() {
         return null
       },
@@ -55,6 +55,68 @@ describe('tag bindings', () => {
 
     expect(b.getAttribute('class')).to.be.equal('hello')
     expect(b).to.be.ok
+
+    el.unmount()
+  })
+
+  it('switch between two components type', () => {
+    const target = document.createElement('div')
+    const spyMount = sinon.spy()
+    const spyUnmount = sinon.spy()
+
+    const components = {
+      'my-tag-1': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
+
+        return {
+          mount(el, scope) {
+            expect(el).to.be.ok
+            expect(scope).to.be.ok
+            spyMount()
+          },
+          unmount() {
+            spyUnmount()
+          }
+        }
+      },
+      'my-tag-2': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
+
+        return {
+          mount(el, scope) {
+            expect(el).to.be.ok
+            expect(scope).to.be.ok
+            spyMount()
+          },
+          unmount() {
+            spyUnmount()
+          }
+        }
+      }
+    }
+
+    const el = template('<section><b expr0></b></section>', [{
+      selector: '[expr0]',
+      type: bindingTypes.TAG,
+      evaluate: scope => scope.tagName,
+      getComponent(name) {
+        return components[name]
+      },
+      attributes: [{
+        evaluate: scope => scope.class,
+        name: 'class'
+      }]
+    }]).mount(target, { tagName: 'my-tag-1' })
+
+    expect(spyMount).to.have.been.calledOnce
+    expect(spyUnmount).to.not.have.been.called
+
+    el.update({ tagName: 'my-tag-2' })
+
+    expect(spyMount).to.have.been.calledTwice
+    expect(spyUnmount).to.have.been.calledOnce
 
     el.unmount()
   })
@@ -82,7 +144,7 @@ describe('tag bindings', () => {
     const el = template('<section><b expr0></b></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
-      name: 'my-tag',
+      evaluate: () => 'my-tag',
       getComponent(name) {
         return components[name]
       },
@@ -123,7 +185,7 @@ describe('tag bindings', () => {
       evaluate: scope => scope.items,
       template: template(null, [{
         type: bindingTypes.TAG,
-        name: 'my-tag',
+        evaluate: () => 'my-tag',
         getComponent(name) {
           return components[name]
         }
@@ -160,7 +222,7 @@ describe('tag bindings', () => {
       evaluate: scope => scope.isVisible,
       template: template(null, [{
         type: bindingTypes.TAG,
-        name: 'my-tag',
+        evaluate: () => 'my-tag',
         getComponent(name) {
           return components[name]
         }
