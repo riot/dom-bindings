@@ -24,7 +24,7 @@ export const IfBinding = Object.seal({
     case mustMount:
       swap(this.node, this.placeholder)
       if (this.template) {
-        this.template = this.template.clone(this.node)
+        this.template = this.template.clone()
         this.template.mount(this.node, scope)
       }
       break
@@ -63,6 +63,6 @@ export default function create(node, { evaluate, template }) {
     node,
     evaluate,
     placeholder: document.createTextNode(''),
-    template
+    template: template.createDOM(node)
   }
 }

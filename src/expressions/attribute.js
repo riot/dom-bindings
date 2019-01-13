@@ -62,7 +62,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
+  return value && typeof value !== 'object' ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
 }
 
 /**
@@ -75,6 +75,5 @@ function normalizeValue(name, value) {
   // be sure that expressions like selected={ true } will be always rendered as selected='selected'
   if (value === true) return name
 
-  // array values will be joined with spaces
-  return Array.isArray(value) ? value.join(' ') : value
+  return value
 }

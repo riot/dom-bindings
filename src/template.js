@@ -27,6 +27,18 @@ export const TemplateChunk = Object.freeze({
   dom: null,
   el: null,
 
+  /**
+   * Create the template DOM structure that will be cloned on each mount
+   * @param   {HTMLElement} el - the root node
+   * @returns {TemplateChunk} self
+   */
+  createDOM(el) {
+    // make sure that the DOM gets created before cloning the template
+    this.dom = this.dom || createTemplateDOM(el, this.html)
+
+    return this
+  },
+
   // API methods
   /**
    * Attach the template to a DOM node
@@ -41,8 +53,8 @@ export const TemplateChunk = Object.freeze({
 
     this.el = el
 
-    // create lazily the template fragment only once if it hasn't been created before
-    this.dom = this.dom || createTemplateDOM(el, this.html)
+    // create the DOM if it wasn't created before
+    this.createDOM(el)
 
     if (this.dom) injectDOM(el, this.dom.cloneNode(true))
 
@@ -84,13 +96,9 @@ export const TemplateChunk = Object.freeze({
   },
   /**
    * Clone the template chunk
-   * @param   {HTMLElement} el - template target DOM node
    * @returns {TemplateChunk} a clone of this object resetting the this.el property
    */
-  clone(el) {
-    // make sure that the DOM gets created before cloning the template
-    this.dom = this.dom || createTemplateDOM(el, this.html)
-
+  clone() {
     return {
       ...this,
       el: null

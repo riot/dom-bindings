@@ -166,7 +166,7 @@ function loopItems(items, scope, binding) {
       return
     }
 
-    const tag = oldItem ? oldItem.tag : template.clone(root);
+    const tag = oldItem ? oldItem.tag : template.clone();
     const el = oldItem ? tag.el : root.cloneNode();
 
     if (!oldItem) {
@@ -209,7 +209,7 @@ function create(node, { evaluate, condition, itemName, indexName, getKey, templa
     offset,
     condition,
     evaluate,
-    template,
+    template: template.createDOM(node),
     getKey,
     indexName,
     itemName,
@@ -241,7 +241,7 @@ const IfBinding = Object.seal({
     case mustMount:
       swap(this.node, this.placeholder);
       if (this.template) {
-        this.template = this.template.clone(this.node);
+        this.template = this.template.clone();
         this.template.mount(this.node, scope);
       }
       break
@@ -280,7 +280,7 @@ function create$1(node, { evaluate, template }) {
     node,
     evaluate,
     placeholder: document.createTextNode(''),
-    template
+    template: template.createDOM(node)
   }
 }
 
@@ -360,7 +360,7 @@ function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
+  return value && typeof value !== 'object' ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
 }
 
 /**
@@ -373,8 +373,7 @@ function normalizeValue(name, value) {
   // be sure that expressions like selected={ true } will be always rendered as selected='selected'
   if (value === true) return name
 
-  // array values will be joined with spaces
-  return Array.isArray(value) ? value.join(' ') : value
+  return value
 }
 
 /**
@@ -765,6 +764,18 @@ const TemplateChunk = Object.freeze({
   dom: null,
   el: null,
 
+  /**
+   * Create the template DOM structure that will be cloned on each mount
+   * @param   {HTMLElement} el - the root node
+   * @returns {TemplateChunk} self
+   */
+  createDOM(el) {
+    // make sure that the DOM gets created before cloning the template
+    this.dom = this.dom || createTemplateDOM(el, this.html);
+
+    return this
+  },
+
   // API methods
   /**
    * Attach the template to a DOM node
@@ -779,8 +790,8 @@ const TemplateChunk = Object.freeze({
 
     this.el = el;
 
-    // create lazily the template fragment only once if it hasn't been created before
-    this.dom = this.dom || createTemplateDOM(el, this.html);
+    // create the DOM if it wasn't created before
+    this.createDOM(el);
 
     if (this.dom) injectDOM(el, this.dom.cloneNode(true));
 
@@ -822,13 +833,9 @@ const TemplateChunk = Object.freeze({
   },
   /**
    * Clone the template chunk
-   * @param   {HTMLElement} el - template target DOM node
    * @returns {TemplateChunk} a clone of this object resetting the this.el property
    */
-  clone(el) {
-    // make sure that the DOM gets created before cloning the template
-    this.dom = this.dom || createTemplateDOM(el, this.html);
-
+  clone() {
     return {
       ...this,
       el: null

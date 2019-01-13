@@ -125,7 +125,7 @@ function loopItems(items, scope, binding) {
       return
     }
 
-    const tag = oldItem ? oldItem.tag : template.clone(root)
+    const tag = oldItem ? oldItem.tag : template.clone()
     const el = oldItem ? tag.el : root.cloneNode()
 
     if (!oldItem) {
@@ -168,7 +168,7 @@ export default function create(node, { evaluate, condition, itemName, indexName,
     offset,
     condition,
     evaluate,
-    template,
+    template: template.createDOM(node),
     getKey,
     indexName,
     itemName,

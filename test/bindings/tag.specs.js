@@ -75,6 +75,7 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spyMount()
           },
+          update() {},
           unmount() {
             spyUnmount()
           }
@@ -90,6 +91,7 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spyMount()
           },
+          update() {},
           unmount() {
             spyUnmount()
           }
@@ -112,6 +114,11 @@ describe('tag bindings', () => {
 
     expect(spyMount).to.have.been.calledOnce
     expect(spyUnmount).to.not.have.been.called
+
+    el.update({ tagName: 'my-tag-2' })
+
+    expect(spyMount).to.have.been.calledTwice
+    expect(spyUnmount).to.have.been.calledOnce
 
     el.update({ tagName: 'my-tag-2' })
 

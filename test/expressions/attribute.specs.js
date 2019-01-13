@@ -82,21 +82,21 @@ describe('attribute specs', () => {
     expect(p.hasAttribute('name')).to.be.not.ok
   })
 
-  it('provide attribute values as array', () => {
+  it('object attributes will be skipped', () => {
     const target = document.createElement('div')
     const el = template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
         { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
       ]
-    }]).mount(target, { attr: ['hello', 'world']})
+    }]).mount(target, { attr: {}})
 
     const p = target.querySelector('p')
 
-    expect(p.getAttribute('class')).to.be.equal('hello world')
+    expect(p.getAttribute('class')).to.be.not.ok
 
-    el.update({ attr: null })
+    el.update({ attr: 'hello' })
 
-    expect(p.hasAttribute('class')).to.be.not.ok
+    expect(p.hasAttribute('class')).to.be.ok
   })
 })
