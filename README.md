@@ -424,6 +424,23 @@ template('<p>Your last commit was: <time></time></p>', [tagBinding]).mount(app, 
 The `tag` bindings have always a lower priority compared to the `if` and `each` bindings
 </details>
 
+#### Slot Binding
+
+The slot binding will be used to manage nested templates that will be update with the properties from the parent scope
+
+<details>
+  <summary>Details</summary>
+An expression object must have always at least the following properties:
+
+- `evaluate`
+  - type: `Function`
+  - description: function that will receive the current template scope and will return the current expression value
+- `type`
+  - type: `Number`
+  - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
+
+</details>
+
 ## Bindings Hierarchy
 
 If the same DOM node has multiple bindings bound to it, they should be created following the order below:

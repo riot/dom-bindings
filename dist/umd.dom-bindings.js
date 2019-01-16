@@ -18,14 +18,12 @@
   const IF = 1;
   const SIMPLE = 2;
   const TAG = 3;
-  const SLOT = 4;
 
   var bindingTypes = {
     EACH,
     IF,
     SIMPLE,
-    TAG,
-    SLOT
+    TAG
   };
 
   const append = (get, parent, children, start, end, before) => {
@@ -1117,53 +1115,6 @@
   }
 
   /**
-   * Binding responsible for the slots mounting
-   */
-  const SlotBinding = Object.seal({
-    // dynamic binding properties
-    node: null,
-    name: null,
-    template: null,
-
-    // API methods
-    mount(scope) {
-      const { slots } = scope;
-      const targetSlot = slots && slots.find(s => s.id === this.name);
-      if (targetSlot) {
-        this.template = this.template ?
-          this.template.clone() :
-          create$7(targetSlot.html, targetSlot.bindings).createDOM(this.node.parentNode);
-
-        this.template.mount(this.node, scope);
-      } else {
-        this.node.parentNode.removeChild(this.node);
-      }
-
-      return this
-    },
-    update(scope) {
-      if (!this.template) return this
-      this.template.update(scope);
-
-      return this
-    },
-    unmount(scope) {
-      if (!this.template) return this
-      this.template.unmount(scope);
-
-      return this
-    }
-  });
-
-  function create$4(node, { name }) {
-    return {
-      ...SlotBinding,
-      node,
-      name
-    }
-  }
-
-  /**
    * Create a new tag object if it was registered before, otherwise fallback to the simple
    * template chunk
    * @param   {Function} component - component factory function
@@ -1178,7 +1129,7 @@
     }
 
     // otherwise we return a template chunk
-    return create$7(slotsToMarkup(slots), [
+    return create$6(slotsToMarkup(slots), [
       ...slotBindings(slots), {
       // the attributes should be registered as binding
       // if we fallback to a normal template chunk
@@ -1256,7 +1207,7 @@
     }
   });
 
-  function create$5(node, { evaluate, getComponent, slots, attributes }) {
+  function create$4(node, { evaluate, getComponent, slots, attributes }) {
     return {
       ...TagBinding,
       node,
@@ -1271,8 +1222,7 @@
     [IF]: create$1,
     [SIMPLE]: create$3,
     [EACH]: create,
-    [TAG]: create$5,
-    [SLOT]: create$4
+    [TAG]: create$4
   };
 
   /**
@@ -1281,7 +1231,7 @@
    * @param   {Object} binding - binding data
    * @returns {Expression} Expression object
    */
-  function create$6(root, binding) {
+  function create$5(root, binding) {
     const { selector, type, redundantAttribute, expressions } = binding;
     // find the node to apply the bindings
     const node = selector ? root.querySelector(selector) : root;
@@ -1432,7 +1382,7 @@
       if (this.dom) injectDOM(el, this.dom.cloneNode(true));
 
       // create the bindings
-      this.bindings = this.bindingsData.map(binding => create$6(this.el, binding));
+      this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
       this.bindings.forEach(b => b.mount(scope));
 
       return this
@@ -1485,7 +1435,7 @@
    * @param   {Array} bindings - bindings collection
    * @returns {TemplateChunk} a new TemplateChunk copy
    */
-  function create$7(html, bindings = []) {
+  function create$6(html, bindings = []) {
     return {
       ...TemplateChunk,
       html,
@@ -1551,8 +1501,8 @@
    * )
    */
 
-  exports.template = create$7;
-  exports.createBinding = create$6;
+  exports.template = create$6;
+  exports.createBinding = create$5;
   exports.bindingTypes = bindingTypes;
   exports.expressionTypes = expressionTypes;
 
