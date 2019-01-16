@@ -1,5 +1,4 @@
 import domdiff from 'domdiff'
-import evalOrFallback from '../util/eval-or-fallback'
 
 export const EachBinding = Object.seal({
   // dynamic binding properties
@@ -22,7 +21,7 @@ export const EachBinding = Object.seal({
   },
   update(scope) {
     const { placeholder } = this
-    const collection = evalOrFallback(() => this.evaluate(scope), [])
+    const collection = this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
     const parent = placeholder.parentNode
 

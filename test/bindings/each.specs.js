@@ -188,22 +188,6 @@ function runTests(options) {
     el.unmount()
   })
 
-  it('List without items shouldn\'t fail', () => {
-    const target = document.createElement('div')
-    const el = createDummyListTemplate({
-      condition(scope) {
-        return scope.items
-      },
-      ...options
-    }).mount(target)
-
-    const beforeLis = target.querySelectorAll('li')
-
-    expect(beforeLis).to.have.length(0)
-
-    el.unmount()
-  })
-
   it('List having siblings nodes', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')

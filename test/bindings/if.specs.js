@@ -31,17 +31,6 @@ describe('if bindings', () => {
     el.unmount()
   })
 
-  it('Broken expressions evaluate to false', () => {
-    const target = document.createElement('div')
-    const el = createDummyIfTemplate({
-      evaluate: scope => scope.foo.bar.baz
-    }).mount(target, { text: 'hello' })
-
-    expect(target.querySelector('b')).to.be.not.ok
-
-    el.unmount()
-  })
-
   it('Append the DOM node to the template if the condition becomes true', () => {
     const target = document.createElement('div')
     const el = createDummyIfTemplate().mount(target, { text: 'hello', isVisible: false })
