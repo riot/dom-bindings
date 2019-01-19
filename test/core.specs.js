@@ -53,11 +53,6 @@ describe('core specs', () => {
     expect(target.textContent).to.be.equal(message)
   })
 
-  it('The unmount method throws if the template was never mounted before', () => {
-    const el = template('hello')
-    expect(() => el.unmount()).to.throw
-  })
-
   it('The bindings are properly linked to the DOM nodes', () => {
     const target = document.createElement('div')
 
