@@ -26,6 +26,42 @@
     TAG
   };
 
+  /*! (c) Andrea Giammarchi - ISC */
+  var self = null || /* istanbul ignore next */ {};
+  try { self.Map = Map; }
+  catch (Map) {
+    self.Map = function Map() {
+      var i = 0;
+      var k = [];
+      var v = [];
+      return {
+        delete: function (key) {
+          var had = contains(key);
+          if (had) {
+            k.splice(i, 1);
+            v.splice(i, 1);
+          }
+          return had;
+        },
+        get: function get(key) {
+          return contains(key) ? v[i] : void 0;
+        },
+        has: function has(key) {
+          return contains(key);
+        },
+        set: function set(key, value) {
+          v[contains(key) ? i : (k.push(key) - 1)] = value;
+          return this;
+        }
+      };
+      function contains(v) {
+        i = k.indexOf(v);
+        return -1 < i;
+      }
+    };
+  }
+  var Map$1 = self.Map;
+
   const append = (get, parent, children, start, end, before) => {
     if ((end - start) < 2)
       parent.insertBefore(get(children[start], 1), before);
@@ -117,22 +153,6 @@
   const SKIP = 0;
   const SKIP_OND = 50;
 
-  /* istanbul ignore next */
-  const Rel = typeof Map === 'undefined' ?
-    function () {
-      const k = [], v = [];
-      return {
-        has: value => -1 < k.indexOf(value),
-        get: value => v[k.indexOf(value)],
-        set: value => {
-          const i = k.indexOf(value);
-          v[i < 0 ? (k.push(value) - 1) : i] = value;
-        }
-      };
-    } :
-    Map
-  ;
-
   const HS = (
     futureNodes,
     futureStart,
@@ -154,7 +174,7 @@
     for (let i = 1; i < minLen; i++)
       tresh[i] = currentEnd;
 
-    const keymap = new Rel;
+    const keymap = new Map$1;
     for (let i = currentStart; i < currentEnd; i++)
       keymap.set(currentNodes[i], i);
 
@@ -301,7 +321,7 @@
     currentLength,
     before
   ) => {
-    const live = new Rel;
+    const live = new Map$1;
     const length = diff.length;
     let currentIndex = currentStart;
     let i = 0;
@@ -321,7 +341,7 @@
             futureStart++,
             futureStart,
             currentIndex < currentLength ?
-              get(currentNodes[currentIndex], 1) :
+              get(currentNodes[currentIndex], 0) :
               before
           );
           break;
@@ -357,7 +377,7 @@
     let lo = 1;
     let hi = length;
     while (lo < hi) {
-      var mid = ((lo + hi) / 2) >>> 0;
+      const mid = ((lo + hi) / 2) >>> 0;
       if (j < ktr[mid])
         hi = mid;
       else
@@ -694,7 +714,7 @@
    * @returns {boolean} true if this item should be skipped
    */
   function mustFilterItem(condition, context) {
-    return condition ? (condition(context) === false) : false
+    return condition ? Boolean(condition(context)) === false : false
   }
 
   /**

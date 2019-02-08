@@ -188,6 +188,31 @@ function runTests(options) {
     el.unmount()
   })
 
+  it('List filters (undefined)', () => {
+    const items = [0, 1, 2, 3, 4, 5]
+    const target = document.createElement('div')
+    const el = createDummyListTemplate({
+      condition(scope) {
+        return scope.val % 2 !== 0 ? true : undefined
+      },
+      ...options
+    }).mount(target, { items })
+
+    const beforeLis = target.querySelectorAll('li')
+
+    expect(beforeLis).to.have.length(3)
+
+    items.push(6)
+    items.push(7)
+    el.update({ items })
+
+    const afterLis = target.querySelectorAll('li')
+
+    expect(afterLis).to.have.length(4)
+
+    el.unmount()
+  })
+
   it('List having siblings nodes', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')

@@ -2,6 +2,8 @@ import resolve from 'rollup-plugin-node-resolve'
 
 const base  = {
   input: 'src/index.js',
+  context: 'null',
+  moduleContext: 'null',
   onwarn(message) {
     if (/Circular/.test(message)) return
     console.error(message) // eslint-disable-line
