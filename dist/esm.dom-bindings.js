@@ -1166,9 +1166,7 @@ const TagBinding = Object.seal({
       this.tag.update(scope);
     } else {
       // unmount the old tag if it exists
-      if (this.tag) {
-        this.tag.unmount(scope);
-      }
+      this.unmount();
 
       // mount the new tag
       this.name = name;
@@ -1178,9 +1176,10 @@ const TagBinding = Object.seal({
 
     return this
   },
-  unmount(scope) {
+  unmount() {
     if (this.tag) {
-      this.tag.unmount(scope);
+      // keep the root tag
+      this.tag.unmount(true);
     }
 
     return this

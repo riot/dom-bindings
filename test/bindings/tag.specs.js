@@ -76,7 +76,8 @@ describe('tag bindings', () => {
             spyMount()
           },
           update() {},
-          unmount() {
+          unmount(keepRoot) {
+            expect(keepRoot).to.be.equal(true)
             spyUnmount()
           }
         }
