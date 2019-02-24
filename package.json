@@ -3,8 +3,8 @@
   "version": "0.10.2",
   "description": "Riot.js DOM bindings",
   "main": "dist/umd.dom-bindings.js",
-  "jsnext:main": "src/index.js",
-  "module": "src/index.js",
+  "jsnext:main": "dist/esm.dom-bindings.js",
+  "module": "dist/esm.dom-bindings.js",
   "scripts": {
     "prepare": "npm test",
     "lint": "eslint src/ test/ rollup.config.js",
@@ -14,12 +14,11 @@
     "pretest": "npm run build",
     "postest": "npm run cov-html",
     "bench": "node benchmarks",
-    "test": "npm run lint && nyc mocha -r reify test/index.js",
-    "test-debug": "mocha -r reify --inspect --inspect-brk test/index.js",
+    "test": "npm run lint && nyc mocha -r esm test/index.js",
+    "test-debug": "mocha -r esm --inspect --inspect-brk test/index.js",
     "prepublishOnly": "npm run test"
   },
   "files": [
-    "src",
     "dist"
   ],
   "repository": {
@@ -42,12 +41,13 @@
     "coveralls": "^3.0.2",
     "eslint": "^5.8.0",
     "eslint-config-riot": "^2.0.0",
-    "jsdom": "12.2.0",
+    "esm": "^3.2.6",
+    "jsdom": "13.2.0",
     "jsdom-global": "3.0.2",
     "mocha": "^5.2.0",
-    "nyc": "^13.1.0",
-    "reify": "^0.18.1",
+    "nyc": "^13.3.0",
     "rollup": "^0.66.6",
+    "rollup-plugin-ignore": "^1.0.5",
     "rollup-plugin-node-resolve": "^3.4.0",
     "sinon": "^7.1.1",
     "sinon-chai": "^3.2.0"

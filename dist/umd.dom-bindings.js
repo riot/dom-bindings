@@ -26,41 +26,7 @@
     TAG
   };
 
-  /*! (c) Andrea Giammarchi - ISC */
-  var self = null || /* istanbul ignore next */ {};
-  try { self.Map = Map; }
-  catch (Map) {
-    self.Map = function Map() {
-      var i = 0;
-      var k = [];
-      var v = [];
-      return {
-        delete: function (key) {
-          var had = contains(key);
-          if (had) {
-            k.splice(i, 1);
-            v.splice(i, 1);
-          }
-          return had;
-        },
-        get: function get(key) {
-          return contains(key) ? v[i] : void 0;
-        },
-        has: function has(key) {
-          return contains(key);
-        },
-        set: function set(key, value) {
-          v[contains(key) ? i : (k.push(key) - 1)] = value;
-          return this;
-        }
-      };
-      function contains(v) {
-        i = k.indexOf(v);
-        return -1 < i;
-      }
-    };
-  }
-  var Map$1 = self.Map;
+  var Map$1 = {};
 
   const append = (get, parent, children, start, end, before) => {
     if ((end - start) < 2)
