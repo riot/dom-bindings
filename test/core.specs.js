@@ -38,6 +38,28 @@ describe('core specs', () => {
     expect(target.textContent).to.be.equal('hello')
   })
 
+  it('The template.unmount can be able to remove the root node (node not appended to the dom)', () => {
+    const el = template('hello')
+    const target = document.createElement('div')
+
+    const tag = el.mount(target)
+
+    expect(() => tag.unmount({}, true)).to.not.throw()
+  })
+
+  it('The template.unmount can be able to remove the root node (node appended to the dom)', () => {
+    const el = template('hello')
+    const target = document.createElement('div')
+
+    document.body.appendChild(target)
+
+    const tag = el.mount(target)
+
+    expect(target.parentNode).to.be.ok
+    expect(() => tag.unmount({}, true)).to.not.throw()
+    expect(target.parentNode).to.be.not.ok
+  })
+
   it('A template can be easily cloned', () => {
     const message = 'hello world'
     const el = template('<!---->', [{

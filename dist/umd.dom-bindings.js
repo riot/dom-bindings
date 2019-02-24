@@ -1394,7 +1394,7 @@
         this.bindings.forEach(b => b.unmount(scope));
         cleanNode(this.el);
 
-        if (mustRemoveRoot) {
+        if (mustRemoveRoot && this.el.parentNode) {
           this.el.parentNode.removeChild(this.el);
         }
 
