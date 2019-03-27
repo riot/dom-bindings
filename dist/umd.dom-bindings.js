@@ -1,8 +1,8 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.riotDOMBindings = {})));
-}(this, (function (exports) { 'use strict';
+  (global = global || self, factory(global.riotDOMBindings = {}));
+}(this, function (exports) { 'use strict';
 
   /**
    * Remove the child nodes from any DOM node
@@ -26,7 +26,7 @@
     TAG
   };
 
-  var Map$1 = {};
+  /* get rid of the @ungap/essential-map polyfill */
 
   const append = (get, parent, children, start, end, before) => {
     if ((end - start) < 2)
@@ -140,7 +140,7 @@
     for (let i = 1; i < minLen; i++)
       tresh[i] = currentEnd;
 
-    const keymap = new Map$1;
+    const keymap = new Map;
     for (let i = currentStart; i < currentEnd; i++)
       keymap.set(currentNodes[i], i);
 
@@ -287,7 +287,7 @@
     currentLength,
     before
   ) => {
-    const live = new Map$1;
+    const live = new Map;
     const length = diff.length;
     let currentIndex = currentStart;
     let i = 0;
@@ -1486,11 +1486,11 @@
    * )
    */
 
-  exports.template = create$6;
-  exports.createBinding = create$5;
   exports.bindingTypes = bindingTypes;
+  exports.createBinding = create$5;
   exports.expressionTypes = expressionTypes;
+  exports.template = create$6;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-})));
+}));

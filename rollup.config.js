@@ -1,4 +1,4 @@
-import ignore from 'rollup-plugin-ignore'
+import alias from 'rollup-plugin-alias'
 import resolve from 'rollup-plugin-node-resolve'
 
 const base  = {
@@ -8,7 +8,9 @@ const base  = {
     console.error(message) // eslint-disable-line
   },
   plugins: [
-    ignore(['@ungap/essential-map']),
+    alias({
+      '@ungap/essential-map': 'src/map.js'
+    }),
     resolve({
       jsnext: true
     })

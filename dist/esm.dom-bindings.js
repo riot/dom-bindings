@@ -20,7 +20,7 @@ var bindingTypes = {
   TAG
 };
 
-var Map$1 = {};
+/* get rid of the @ungap/essential-map polyfill */
 
 const append = (get, parent, children, start, end, before) => {
   if ((end - start) < 2)
@@ -134,7 +134,7 @@ const HS = (
   for (let i = 1; i < minLen; i++)
     tresh[i] = currentEnd;
 
-  const keymap = new Map$1;
+  const keymap = new Map;
   for (let i = currentStart; i < currentEnd; i++)
     keymap.set(currentNodes[i], i);
 
@@ -281,7 +281,7 @@ const applyDiff = (
   currentLength,
   before
 ) => {
-  const live = new Map$1;
+  const live = new Map;
   const length = diff.length;
   let currentIndex = currentStart;
   let i = 0;
@@ -1480,4 +1480,4 @@ function create$6(html, bindings = []) {
  * )
  */
 
-export { create$6 as template, create$5 as createBinding, bindingTypes, expressionTypes };
+export { bindingTypes, create$5 as createBinding, expressionTypes, create$6 as template };
