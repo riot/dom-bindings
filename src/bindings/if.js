@@ -27,8 +27,8 @@ export const IfBinding = Object.seal({
       }
       break
     case mustUnmount:
-      swap(this.placeholder, this.node)
       this.unmount(scope)
+      swap(this.placeholder, this.node)
       break
     default:
       if (value) this.template.update(scope)

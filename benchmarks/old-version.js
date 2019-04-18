@@ -11,7 +11,7 @@
    */
   function cleanNode(node) {
     const children = node.childNodes;
-    Array.from(children).forEach(n => node.removeChild(n));
+    children.forEach(n => node.removeChild(n));
   }
 
   const EACH = 0;
@@ -818,8 +818,8 @@
         }
         break
       case mustUnmount:
-        this.unmount(scope);
         swap(this.placeholder, this.node);
+        this.unmount(scope);
         break
       default:
         if (value) this.template.update(scope);
@@ -1391,7 +1391,6 @@
     unmount(scope, mustRemoveRoot) {
       if (this.el) {
         this.bindings.forEach(b => b.unmount(scope));
-
         cleanNode(this.el);
 
         if (mustRemoveRoot && this.el.parentNode) {

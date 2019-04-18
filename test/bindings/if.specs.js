@@ -55,6 +55,24 @@ describe('if bindings', () => {
     el.unmount()
   })
 
+  it('Update properly nested nodes', () => {
+    const target = document.createElement('div')
+    const el = template('<div></div><div expr0></div>', [{
+      selector: '[expr0]',
+      type: bindingTypes.IF,
+      evaluate: scope => scope.isVisible,
+      template: template('<p>hello</p><strong>world</strong>', [])
+    }]).mount(target, { isVisible: true })
+
+    expect(target.querySelectorAll('strong')).to.have.length(1)
+    el.update({ text: 'goodbye', isVisible: false })
+    expect(target.querySelectorAll('strong')).to.have.length(0)
+    el.update({ text: 'goodbye', isVisible: true })
+    expect(target.querySelectorAll('strong')).to.have.length(1)
+
+    el.unmount()
+  })
+
   it('If bindings should support also truthy values', () => {
     const target = document.createElement('div')
     const el = createDummyIfTemplate().mount(target, { text: 'hello', isVisible: null })

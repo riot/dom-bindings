@@ -6,6 +6,7 @@ const
   Benchmark = require('benchmark'),
   suite = new Benchmark.Suite(),
   domBindings = require('../'),
+  oldVersion = require('./old-version'),
   benchmarks = {
     'List with keys': require('./keyed.list'),
     'Normal list': require('./list'),
@@ -17,7 +18,9 @@ Benchmark.support.browser = false
 
 Object.entries(benchmarks).forEach(([key, bench]) => {
   bench(suite, key, domBindings)
+  bench(suite, `${key} (old)`, oldVersion)
 })
+
 
 suite
   .on('cycle', function(event) {

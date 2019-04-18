@@ -5,5 +5,5 @@
  */
 export default function cleanNode(node) {
   const children = node.childNodes
-  children.forEach(n => node.removeChild(n))
+  Array.from(children).forEach(n => node.removeChild(n))
 }

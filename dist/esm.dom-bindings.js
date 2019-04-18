@@ -5,7 +5,7 @@
  */
 function cleanNode(node) {
   const children = node.childNodes;
-  children.forEach(n => node.removeChild(n));
+  Array.from(children).forEach(n => node.removeChild(n));
 }
 
 const EACH = 0;
@@ -812,8 +812,8 @@ const IfBinding = Object.seal({
       }
       break
     case mustUnmount:
-      swap(this.placeholder, this.node);
       this.unmount(scope);
+      swap(this.placeholder, this.node);
       break
     default:
       if (value) this.template.update(scope);
@@ -1385,6 +1385,7 @@ const TemplateChunk = Object.freeze({
   unmount(scope, mustRemoveRoot) {
     if (this.el) {
       this.bindings.forEach(b => b.unmount(scope));
+
       cleanNode(this.el);
 
       if (mustRemoveRoot && this.el.parentNode) {
