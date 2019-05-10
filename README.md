@@ -426,7 +426,7 @@ The `tag` bindings have always a lower priority compared to the `if` and `each` 
 
 #### Slot Binding
 
-The slot binding will be used to manage nested templates that will be update with the properties from the parent scope
+The slot binding will be used to manage nested slotted templates that will be update using parent scope
 
 <details>
   <summary>Details</summary>
@@ -438,6 +438,35 @@ An expression object must have always at least the following properties:
 - `type`
   - type: `Number`
   - description: id to find the expression we need to apply to the node. This id must be one of the keys available in the `expressionTypes` object
+- `name`
+  - type: `String`
+  - description: the name to identify the binding html we need to mount in this node
+
+
+```js
+// slots array that will be mounted receiving the scope of the parent template
+const slots = [{
+  id: 'foo',
+  bindings: [{
+    selector: '[expr1]',
+    expressions: [{
+      type: expressionTypes.TEXT,
+      childNodeIndex: 0,
+      evaluate: scope => scope.text
+    }]
+  }],
+  html: '<p expr1><!----></p>'
+}]
+
+const el = template('<article><slot expr0/></article>', [{
+  type: bindingTypes.SLOT,
+  selector: '[expr0]',
+  name: 'foo'
+}]).mount(app, {
+  text: 'hello',
+  slots
+})
+```
 
 </details>
 
