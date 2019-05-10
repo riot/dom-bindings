@@ -12,12 +12,14 @@ const EACH = 0;
 const IF = 1;
 const SIMPLE = 2;
 const TAG = 3;
+const SLOT = 4;
 
 var bindingTypes = {
   EACH,
   IF,
   SIMPLE,
-  TAG
+  TAG,
+  SLOT
 };
 
 /* get rid of the @ungap/essential-map polyfill */
@@ -1094,6 +1096,73 @@ function create$3(node, { expressions }) {
   }
 }
 
+const SlotBinding = Object.seal({
+  // dynamic binding properties
+  node: null,
+  name: null,
+  template: null,
+
+  // API methods
+  mount(scope) {
+    const templateData = scope.slots ? scope.slots.find(({id}) => id === this.name) : false;
+    const {parentNode} = this.node;
+
+    this.template = templateData && create$6(
+      templateData.html,
+      templateData.bindings
+    ).createDOM(parentNode);
+
+    if (this.template) {
+      this.template.mount(this.node, scope);
+      moveSlotInnerContent(this.node);
+    }
+
+    parentNode.removeChild(this.node);
+
+    return this
+  },
+  update(scope) {
+    if (this.template) {
+      this.template.update(scope);
+    }
+
+    return this
+  },
+  unmount(scope) {
+    if (this.template) {
+      this.template.unmount(scope);
+    }
+
+    return this
+  }
+});
+
+/**
+ * Move the inner content of the slots outside of them
+ * @param   {HTMLNode} slot - slot node
+ * @returns {undefined} it's a void function
+ */
+function moveSlotInnerContent(slot) {
+  if (slot.firstChild) {
+    slot.parentNode.insertBefore(slot.firstChild, slot);
+    moveSlotInnerContent(slot);
+  }
+}
+
+/**
+ * Create a single slot binding
+ * @param   {HTMLElement} node - slot node
+ * @param   {string} options.name - slot id
+ * @returns {Object} Slot binding object
+ */
+function createSlot(node, { name }) {
+  return {
+    ...SlotBinding,
+    node,
+    name
+  }
+}
+
 /**
  * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
@@ -1201,7 +1270,8 @@ var bindings = {
   [IF]: create$1,
   [SIMPLE]: create$3,
   [EACH]: create,
-  [TAG]: create$4
+  [TAG]: create$4,
+  [SLOT]: createSlot
 };
 
 /**

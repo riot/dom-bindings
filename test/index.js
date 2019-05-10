@@ -10,19 +10,20 @@ global.expect = chai.expect
 chai.use(sinonChai)
 
 describe('dom-bindings', () => {
-  require('./core.specs')
+  require('./core.spec')
 
   describe('bindings', () => {
-    require('./bindings/each.specs')
-    require('./bindings/if.specs')
-    require('./bindings/simple.specs')
-    require('./bindings/tag.specs')
+    require('./bindings/each.spec')
+    require('./bindings/if.spec')
+    require('./bindings/simple.spec')
+    require('./bindings/tag.spec')
+    require('./bindings/slot.spec')
   })
 
   describe('expressions', () => {
-    require('./expressions/text.specs')
-    require('./expressions/attribute.specs')
-    require('./expressions/value.specs')
-    require('./expressions/event.specs')
+    require('./expressions/text.spec')
+    require('./expressions/attribute.spec')
+    require('./expressions/value.spec')
+    require('./expressions/event.spec')
   })
 })
