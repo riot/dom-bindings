@@ -7,7 +7,7 @@ export const SlotBinding = Object.seal({
   template: null,
 
   // API methods
-  mount(scope) {
+  mount(scope, parentScope) {
     const templateData = scope.slots ? scope.slots.find(({id}) => id === this.name) : false
     const {parentNode} = this.node
 
@@ -17,7 +17,7 @@ export const SlotBinding = Object.seal({
     ).createDOM(parentNode)
 
     if (this.template) {
-      this.template.mount(this.node, scope)
+      this.template.mount(this.node, parentScope)
       moveSlotInnerContent(this.node)
     }
 
@@ -25,16 +25,16 @@ export const SlotBinding = Object.seal({
 
     return this
   },
-  update(scope) {
+  update(scope, parentScope) {
     if (this.template) {
-      this.template.update(scope)
+      this.template.update(parentScope)
     }
 
     return this
   },
-  unmount(scope) {
+  unmount(scope, parentScope) {
     if (this.template) {
-      this.template.unmount(scope)
+      this.template.unmount(parentScope)
     }
 
     return this

@@ -1109,7 +1109,7 @@
     template: null,
 
     // API methods
-    mount(scope) {
+    mount(scope, parentScope) {
       const templateData = scope.slots ? scope.slots.find(({id}) => id === this.name) : false;
       const {parentNode} = this.node;
 
@@ -1119,7 +1119,7 @@
       ).createDOM(parentNode);
 
       if (this.template) {
-        this.template.mount(this.node, scope);
+        this.template.mount(this.node, parentScope);
         moveSlotInnerContent(this.node);
       }
 
@@ -1127,16 +1127,16 @@
 
       return this
     },
-    update(scope) {
+    update(scope, parentScope) {
       if (this.template) {
-        this.template.update(scope);
+        this.template.update(parentScope);
       }
 
       return this
     },
-    unmount(scope) {
+    unmount(scope, parentScope) {
       if (this.template) {
-        this.template.unmount(scope);
+        this.template.unmount(parentScope);
       }
 
       return this
@@ -1422,9 +1422,10 @@
      * Attach the template to a DOM node
      * @param   {HTMLElement} el - target DOM node
      * @param   {*} scope - template data
+     * @param   {*} parentScope - scope of the parent template tag
      * @returns {TemplateChunk} self
      */
-    mount(el, scope) {
+    mount(el, scope, parentScope) {
       if (!el) throw new Error('Please provide DOM node to mount properly your template')
 
       if (this.el) this.unmount(scope);
@@ -1438,29 +1439,31 @@
 
       // create the bindings
       this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
-      this.bindings.forEach(b => b.mount(scope));
+      this.bindings.forEach(b => b.mount(scope, parentScope));
 
       return this
     },
     /**
      * Update the template with fresh data
      * @param   {*} scope - template data
+     * @param   {*} parentScope - scope of the parent template tag
      * @returns {TemplateChunk} self
      */
-    update(scope) {
-      this.bindings.forEach(b => b.update(scope));
+    update(scope, parentScope) {
+      this.bindings.forEach(b => b.update(scope, parentScope));
 
       return this
     },
     /**
      * Remove the template from the node where it was initially mounted
      * @param   {*} scope - template data
+     * @param   {*} parentScope - scope of the parent template tag
      * @param   {boolean} mustRemoveRoot - if true remove the root element
      * @returns {TemplateChunk} self
      */
-    unmount(scope, mustRemoveRoot) {
+    unmount(scope, parentScope, mustRemoveRoot) {
       if (this.el) {
-        this.bindings.forEach(b => b.unmount(scope));
+        this.bindings.forEach(b => b.unmount(scope, parentScope));
 
         cleanNode(this.el);
 

@@ -48,7 +48,7 @@
     "nyc": "^14.1.1",
     "rollup": "^1.11.3",
     "rollup-plugin-alias": "^1.5.1",
-    "rollup-plugin-node-resolve": "^4.2.3",
+    "rollup-plugin-node-resolve": "^4.2.4",
     "sinon": "^7.3.2",
     "sinon-chai": "^3.3.0"
   },

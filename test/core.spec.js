@@ -44,7 +44,7 @@ describe('core specs', () => {
 
     const tag = el.mount(target)
 
-    expect(() => tag.unmount({}, true)).to.not.throw()
+    expect(() => tag.unmount({}, {}, true)).to.not.throw()
   })
 
   it('The template.unmount can be able to remove the root node (node appended to the dom)', () => {
@@ -56,7 +56,7 @@ describe('core specs', () => {
     const tag = el.mount(target)
 
     expect(target.parentNode).to.be.ok
-    expect(() => tag.unmount({}, true)).to.not.throw()
+    expect(() => tag.unmount({}, {}, true)).to.not.throw()
     expect(target.parentNode).to.be.not.ok
   })
 

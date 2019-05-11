@@ -28,7 +28,6 @@ describe('slot bindings', () => {
       selector: '[expr0]',
       name: 'default'
     }]).mount(target, {
-      text: 'hello',
       slots: [
         {
           id: 'default',
@@ -43,13 +42,13 @@ describe('slot bindings', () => {
           html: '<p expr1><!----></p>'
         }
       ]
-    })
+    }, { text: 'hello' })
 
     const p = target.querySelector('p')
 
     expect(p.textContent).to.be.equal('hello')
 
-    el.update({ text: 'goodbye' })
+    el.update({}, { text: 'goodbye' })
 
     expect(p.textContent).to.be.equal('goodbye')
 
@@ -67,7 +66,6 @@ describe('slot bindings', () => {
       selector: '[expr0]',
       name: 'foo'
     }]).mount(target, {
-      text: 'hello',
       slots: [
         {
           id: 'foo',
@@ -82,7 +80,7 @@ describe('slot bindings', () => {
           html: '<p expr1><!----></p>'
         }
       ]
-    })
+    }, { text: 'hello' })
 
     const p = target.querySelector('p')
 

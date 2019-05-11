@@ -463,9 +463,8 @@ const el = template('<article><slot expr0/></article>', [{
   selector: '[expr0]',
   name: 'foo'
 }]).mount(app, {
-  text: 'hello',
   slots
-})
+}, { text: 'hello' })
 ```
 
 </details>
