@@ -1,12 +1,11 @@
 {
   "name": "@riotjs/dom-bindings",
-  "version": "1.0.0",
+  "version": "4.0.0-rc.1",
   "description": "Riot.js DOM bindings",
   "main": "dist/umd.dom-bindings.js",
   "jsnext:main": "dist/esm.dom-bindings.js",
   "module": "dist/esm.dom-bindings.js",
   "scripts": {
-    "prepare": "npm test",
     "lint": "eslint src/ test/ rollup.config.js",
     "cov": "nyc report --reporter=text-lcov | coveralls",
     "cov-html": "nyc report --reporter=html",
@@ -16,7 +15,7 @@
     "bench": "node benchmarks",
     "test": "npm run lint && nyc mocha -r esm test/index.js",
     "test-debug": "mocha -r esm --inspect --inspect-brk test/index.js",
-    "prepublishOnly": "npm run test"
+    "prepublishOnly": "npm test"
   },
   "files": [
     "dist"
