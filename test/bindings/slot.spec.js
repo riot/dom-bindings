@@ -91,4 +91,41 @@ describe('slot bindings', () => {
 
     el.unmount()
   })
+
+  it('If the parent scope wasn\'t received avoid to update the slots', () => {
+    const target = document.createElement('div')
+
+    const el = template('<article><slot expr0/></article>', [{
+      type: bindingTypes.SLOT,
+      selector: '[expr0]',
+      name: 'foo'
+    }]).mount(target, {
+      slots: [
+        {
+          id: 'foo',
+          bindings: [{
+            selector: '[expr1]',
+            expressions: [{
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: scope => scope.text
+            }]
+          }],
+          html: '<p expr1><!----></p>'
+        }
+      ]
+    }, { text: 'hello' })
+
+    const p = target.querySelector('p')
+
+    expect(p.textContent).to.be.equal('hello')
+
+    el.update()
+
+    expect(p.textContent).to.be.equal('hello')
+    expect(target.querySelector('slot')).to.be.not.ok
+    expect(p).to.be.ok
+
+    el.unmount()
+  })
 })

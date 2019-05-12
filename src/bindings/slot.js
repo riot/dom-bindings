@@ -26,7 +26,7 @@ export const SlotBinding = Object.seal({
     return this
   },
   update(scope, parentScope) {
-    if (this.template) {
+    if (this.template && parentScope) {
       this.template.update(parentScope)
     }
 
