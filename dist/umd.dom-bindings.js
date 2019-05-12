@@ -632,17 +632,17 @@
     placeholder: null,
 
     // API methods
-    mount(scope) {
-      return this.update(scope)
+    mount(scope, parentScope) {
+      return this.update(scope, parentScope)
     },
-    update(scope) {
+    update(scope, parentScope) {
       const { placeholder } = this;
       const collection = this.evaluate(scope);
       const items = collection ? Array.from(collection) : [];
       const parent = placeholder.parentNode;
 
       // prepare the diffing
-      const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, this);
+      const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, parentScope, this);
 
       /**
        * DOM Updates
@@ -705,13 +705,14 @@
    * Loop the current tag items
    * @param   { Array } items - tag collection
    * @param   { * } scope - tag scope
+   * @param   { * } parentScope - scope of the parent tag
    * @param   { EeachBinding } binding - each binding object instance
    * @returns { Object } data
    * @returns { Map } data.newChildrenMap - a Map containing the new children tags structure
    * @returns { Array } data.batches - array containing functions the tags lifecycle functions to trigger
    * @returns { Array } data.futureNodes - array containing the nodes we need to diff
    */
-  function loopItems(items, scope, binding) {
+  function loopItems(items, scope, parentScope, binding) {
     const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding;
     const filteredItems = new Set();
     const newChildrenMap = new Map();
@@ -734,9 +735,9 @@
       const el = oldItem ? tag.el : root.cloneNode();
 
       if (!oldItem) {
-        batches.push(() => tag.mount(el, context));
+        batches.push(() => tag.mount(el, context, parentScope));
       } else {
-        batches.push(() => tag.update(context));
+        batches.push(() => tag.update(context, parentScope));
       }
 
       futureNodes.push(el);
@@ -792,11 +793,11 @@
     template: '',
 
     // API methods
-    mount(scope) {
+    mount(scope, parentScope) {
       swap(this.placeholder, this.node);
-      return this.update(scope)
+      return this.update(scope, parentScope)
     },
-    update(scope) {
+    update(scope, parentScope) {
       const value = !!this.evaluate(scope);
       const mustMount = !this.value && value;
       const mustUnmount = this.value && !value;
@@ -806,7 +807,7 @@
         swap(this.node, this.placeholder);
         if (this.template) {
           this.template = this.template.clone();
-          this.template.mount(this.node, scope);
+          this.template.mount(this.node, scope, parentScope);
         }
         break
       case mustUnmount:
@@ -814,18 +815,18 @@
         swap(this.placeholder, this.node);
         break
       default:
-        if (value) this.template.update(scope);
+        if (value) this.template.update(scope, parentScope);
       }
 
       this.value = value;
 
       return this
     },
-    unmount(scope) {
+    unmount(scope, parentScope) {
       const { template } = this;
 
       if (template) {
-        template.unmount(scope);
+        template.unmount(scope, parentScope);
       }
 
       return this

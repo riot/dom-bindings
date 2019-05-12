@@ -128,4 +128,91 @@ describe('slot bindings', () => {
 
     el.unmount()
   })
+
+  it('Nested <slot>s in an if condition receive always the parent scope', () => {
+    const target = document.createElement('div')
+
+    const el = template('<article></article>', [{
+      selector: 'article',
+      type: bindingTypes.IF,
+      evaluate: scope => scope.isVisible,
+      template: template('<div><slot expr0/></div>', [{
+        type: bindingTypes.SLOT,
+        selector: '[expr0]',
+        name: 'default'
+      }])
+    }]).mount(target, {
+      isVisible: false
+    })
+
+    expect(target.querySelector('p')).to.be.not.ok
+
+    el.update({ slots: [
+      {
+        id: 'default',
+        bindings: [{
+          selector: '[expr1]',
+          expressions: [{
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }]
+        }],
+        html: '<p expr1><!----></p>'
+      }
+    ], isVisible: true }, { text: 'hello' })
+
+    expect(target.querySelector('p').textContent).to.be.equal('hello')
+
+    el.update({ isVisible: false })
+
+    expect(target.querySelector('slot')).to.be.not.ok
+    expect(target.querySelector('p')).to.be.not.ok
+
+    el.unmount()
+  })
+
+  it('Nested <slot>s in an each condition receive always the parent scope', () => {
+    const target = document.createElement('div')
+
+    const el = template('<article></article>', [{
+      selector: 'article',
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      evaluate: scope => scope.items,
+      template: template('<div><slot expr0/></div>', [{
+        type: bindingTypes.SLOT,
+        selector: '[expr0]',
+        name: 'default'
+      }])
+    }]).mount(target, {
+      items: []
+    })
+
+    expect(target.querySelector('p')).to.be.not.ok
+
+    el.update({ slots: [
+      {
+        id: 'default',
+        bindings: [{
+          selector: '[expr1]',
+          expressions: [{
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }]
+        }],
+        html: '<p expr1><!----></p>'
+      }
+    ], items: [1] }, { text: 'hello' })
+
+    expect(target.querySelector('p').textContent).to.be.equal('hello')
+
+    el.update({ items: [] })
+
+    expect(target.querySelector('slot')).to.be.not.ok
+    expect(target.querySelector('p')).to.be.not.ok
+
+    el.unmount()
+  })
 })

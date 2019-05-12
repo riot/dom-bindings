@@ -16,17 +16,17 @@ export const EachBinding = Object.seal({
   placeholder: null,
 
   // API methods
-  mount(scope) {
-    return this.update(scope)
+  mount(scope, parentScope) {
+    return this.update(scope, parentScope)
   },
-  update(scope) {
+  update(scope, parentScope) {
     const { placeholder } = this
     const collection = this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
     const parent = placeholder.parentNode
 
     // prepare the diffing
-    const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, this)
+    const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, parentScope, this)
 
     /**
      * DOM Updates
@@ -89,13 +89,14 @@ function extendScope(scope, {itemName, indexName, index, item}) {
  * Loop the current tag items
  * @param   { Array } items - tag collection
  * @param   { * } scope - tag scope
+ * @param   { * } parentScope - scope of the parent tag
  * @param   { EeachBinding } binding - each binding object instance
  * @returns { Object } data
  * @returns { Map } data.newChildrenMap - a Map containing the new children tags structure
  * @returns { Array } data.batches - array containing functions the tags lifecycle functions to trigger
  * @returns { Array } data.futureNodes - array containing the nodes we need to diff
  */
-function loopItems(items, scope, binding) {
+function loopItems(items, scope, parentScope, binding) {
   const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding
   const filteredItems = new Set()
   const newChildrenMap = new Map()
@@ -118,9 +119,9 @@ function loopItems(items, scope, binding) {
     const el = oldItem ? tag.el : root.cloneNode()
 
     if (!oldItem) {
-      batches.push(() => tag.mount(el, context))
+      batches.push(() => tag.mount(el, context, parentScope))
     } else {
-      batches.push(() => tag.update(context))
+      batches.push(() => tag.update(context, parentScope))
     }
 
     futureNodes.push(el)

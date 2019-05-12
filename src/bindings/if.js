@@ -9,11 +9,11 @@ export const IfBinding = Object.seal({
   template: '',
 
   // API methods
-  mount(scope) {
+  mount(scope, parentScope) {
     swap(this.placeholder, this.node)
-    return this.update(scope)
+    return this.update(scope, parentScope)
   },
-  update(scope) {
+  update(scope, parentScope) {
     const value = !!this.evaluate(scope)
     const mustMount = !this.value && value
     const mustUnmount = this.value && !value
@@ -23,7 +23,7 @@ export const IfBinding = Object.seal({
       swap(this.node, this.placeholder)
       if (this.template) {
         this.template = this.template.clone()
-        this.template.mount(this.node, scope)
+        this.template.mount(this.node, scope, parentScope)
       }
       break
     case mustUnmount:
@@ -31,18 +31,18 @@ export const IfBinding = Object.seal({
       swap(this.placeholder, this.node)
       break
     default:
-      if (value) this.template.update(scope)
+      if (value) this.template.update(scope, parentScope)
     }
 
     this.value = value
 
     return this
   },
-  unmount(scope) {
+  unmount(scope, parentScope) {
     const { template } = this
 
     if (template) {
-      template.unmount(scope)
+      template.unmount(scope, parentScope)
     }
 
     return this
