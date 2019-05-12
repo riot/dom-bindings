@@ -680,28 +680,18 @@ function mustFilterItem(condition, context) {
 }
 
 /**
- * Get the context of the looped tag
+ * Extend the scope of the looped tag
+ * @param   {Object} scope - current template scope
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
  * @param   {number} options.index - current index
  * @param   {*} options.item - collection item looped
- * @param   {*} options.scope - current parent scope
  * @returns {Object} enhanced scope object
  */
-function getContext({itemName, indexName, index, item, scope}) {
-  const context = {
-    [itemName]: item,
-    ...scope
-  };
-
-  if (indexName) {
-    return {
-      [indexName]: index,
-      ...context
-    }
-  }
-
-  return context
+function extendScope(scope, {itemName, indexName, index, item}) {
+  scope[itemName] = item;
+  if (indexName) scope[indexName] = index;
+  return scope
 }
 
 
@@ -725,7 +715,7 @@ function loopItems(items, scope, binding) {
   items.forEach((item, i) => {
     // the real item index should be subtracted to the items that were filtered
     const index = i - filteredItems.size;
-    const context = getContext({itemName, indexName, index, item, scope});
+    const context = extendScope(Object.create(scope), {itemName, indexName, index, item});
     const key = getKey ? getKey(context) : index;
     const oldItem = childrenMap.get(key);
 
