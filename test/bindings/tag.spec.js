@@ -204,6 +204,44 @@ describe('tag bindings', () => {
     expect(spy).to.have.been.calledTwice
   })
 
+  it('custom tags can be properly unmounted in each bindings', () => {
+    const target = document.createElement('div')
+    const spy = sinon.spy()
+    const components = {
+      'my-tag': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
+
+        return {
+          mount() {},
+          update() {},
+          unmount() {
+            spy()
+          }
+        }
+      }
+    }
+
+    const el = template('<ul><li expr0></li></ul>', [{
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      selector: '[expr0]',
+      evaluate: scope => scope.items,
+      template: template('<span></span>', [{
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent(name) {
+          return components[name]
+        }
+      }])
+    }]).mount(target, { items: [1, 2] })
+
+    el.update({ items: [1] })
+    expect(spy).to.have.been.calledOnce
+
+    el.unmount()
+  })
+
   it('custom tags can be properly mounted in if bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()

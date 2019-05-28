@@ -639,12 +639,16 @@ const EachBinding = Object.seal({
     const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, parentScope, this);
 
     /**
-     * DOM Updates
+     * DOM Updates only if needed
      */
-    const before = this.tags[this.tags.length - 1];
-    domdiff(parent, this.tags, futureNodes, {
-      before: before ? before.nextSibling : placeholder.nextSibling
-    });
+    if (futureNodes.length) {
+      const before = this.tags[this.tags.length - 1];
+      domdiff(parent, this.tags, futureNodes, {
+        before: before ? before.nextSibling : placeholder.nextSibling
+      });
+    } else {
+      return this.unmount()
+    }
 
     // trigger the mounts and the updates
     batches.forEach(fn => fn());
@@ -655,11 +659,11 @@ const EachBinding = Object.seal({
 
     return this
   },
-  unmount() {
+  unmount(scope, parentScope) {
     Array
       .from(this.childrenMap.values())
       .forEach(({tag, context}) => {
-        tag.unmount(context, true);
+        tag.unmount(context, parentScope, true);
       });
 
     this.childrenMap = new Map();
@@ -668,6 +672,8 @@ const EachBinding = Object.seal({
     return this
   }
 });
+
+
 
 /**
  * Check whether a tag must be filtered from a loop

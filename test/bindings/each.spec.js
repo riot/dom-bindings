@@ -63,6 +63,20 @@ function runTests(options) {
     el.unmount()
   })
 
+  it('Empty list', () => {
+    const items = [0, 1, 2, 3, 4, 5]
+    const target = document.createElement('div')
+    const el = createDummyListTemplate(options).mount(target, { items })
+
+    compareNodesContents(target, 'li', items)
+
+    el.update({ items: [] })
+
+    expect(Array.from(target.querySelectorAll('li'))).to.have.length(0)
+
+    el.unmount()
+  })
+
   it('List add', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
