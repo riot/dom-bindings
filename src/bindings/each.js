@@ -32,9 +32,7 @@ export const EachBinding = Object.seal({
       futureNodes
     } = createPatch(items, scope, parentScope, this)
 
-    /**
-     * DOM Updates only if needed
-     */
+    // DOM Updates only if it's needed
     if (futureNodes.length) {
       const before = this.tags[this.tags.length - 1]
       domdiff(parent, this.tags, futureNodes, {
