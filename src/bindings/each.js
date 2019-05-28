@@ -36,9 +36,10 @@ export const EachBinding = Object.seal({
       domdiff(parent, this.tags, futureNodes, {
         before: before ? before.nextSibling : placeholder.nextSibling
       })
-    } else {
-      return this.unmount()
     }
+
+    // remove redundant instances
+    removeRedundant(this.childrenMap)
 
     // trigger the mounts and the updates
     batches.forEach(fn => fn())
@@ -50,11 +51,7 @@ export const EachBinding = Object.seal({
     return this
   },
   unmount(scope, parentScope) {
-    Array
-      .from(this.childrenMap.values())
-      .forEach(({tag, context}) => {
-        tag.unmount(context, parentScope, true)
-      })
+    removeRedundant(this.childrenMap, parentScope)
 
     this.childrenMap = new Map()
     this.tags = []
@@ -63,7 +60,13 @@ export const EachBinding = Object.seal({
   }
 })
 
-
+function removeRedundant(childrenMap, parentScope) {
+  Array
+    .from(childrenMap.values())
+    .forEach(({tag, context}) => {
+      tag.unmount(context, parentScope, true)
+    })
+}
 
 /**
  * Check whether a tag must be filtered from a loop
@@ -131,6 +134,9 @@ function loopItems(items, scope, parentScope, binding) {
     }
 
     futureNodes.push(el)
+
+    // delete the old item from the children map
+    childrenMap.delete(key)
 
     // update the children map
     newChildrenMap.set(key, {
