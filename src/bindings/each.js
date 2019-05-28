@@ -39,7 +39,7 @@ export const EachBinding = Object.seal({
     }
 
     // remove redundant instances
-    removeRedundant(this.childrenMap)
+    unmountRedundant(this.childrenMap)
 
     // trigger the mounts and the updates
     batches.forEach(fn => fn())
@@ -51,7 +51,7 @@ export const EachBinding = Object.seal({
     return this
   },
   unmount(scope, parentScope) {
-    removeRedundant(this.childrenMap, parentScope)
+    unmountRedundant(this.childrenMap, parentScope)
 
     this.childrenMap = new Map()
     this.tags = []
@@ -60,11 +60,17 @@ export const EachBinding = Object.seal({
   }
 })
 
-function removeRedundant(childrenMap, parentScope) {
-  Array
+/**
+ * Unmount the remaining template instances
+ * @param   {Map} childrenMap - map containing the children template to unmount
+ * @param  {*} parentScope - scope of the parent tag
+ * @returns {TemplateChunk[]} collection containing the template chunks unmounted
+ */
+function unmountRedundant(childrenMap, parentScope) {
+  return Array
     .from(childrenMap.values())
-    .forEach(({tag, context}) => {
-      tag.unmount(context, parentScope, true)
+    .map(({tag, context}) => {
+      return tag.unmount(context, parentScope, true)
     })
 }
 
