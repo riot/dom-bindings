@@ -723,20 +723,22 @@
    */
   function loopItems(items, scope, parentScope, binding) {
     const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding;
-    const filteredItems = new Set();
     const newChildrenMap = new Map();
     const batches = [];
     const futureNodes = [];
+    /* eslint-disable fp/no-let */
+    let filteredItems = 0;
+    /* eslint-enable fp/no-let */
 
     items.forEach((item, i) => {
       // the real item index should be subtracted to the items that were filtered
-      const index = i - filteredItems.size;
+      const index = i - filteredItems;
       const context = extendScope(Object.create(scope), {itemName, indexName, index, item});
       const key = getKey ? getKey(context) : index;
       const oldItem = childrenMap.get(key);
 
       if (mustFilterItem(condition, context)) {
-        filteredItems.add(oldItem);
+        filteredItems++;
         return
       }
 
@@ -751,6 +753,7 @@
 
       futureNodes.push(el);
 
+      // delete the old item from the children map
       childrenMap.delete(key);
 
       // update the children map

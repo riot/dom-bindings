@@ -93,34 +93,36 @@ function extendScope(scope, {itemName, indexName, index, item}) {
   return scope
 }
 
-
 /**
  * Loop the current tag items
- * @param   { Array } items - tag collection
- * @param   { * } scope - tag scope
- * @param   { * } parentScope - scope of the parent tag
- * @param   { EeachBinding } binding - each binding object instance
- * @returns { Object } data
- * @returns { Map } data.newChildrenMap - a Map containing the new children tags structure
- * @returns { Array } data.batches - array containing functions the tags lifecycle functions to trigger
- * @returns { Array } data.futureNodes - array containing the nodes we need to diff
+ * @param   {Array} items - tag collection
+ * @param   {*} scope - tag scope
+ * @param   {*} parentScope - scope of the parent tag
+ * @param   {EeachBinding} binding - each binding object instance
+ * @returns {Object} data
+ * @returns {Map} data.newChildrenMap - a Map containing the new children tags structure
+ * @returns {Array} data.batches - array containing functions the tags lifecycle functions to trigger
+ * @returns {Array} data.futureNodes - array containing the nodes we need to diff
  */
 function loopItems(items, scope, parentScope, binding) {
   const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding
-  const filteredItems = new Set()
   const newChildrenMap = new Map()
   const batches = []
   const futureNodes = []
 
+  /* eslint-disable fp/no-let */
+  let filteredItems = 0
+  /* eslint-enable fp/no-let */
+
   items.forEach((item, i) => {
     // the real item index should be subtracted to the items that were filtered
-    const index = i - filteredItems.size
+    const index = i - filteredItems
     const context = extendScope(Object.create(scope), {itemName, indexName, index, item})
     const key = getKey ? getKey(context) : index
     const oldItem = childrenMap.get(key)
 
     if (mustFilterItem(condition, context)) {
-      filteredItems.add(oldItem)
+      filteredItems++
       return
     }
 
