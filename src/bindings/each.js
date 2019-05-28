@@ -26,7 +26,11 @@ export const EachBinding = Object.seal({
     const parent = placeholder.parentNode
 
     // prepare the diffing
-    const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, parentScope, this)
+    const {
+      newChildrenMap,
+      batches,
+      futureNodes
+    } = createPatch(items, scope, parentScope, this)
 
     /**
      * DOM Updates only if needed
@@ -110,7 +114,7 @@ function extendScope(scope, {itemName, indexName, index, item}) {
  * @returns {Array} data.batches - array containing functions the tags lifecycle functions to trigger
  * @returns {Array} data.futureNodes - array containing the nodes we need to diff
  */
-function loopItems(items, scope, parentScope, binding) {
+function createPatch(items, scope, parentScope, binding) {
   const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding
   const newChildrenMap = new Map()
   const batches = []
@@ -141,8 +145,8 @@ function loopItems(items, scope, parentScope, binding) {
       batches.push(() => tag.update(context, parentScope))
     }
 
+    // create the collection of nodes to update or to add
     futureNodes.push(el)
-
     // delete the old item from the children map
     childrenMap.delete(key)
 

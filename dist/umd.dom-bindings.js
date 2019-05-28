@@ -642,7 +642,7 @@
       const parent = placeholder.parentNode;
 
       // prepare the diffing
-      const { newChildrenMap, batches, futureNodes } = loopItems(items, scope, parentScope, this);
+      const { newChildrenMap, batches, futureNodes } = createPatch(items, scope, parentScope, this);
 
       /**
        * DOM Updates only if needed
@@ -655,7 +655,7 @@
       }
 
       // remove redundant instances
-      removeRedundant(this.childrenMap);
+      unmountRedundant(this.childrenMap);
 
       // trigger the mounts and the updates
       batches.forEach(fn => fn());
@@ -667,7 +667,7 @@
       return this
     },
     unmount(scope, parentScope) {
-      removeRedundant(this.childrenMap, parentScope);
+      unmountRedundant(this.childrenMap, parentScope);
 
       this.childrenMap = new Map();
       this.tags = [];
@@ -676,12 +676,18 @@
     }
   });
 
-  function removeRedundant(childrenMap, parentScope) {
-    Array
+  /**
+   * Unmount the remaining template instances
+   * @param   {Map} childrenMap - map containing the children template to unmount
+   * @param  {*} parentScope - scope of the parent tag
+   * @returns {TemplateChunk[]} collection containing the template chunks unmounted
+   */
+  function unmountRedundant(childrenMap, parentScope) {
+    return Array
       .from(childrenMap.values())
-      .forEach(({tag, context}) => {
-        tag.unmount(context, parentScope, true);
-      });
+      .map(({tag, context}) => {
+        return tag.unmount(context, parentScope, true)
+      })
   }
 
   /**
@@ -709,23 +715,23 @@
     return scope
   }
 
-
   /**
    * Loop the current tag items
-   * @param   { Array } items - tag collection
-   * @param   { * } scope - tag scope
-   * @param   { * } parentScope - scope of the parent tag
-   * @param   { EeachBinding } binding - each binding object instance
-   * @returns { Object } data
-   * @returns { Map } data.newChildrenMap - a Map containing the new children tags structure
-   * @returns { Array } data.batches - array containing functions the tags lifecycle functions to trigger
-   * @returns { Array } data.futureNodes - array containing the nodes we need to diff
+   * @param   {Array} items - tag collection
+   * @param   {*} scope - tag scope
+   * @param   {*} parentScope - scope of the parent tag
+   * @param   {EeachBinding} binding - each binding object instance
+   * @returns {Object} data
+   * @returns {Map} data.newChildrenMap - a Map containing the new children tags structure
+   * @returns {Array} data.batches - array containing functions the tags lifecycle functions to trigger
+   * @returns {Array} data.futureNodes - array containing the nodes we need to diff
    */
-  function loopItems(items, scope, parentScope, binding) {
+  function createPatch(items, scope, parentScope, binding) {
     const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding;
     const newChildrenMap = new Map();
     const batches = [];
     const futureNodes = [];
+
     /* eslint-disable fp/no-let */
     let filteredItems = 0;
     /* eslint-enable fp/no-let */
