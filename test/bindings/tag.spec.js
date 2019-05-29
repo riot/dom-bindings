@@ -213,9 +213,12 @@ describe('tag bindings', () => {
         expect(attributes).to.be.ok
 
         return {
-          mount() {},
+          mount(el) {
+            this.el = el
+          },
           update() {},
           unmount() {
+            expect(this.el.parentNode).to.be.ok
             spy()
           }
         }

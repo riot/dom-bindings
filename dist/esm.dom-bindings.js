@@ -642,15 +642,19 @@ const EachBinding = Object.seal({
       futureNodes
     } = createPatch(items, scope, parentScope, this);
 
-    // DOM Updates only if it's needed
+    // patch the DOM only if there are new nodes
     if (futureNodes.length) {
       domdiff(parent, this.tags, futureNodes, {
-        before: placeholder
+        before: placeholder,
+        node: patch(
+          Array.from(this.childrenMap.values()),
+          parentScope
+        )
       });
+    } else {
+      // remove all redundant templates
+      unmountRedundant(this.childrenMap);
     }
-
-    // remove redundant instances
-    unmountRedundant(this.childrenMap);
 
     // trigger the mounts and the updates
     batches.forEach(fn => fn());
@@ -672,9 +676,26 @@ const EachBinding = Object.seal({
 });
 
 /**
+ * Patch the DOM while diffing
+ * @param   {TemplateChunk[]} redundant - redundant tepmplate chunks
+ * @param   {*} parentScope - scope of the parent tag
+ * @returns {Function} patch function used by domdiff
+ */
+function patch(redundant, parentScope) {
+  return (item, info) => {
+    if (info < 0) {
+      const {tag, context} = redundant.pop();
+      tag.unmount(context, parentScope, false);
+    }
+
+    return item
+  }
+}
+
+/**
  * Unmount the remaining template instances
  * @param   {Map} childrenMap - map containing the children template to unmount
- * @param  {*} parentScope - scope of the parent tag
+ * @param   {*} parentScope - scope of the parent tag
  * @returns {TemplateChunk[]} collection containing the template chunks unmounted
  */
 function unmountRedundant(childrenMap, parentScope) {
