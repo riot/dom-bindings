@@ -34,9 +34,8 @@ export const EachBinding = Object.seal({
 
     // DOM Updates only if it's needed
     if (futureNodes.length) {
-      const before = this.tags[this.tags.length - 1]
       domdiff(parent, this.tags, futureNodes, {
-        before: before ? before.nextSibling : placeholder.nextSibling
+        before: placeholder
       })
     }
 

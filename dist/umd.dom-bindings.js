@@ -642,15 +642,16 @@
       const parent = placeholder.parentNode;
 
       // prepare the diffing
-      const { newChildrenMap, batches, futureNodes } = createPatch(items, scope, parentScope, this);
+      const {
+        newChildrenMap,
+        batches,
+        futureNodes
+      } = createPatch(items, scope, parentScope, this);
 
-      /**
-       * DOM Updates only if needed
-       */
+      // DOM Updates only if it's needed
       if (futureNodes.length) {
-        const before = this.tags[this.tags.length - 1];
         domdiff(parent, this.tags, futureNodes, {
-          before: before ? before.nextSibling : placeholder.nextSibling
+          before: placeholder
         });
       }
 
@@ -757,8 +758,8 @@
         batches.push(() => tag.update(context, parentScope));
       }
 
+      // create the collection of nodes to update or to add
       futureNodes.push(el);
-
       // delete the old item from the children map
       childrenMap.delete(key);
 
