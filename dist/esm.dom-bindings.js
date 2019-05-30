@@ -618,7 +618,7 @@ const EachBinding = Object.seal({
   condition: null,
   evaluate: null,
   template: null,
-  tags: [],
+  nodes: [],
   getKey: null,
   indexName: null,
   itemName: null,
@@ -644,7 +644,7 @@ const EachBinding = Object.seal({
 
     // patch the DOM only if there are new nodes
     if (futureNodes.length) {
-      domdiff(parent, this.tags, futureNodes, {
+      domdiff(parent, this.nodes, futureNodes, {
         before: placeholder,
         node: patch(
           Array.from(this.childrenMap.values()),
@@ -661,7 +661,7 @@ const EachBinding = Object.seal({
 
     // update the children map
     this.childrenMap = newChildrenMap;
-    this.tags = futureNodes;
+    this.nodes = futureNodes;
 
     return this
   },
@@ -669,7 +669,7 @@ const EachBinding = Object.seal({
     unmountRedundant(this.childrenMap, parentScope);
 
     this.childrenMap = new Map();
-    this.tags = [];
+    this.nodes = [];
 
     return this
   }
@@ -678,14 +678,14 @@ const EachBinding = Object.seal({
 /**
  * Patch the DOM while diffing
  * @param   {TemplateChunk[]} redundant - redundant tepmplate chunks
- * @param   {*} parentScope - scope of the parent tag
+ * @param   {*} parentScope - scope of the parent template
  * @returns {Function} patch function used by domdiff
  */
 function patch(redundant, parentScope) {
   return (item, info) => {
     if (info < 0) {
-      const {tag, context} = redundant.pop();
-      tag.unmount(context, parentScope, false);
+      const {template, context} = redundant.pop();
+      template.unmount(context, parentScope, false);
     }
 
     return item
@@ -695,19 +695,19 @@ function patch(redundant, parentScope) {
 /**
  * Unmount the remaining template instances
  * @param   {Map} childrenMap - map containing the children template to unmount
- * @param   {*} parentScope - scope of the parent tag
+ * @param   {*} parentScope - scope of the parent template
  * @returns {TemplateChunk[]} collection containing the template chunks unmounted
  */
 function unmountRedundant(childrenMap, parentScope) {
   return Array
     .from(childrenMap.values())
-    .map(({tag, context}) => {
-      return tag.unmount(context, parentScope, true)
+    .map(({template, context}) => {
+      return template.unmount(context, parentScope, true)
     })
 }
 
 /**
- * Check whether a tag must be filtered from a loop
+ * Check whether a template must be filtered from a loop
  * @param   {Function} condition - filter function
  * @param   {Object} context - argument passed to the filter function
  * @returns {boolean} true if this item should be skipped
@@ -717,7 +717,7 @@ function mustFilterItem(condition, context) {
 }
 
 /**
- * Extend the scope of the looped tag
+ * Extend the scope of the looped template
  * @param   {Object} scope - current template scope
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
@@ -732,14 +732,14 @@ function extendScope(scope, {itemName, indexName, index, item}) {
 }
 
 /**
- * Loop the current tag items
- * @param   {Array} items - tag collection
- * @param   {*} scope - tag scope
- * @param   {*} parentScope - scope of the parent tag
+ * Loop the current template items
+ * @param   {Array} items - expression collection value
+ * @param   {*} scope - template scope
+ * @param   {*} parentScope - scope of the parent template
  * @param   {EeachBinding} binding - each binding object instance
  * @returns {Object} data
- * @returns {Map} data.newChildrenMap - a Map containing the new children tags structure
- * @returns {Array} data.batches - array containing functions the tags lifecycle functions to trigger
+ * @returns {Map} data.newChildrenMap - a Map containing the new children template structure
+ * @returns {Array} data.batches - array containing the template lifecycle functions to trigger
  * @returns {Array} data.futureNodes - array containing the nodes we need to diff
  */
 function createPatch(items, scope, parentScope, binding) {
@@ -764,13 +764,13 @@ function createPatch(items, scope, parentScope, binding) {
       return
     }
 
-    const tag = oldItem ? oldItem.tag : template.clone();
-    const el = oldItem ? tag.el : root.cloneNode();
+    const componentTemplate = oldItem ? oldItem.template : template.clone();
+    const el = oldItem ? componentTemplate.el : root.cloneNode();
 
     if (!oldItem) {
-      batches.push(() => tag.mount(el, context, parentScope));
+      batches.push(() => componentTemplate.mount(el, context, parentScope));
     } else {
-      batches.push(() => tag.update(context, parentScope));
+      batches.push(() => componentTemplate.update(context, parentScope));
     }
 
     // create the collection of nodes to update or to add
@@ -780,7 +780,7 @@ function createPatch(items, scope, parentScope, binding) {
 
     // update the children map
     newChildrenMap.set(key, {
-      tag,
+      template: componentTemplate,
       context,
       index
     });
