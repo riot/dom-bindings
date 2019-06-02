@@ -61,9 +61,17 @@ export { default as template } from './template'
  * Bind a new expression object to a single DOM node
  * @param   {HTMLElement} root - DOM node where to bind the expression
  * @param   {Object} binding - binding data
- * @returns {Expression} Expression object
+ * @returns {Binding} Binding object
  */
 export { default as createBinding } from './binding'
+
+/**
+ * Create a single template expression
+ * @param   {HTMLElement} root - DOM node bound to the expression
+ * @param   {Object} expression - expression data
+ * @returns {Expression} Expression object
+ */
+export { default as createExpression } from './expression'
 
 /**
  * Object containing all the binding types

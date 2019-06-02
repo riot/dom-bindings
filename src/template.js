@@ -87,10 +87,10 @@ export const TemplateChunk = Object.freeze({
     if (this.el) {
       this.bindings.forEach(b => b.unmount(scope, parentScope))
 
-      cleanNode(this.el)
-
       if (mustRemoveRoot && this.el.parentNode) {
         this.el.parentNode.removeChild(this.el)
+      } else {
+        cleanNode(this.el)
       }
 
       this.el = null
