@@ -685,7 +685,9 @@ function patch(redundant, parentScope) {
   return (item, info) => {
     if (info < 0) {
       const {template, context} = redundant.pop();
-      template.unmount(context, parentScope, false);
+      // notice that we pass null as last argument because
+      // the root node and its children will be removed by domdiff
+      template.unmount(context, parentScope, null);
     }
 
     return item
@@ -1487,7 +1489,7 @@ const TemplateChunk = Object.freeze({
 
       if (mustRemoveRoot && this.el.parentNode) {
         this.el.parentNode.removeChild(this.el);
-      } else {
+      } else if (mustRemoveRoot !== null) {
         cleanNode(this.el);
       }
 

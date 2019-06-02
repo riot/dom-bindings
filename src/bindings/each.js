@@ -75,7 +75,9 @@ function patch(redundant, parentScope) {
   return (item, info) => {
     if (info < 0) {
       const {template, context} = redundant.pop()
-      template.unmount(context, parentScope, false)
+      // notice that we pass null as last argument because
+      // the root node and its children will be removed by domdiff
+      template.unmount(context, parentScope, null)
     }
 
     return item
