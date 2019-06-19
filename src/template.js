@@ -2,6 +2,7 @@ import cleanNode from './util/clean-node'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
+import isTemplate from './util/is-template'
 
 /**
  * Create the Template DOM skeleton
@@ -51,8 +52,10 @@ export const TemplateChunk = Object.freeze({
     if (!el) throw new Error('Please provide DOM node to mount properly your template')
 
     if (this.el) this.unmount(scope)
+    const {parentNode} = el
+    const isTemplateTag = isTemplate(el)
 
-    this.el = el
+    this.el = isTemplateTag ? parentNode : el
 
     // create the DOM if it wasn't created before
     this.createDOM(el)
@@ -61,6 +64,7 @@ export const TemplateChunk = Object.freeze({
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding))
+
     this.bindings.forEach(b => b.mount(scope, parentScope))
 
     return this

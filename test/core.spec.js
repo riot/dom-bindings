@@ -121,8 +121,20 @@ describe('core specs', () => {
       type: bindingTypes.IF,
       redundantAttribute: 'expr0',
       evaluate: () => true,
-      template: template('<div><p>hello</p></div>')
-    }]).mount(target)
+      template: template('<div><p expr0><!----></p></div>', [{
+        selector: '[expr0]',
+        redundantAttribute: 'expr0',
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }
+        ]
+      }])
+    }]).mount(target, {
+      text: 'hello'
+    })
 
     const p = target.querySelector('p')
 
@@ -141,9 +153,20 @@ describe('core specs', () => {
       type: bindingTypes.EACH,
       itemName: 'val',
       evaluate: scope => scope.items,
-      template: template('<div><p>hello</p></div>')
+      template: template('<div><p expr0><!----></p></div>', [{
+        selector: '[expr0]',
+        redundantAttribute: 'expr0',
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }
+        ]
+      }])
     }]).mount(target, {
-      items: [1, 2]
+      items: [1, 2],
+      text: 'hello'
     })
 
     expect(target.querySelectorAll('p')).to.have.length(2)

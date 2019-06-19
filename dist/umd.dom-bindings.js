@@ -1480,8 +1480,10 @@
       if (!el) throw new Error('Please provide DOM node to mount properly your template')
 
       if (this.el) this.unmount(scope);
+      const {parentNode} = el;
+      const isTemplateTag = isTemplate(el);
 
-      this.el = el;
+      this.el = isTemplateTag ? parentNode : el;
 
       // create the DOM if it wasn't created before
       this.createDOM(el);
@@ -1490,6 +1492,7 @@
 
       // create the bindings
       this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
+
       this.bindings.forEach(b => b.mount(scope, parentScope));
 
       return this
