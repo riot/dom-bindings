@@ -1,6 +1,6 @@
+import isSvg from './is-svg'
+import isTemplate from './is-template'
 import moveChildren from './move-children'
-
-const SVG_RE = /svg/i
 
 /**
  * Inject the DOM tree into a target node
@@ -9,9 +9,14 @@ const SVG_RE = /svg/i
  * @returns {undefined}
  */
 export default function injectDOM(el, dom) {
-  if (SVG_RE.test(el.tagName)) {
+  switch (true) {
+  case isSvg(el):
     moveChildren(dom, el)
-  } else {
+    break
+  case isTemplate(el):
+    el.parentNode.replaceChild(dom, el)
+    break
+  default:
     el.appendChild(dom)
   }
 }

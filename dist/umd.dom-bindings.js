@@ -1353,9 +1353,18 @@
     return !!owner || owner === null
   }
 
+  /**
+   * Check if an element is a template tag
+   * @param   {HTMLElement}  el - element to check
+   * @returns {boolean} true if it's a <template>
+   */
+  function isTemplate(el) {
+    return !isNil(el.content)
+  }
+
   // in this case a simple innerHTML is enough
-  function createHTMLTree(html) {
-    const template = document.createElement('template');
+  function createHTMLTree(html, root) {
+    const template = isTemplate(root) ? root : document.createElement('template');
     template.innerHTML = html;
     return template.content
   }
@@ -1385,7 +1394,7 @@
   function createDOMTree(root, html) {
     if (isSvg(root)) return creteSVGTree(html, root)
 
-    return createHTMLTree(html)
+    return createHTMLTree(html, root)
   }
 
   /**
@@ -1404,8 +1413,6 @@
     }
   }
 
-  const SVG_RE = /svg/i;
-
   /**
    * Inject the DOM tree into a target node
    * @param   {HTMLElement} el - target element
@@ -1413,9 +1420,14 @@
    * @returns {undefined}
    */
   function injectDOM(el, dom) {
-    if (SVG_RE.test(el.tagName)) {
+    switch (true) {
+    case isSvg(el):
       moveChildren(dom, el);
-    } else {
+      break
+    case isTemplate(el):
+      el.parentNode.replaceChild(dom, el);
+      break
+    default:
       el.appendChild(dom);
     }
   }

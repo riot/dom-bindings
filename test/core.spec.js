@@ -112,4 +112,43 @@ describe('core specs', () => {
     expect(target.querySelectorAll('svg')).to.have.length(1)
     expect(svg.querySelector('image')).to.be.ok
   })
+
+  it('Template fragments could be created properly with if directives', () => {
+    const target = document.createElement('div')
+
+    const el = template('<template expr0/>', [{
+      selector: '[expr0]',
+      type: bindingTypes.IF,
+      redundantAttribute: 'expr0',
+      evaluate: () => true,
+      template: template('<div><p>hello</p></div>')
+    }]).mount(target)
+
+    const p = target.querySelector('p')
+
+    expect(target.querySelectorAll('p')).to.have.length(1)
+    expect(target.querySelector('template')).to.be.not.ok
+    expect(p.textContent).to.be.equal('hello')
+
+    el.unmount()
+  })
+
+  it('Template fragments could be created properly with each directives', () => {
+    const target = document.createElement('div')
+
+    const el = template('<template expr0/>', [{
+      selector: '[expr0]',
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      evaluate: scope => scope.items,
+      template: template('<div><p>hello</p></div>')
+    }]).mount(target, {
+      items: [1, 2]
+    })
+
+    expect(target.querySelectorAll('p')).to.have.length(2)
+    expect(target.querySelector('template')).to.be.not.ok
+
+    el.unmount()
+  })
 })

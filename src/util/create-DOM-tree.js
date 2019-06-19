@@ -1,8 +1,9 @@
 import isSvg from './is-svg'
+import isTemplate from './is-template'
 
 // in this case a simple innerHTML is enough
-function createHTMLTree(html) {
-  const template = document.createElement('template')
+function createHTMLTree(html, root) {
+  const template = isTemplate(root) ? root : document.createElement('template')
   template.innerHTML = html
   return template.content
 }
@@ -32,6 +33,6 @@ function creteSVGTree(html, container) {
 export default function createDOMTree(root, html) {
   if (isSvg(root)) return creteSVGTree(html, root)
 
-  return createHTMLTree(html)
+  return createHTMLTree(html, root)
 }
 
