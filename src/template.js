@@ -80,7 +80,8 @@ export const TemplateChunk = Object.freeze({
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
    * @param   {*} parentScope - scope of the parent template tag
-   * @param   {boolean} mustRemoveRoot - if true remove the root element
+   * @param   {boolean|null} mustRemoveRoot - if true remove the root element,
+   * if false or undefined clean the root tag content, if null don't touch the DOM
    * @returns {TemplateChunk} self
    */
   unmount(scope, parentScope, mustRemoveRoot) {

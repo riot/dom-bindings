@@ -1,5 +1,6 @@
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
+import isNil from '../util/is-nil'
 
 /**
  * Add all the attributes provided
@@ -62,7 +63,9 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value && typeof value !== 'object' ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
+  return isNil(value) || value === false || value === '' || typeof value === 'object' ?
+    REMOVE_ATTRIBUTE :
+    SET_ATTIBUTE
 }
 
 /**

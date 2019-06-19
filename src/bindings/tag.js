@@ -65,7 +65,7 @@ export const TagBinding = Object.seal({
   mount(scope) {
     return this.update(scope)
   },
-  update(scope) {
+  update(scope, parentScope) {
     const name = this.evaluate(scope)
 
     // simple update
@@ -73,7 +73,7 @@ export const TagBinding = Object.seal({
       this.tag.update(scope)
     } else {
       // unmount the old tag if it exists
-      this.unmount()
+      this.unmount(scope, parentScope, true)
 
       // mount the new tag
       this.name = name
@@ -83,10 +83,10 @@ export const TagBinding = Object.seal({
 
     return this
   },
-  unmount() {
+  unmount(scope, parentScope, keepRootTag) {
     if (this.tag) {
       // keep the root tag
-      this.tag.unmount(true)
+      this.tag.unmount(keepRootTag)
     }
 
     return this

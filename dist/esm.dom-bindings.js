@@ -892,6 +892,15 @@ var expressionTypes = {
   VALUE
 };
 
+/**
+ * Check if a value is null or undefined
+ * @param   {*}  value - anything
+ * @returns {boolean} true only for the 'undefined' and 'null' types
+ */
+function isNil(value) {
+  return value == null
+}
+
 const REMOVE_ATTRIBUTE = 'removeAttribute';
 const SET_ATTIBUTE = 'setAttribute';
 
@@ -956,7 +965,9 @@ function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return value && typeof value !== 'object' ? SET_ATTIBUTE : REMOVE_ATTRIBUTE
+  return isNil(value) || value === false || value === '' || typeof value === 'object' ?
+    REMOVE_ATTRIBUTE :
+    SET_ATTIBUTE
 }
 
 /**
@@ -1255,7 +1266,7 @@ const TagBinding = Object.seal({
   mount(scope) {
     return this.update(scope)
   },
-  update(scope) {
+  update(scope, parentScope) {
     const name = this.evaluate(scope);
 
     // simple update
@@ -1263,7 +1274,7 @@ const TagBinding = Object.seal({
       this.tag.update(scope);
     } else {
       // unmount the old tag if it exists
-      this.unmount();
+      this.unmount(scope, parentScope, true);
 
       // mount the new tag
       this.name = name;
@@ -1273,10 +1284,10 @@ const TagBinding = Object.seal({
 
     return this
   },
-  unmount() {
+  unmount(scope, parentScope, keepRootTag) {
     if (this.tag) {
       // keep the root tag
-      this.tag.unmount(true);
+      this.tag.unmount(keepRootTag);
     }
 
     return this
@@ -1480,7 +1491,8 @@ const TemplateChunk = Object.freeze({
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
    * @param   {*} parentScope - scope of the parent template tag
-   * @param   {boolean} mustRemoveRoot - if true remove the root element
+   * @param   {boolean|null} mustRemoveRoot - if true remove the root element,
+   * if false or undefined clean the root tag content, if null don't touch the DOM
    * @returns {TemplateChunk} self
    */
   unmount(scope, parentScope, mustRemoveRoot) {

@@ -44,6 +44,20 @@ describe('attribute specs', () => {
     expect(p.hasAttribute('class')).to.be.not.ok
   })
 
+  it('do not remove remove number attributes', () => {
+    const target = document.createElement('div')
+    template('<p class="hello" expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: 0 })
+
+    const p = target.querySelector('p')
+
+    expect(p.hasAttribute('class')).to.be.ok
+  })
+
   it('toggle attribute', () => {
     const target = document.createElement('div')
     const el = template('<p expr0></p>', [{
