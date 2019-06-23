@@ -5,12 +5,16 @@ export const IfBinding = Object.seal({
   // dynamic binding properties
   node: null,
   evaluate: null,
+  parent: null,
+  isTemplateTag: false,
   placeholder: null,
-  template: '',
+  template: null,
 
   // API methods
   mount(scope, parentScope) {
-    swap(this.placeholder, this.node)
+    this.parent.insertBefore(this.placeholder, this.node)
+    this.parent.removeChild(this.node)
+
     return this.update(scope, parentScope)
   },
   update(scope, parentScope) {
@@ -20,15 +24,14 @@ export const IfBinding = Object.seal({
 
     switch (true) {
     case mustMount:
-      swap(this.node, this.placeholder)
-      if (this.template) {
-        this.template = this.template.clone()
-        this.template.mount(this.node, scope, parentScope)
-      }
+      this.parent.insertBefore(this.node, this.placeholder)
+
+      this.template = this.template.clone()
+      this.template.mount(this.node, scope, parentScope)
+
       break
     case mustUnmount:
       this.unmount(scope)
-      swap(this.placeholder, this.node)
       break
     default:
       if (value) this.template.update(scope, parentScope)
@@ -39,27 +42,18 @@ export const IfBinding = Object.seal({
     return this
   },
   unmount(scope, parentScope) {
-    const { template } = this
-
-    if (template) {
-      template.unmount(scope, parentScope)
-    }
+    this.template.unmount(scope, parentScope)
 
     return this
   }
 })
-
-function swap(inNode, outNode) {
-  const parent = outNode.parentNode
-  parent.insertBefore(inNode, outNode)
-  parent.removeChild(outNode)
-}
 
 export default function create(node, { evaluate, template }) {
   return {
     ...IfBinding,
     node,
     evaluate,
+    parent: node.parentNode,
     placeholder: document.createTextNode(''),
     template: template.createDOM(node)
   }

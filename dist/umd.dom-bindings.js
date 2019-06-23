@@ -10,8 +10,17 @@
    * @returns {undefined}
    */
   function cleanNode(node) {
-    const children = node.childNodes;
-    Array.from(children).forEach(n => node.removeChild(n));
+    clearChildren(node, node.childNodes);
+  }
+
+  /**
+   * Clear multiple children in a node
+   * @param   {HTMLElement} parent - parent node where the children will be removed
+   * @param   {HTMLElement[]} children - direct children nodes
+   * @returns {undefined}
+   */
+  function clearChildren(parent, children) {
+    Array.from(children).forEach(n => parent.removeChild(n));
   }
 
   const EACH = 0;
@@ -27,6 +36,21 @@
     TAG,
     SLOT
   };
+
+  /**
+   * Create the template meta object in case of <template> fragments
+   * @param   {TemplateChunk} componentTemplate - template chunk object
+   * @returns {Object} the meta property that will be passed to the mount function of the TemplateChunk
+   */
+  function createTemplateMeta(componentTemplate) {
+    const fragment = componentTemplate.dom.cloneNode(true);
+
+    return {
+      avoidDOMInjection: true,
+      fragment,
+      children: Array.from(fragment.childNodes)
+    }
+  }
 
   /* get rid of the @ungap/essential-map polyfill */
 
@@ -616,6 +640,24 @@
     return futureNodes;
   };
 
+  /**
+   * Check if a value is null or undefined
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the 'undefined' and 'null' types
+   */
+  function isNil(value) {
+    return value == null
+  }
+
+  /**
+   * Check if an element is a template tag
+   * @param   {HTMLElement}  el - element to check
+   * @returns {boolean} true if it's a <template>
+   */
+  function isTemplate(el) {
+    return !isNil(el.content)
+  }
+
   const EachBinding = Object.seal({
     // dynamic binding properties
     childrenMap: null,
@@ -624,6 +666,7 @@
     condition: null,
     evaluate: null,
     template: null,
+    isTemplateTag: false,
     nodes: [],
     getKey: null,
     indexName: null,
@@ -751,7 +794,7 @@
    * @returns {Array} data.futureNodes - array containing the nodes we need to diff
    */
   function createPatch(items, scope, parentScope, binding) {
-    const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding;
+    const { condition, template, childrenMap, itemName, getKey, indexName, root, isTemplateTag } = binding;
     const newChildrenMap = new Map();
     const batches = [];
     const futureNodes = [];
@@ -767,15 +810,23 @@
 
       const componentTemplate = oldItem ? oldItem.template : template.clone();
       const el = oldItem ? componentTemplate.el : root.cloneNode();
+      const mustMount = !oldItem;
+      const meta = isTemplateTag && mustMount ? createTemplateMeta(componentTemplate) : {};
 
-      if (!oldItem) {
-        batches.push(() => componentTemplate.mount(el, context, parentScope));
+      if (mustMount) {
+        batches.push(() => componentTemplate.mount(el, context, parentScope, meta));
       } else {
         batches.push(() => componentTemplate.update(context, parentScope));
       }
 
       // create the collection of nodes to update or to add
-      futureNodes.push(el);
+      // in case of template tags we need to add all its children nodes
+      if (isTemplateTag) {
+        futureNodes.push(...meta.children || componentTemplate.children);
+      } else {
+        futureNodes.push(el);
+      }
+
       // delete the old item from the children map
       childrenMap.delete(key);
 
@@ -798,7 +849,6 @@
     const placeholder = document.createTextNode('');
     const parent = node.parentNode;
     const root = node.cloneNode();
-    const offset = Array.from(parent.childNodes).indexOf(node);
 
     parent.insertBefore(placeholder, node);
     parent.removeChild(node);
@@ -808,9 +858,9 @@
       childrenMap: new Map(),
       node,
       root,
-      offset,
       condition,
       evaluate,
+      isTemplateTag: isTemplate(root),
       template: template.createDOM(node),
       getKey,
       indexName,
@@ -826,12 +876,16 @@
     // dynamic binding properties
     node: null,
     evaluate: null,
+    parent: null,
+    isTemplateTag: false,
     placeholder: null,
-    template: '',
+    template: null,
 
     // API methods
     mount(scope, parentScope) {
-      swap(this.placeholder, this.node);
+      this.parent.insertBefore(this.placeholder, this.node);
+      this.parent.removeChild(this.node);
+
       return this.update(scope, parentScope)
     },
     update(scope, parentScope) {
@@ -841,15 +895,14 @@
 
       switch (true) {
       case mustMount:
-        swap(this.node, this.placeholder);
-        if (this.template) {
-          this.template = this.template.clone();
-          this.template.mount(this.node, scope, parentScope);
-        }
+        this.parent.insertBefore(this.node, this.placeholder);
+
+        this.template = this.template.clone();
+        this.template.mount(this.node, scope, parentScope);
+
         break
       case mustUnmount:
         this.unmount(scope);
-        swap(this.placeholder, this.node);
         break
       default:
         if (value) this.template.update(scope, parentScope);
@@ -860,27 +913,18 @@
       return this
     },
     unmount(scope, parentScope) {
-      const { template } = this;
-
-      if (template) {
-        template.unmount(scope, parentScope);
-      }
+      this.template.unmount(scope, parentScope);
 
       return this
     }
   });
-
-  function swap(inNode, outNode) {
-    const parent = outNode.parentNode;
-    parent.insertBefore(inNode, outNode);
-    parent.removeChild(outNode);
-  }
 
   function create$1(node, { evaluate, template }) {
     return {
       ...IfBinding,
       node,
       evaluate,
+      parent: node.parentNode,
       placeholder: document.createTextNode(''),
       template: template.createDOM(node)
     }
@@ -897,15 +941,6 @@
     TEXT,
     VALUE
   };
-
-  /**
-   * Check if a value is null or undefined
-   * @param   {*}  value - anything
-   * @returns {boolean} true only for the 'undefined' and 'null' types
-   */
-  function isNil(value) {
-    return value == null
-  }
 
   const REMOVE_ATTRIBUTE = 'removeAttribute';
   const SET_ATTIBUTE = 'setAttribute';
@@ -1353,15 +1388,6 @@
     return !!owner || owner === null
   }
 
-  /**
-   * Check if an element is a template tag
-   * @param   {HTMLElement}  el - element to check
-   * @returns {boolean} true if it's a <template>
-   */
-  function isTemplate(el) {
-    return !isNil(el.content)
-  }
-
   // in this case a simple innerHTML is enough
   function createHTMLTree(html, root) {
     const template = isTemplate(root) ? root : document.createElement('template');
@@ -1453,6 +1479,9 @@
     bindings: null,
     bindingsData: null,
     html: null,
+    isTemplateTag: false,
+    fragment: null,
+    children: null,
     dom: null,
     el: null,
 
@@ -1474,25 +1503,42 @@
      * @param   {HTMLElement} el - target DOM node
      * @param   {*} scope - template data
      * @param   {*} parentScope - scope of the parent template tag
+     * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
      * @returns {TemplateChunk} self
      */
-    mount(el, scope, parentScope) {
+    mount(el, scope, parentScope, meta = {}) {
       if (!el) throw new Error('Please provide DOM node to mount properly your template')
 
       if (this.el) this.unmount(scope);
-      const {parentNode} = el;
-      const isTemplateTag = isTemplate(el);
 
-      this.el = isTemplateTag ? parentNode : el;
+      // <template> tags require a bit more work
+      // the template fragment might be already created via meta outside of this call
+      const {fragment, children, avoidDOMInjection} = meta;
+      // <template> bindings of course can not have a root element
+      // so we check the parent node to set the query selector bindings
+      const {parentNode} = children ? children[0] : el;
+
+      this.isTemplateTag = isTemplate(el);
 
       // create the DOM if it wasn't created before
       this.createDOM(el);
 
-      if (this.dom) injectDOM(el, this.dom.cloneNode(true));
+      if (this.dom) {
+        // create the new template dom fragment if it want already passed in via meta
+        this.fragment = fragment || this.dom.cloneNode(true);
+      }
+
+      // store root node
+      // notice that for template tags the root note will be the parent tag
+      this.el = this.isTemplateTag ? parentNode : el;
+      // create the children array only for the <template> fragments
+      this.children = this.isTemplateTag ? children || Array.from(this.fragment.childNodes) : null;
+
+      // inject the DOM into the el only if a fragment is available
+      if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment);
 
       // create the bindings
       this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
-
       this.bindings.forEach(b => b.mount(scope, parentScope));
 
       return this
@@ -1523,7 +1569,11 @@
         if (mustRemoveRoot && this.el.parentNode) {
           this.el.parentNode.removeChild(this.el);
         } else if (mustRemoveRoot !== null) {
-          cleanNode(this.el);
+          if (this.children) {
+            clearChildren(this.children[0].parentNode, this.children);
+          } else {
+            cleanNode(this.el);
+          }
         }
 
         this.el = null;

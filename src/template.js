@@ -1,4 +1,4 @@
-import cleanNode from './util/clean-node'
+import cleanNode, { clearChildren } from './util/clean-node'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
@@ -25,6 +25,9 @@ export const TemplateChunk = Object.freeze({
   bindings: null,
   bindingsData: null,
   html: null,
+  isTemplateTag: false,
+  fragment: null,
+  children: null,
   dom: null,
   el: null,
 
@@ -46,25 +49,42 @@ export const TemplateChunk = Object.freeze({
    * @param   {HTMLElement} el - target DOM node
    * @param   {*} scope - template data
    * @param   {*} parentScope - scope of the parent template tag
+   * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
    * @returns {TemplateChunk} self
    */
-  mount(el, scope, parentScope) {
+  mount(el, scope, parentScope, meta = {}) {
     if (!el) throw new Error('Please provide DOM node to mount properly your template')
 
     if (this.el) this.unmount(scope)
-    const {parentNode} = el
-    const isTemplateTag = isTemplate(el)
 
-    this.el = isTemplateTag ? parentNode : el
+    // <template> tags require a bit more work
+    // the template fragment might be already created via meta outside of this call
+    const {fragment, children, avoidDOMInjection} = meta
+    // <template> bindings of course can not have a root element
+    // so we check the parent node to set the query selector bindings
+    const {parentNode} = children ? children[0] : el
+
+    this.isTemplateTag = isTemplate(el)
 
     // create the DOM if it wasn't created before
     this.createDOM(el)
 
-    if (this.dom) injectDOM(el, this.dom.cloneNode(true))
+    if (this.dom) {
+      // create the new template dom fragment if it want already passed in via meta
+      this.fragment = fragment || this.dom.cloneNode(true)
+    }
+
+    // store root node
+    // notice that for template tags the root note will be the parent tag
+    this.el = this.isTemplateTag ? parentNode : el
+    // create the children array only for the <template> fragments
+    this.children = this.isTemplateTag ? children || Array.from(this.fragment.childNodes) : null
+
+    // inject the DOM into the el only if a fragment is available
+    if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment)
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding))
-
     this.bindings.forEach(b => b.mount(scope, parentScope))
 
     return this
@@ -95,7 +115,11 @@ export const TemplateChunk = Object.freeze({
       if (mustRemoveRoot && this.el.parentNode) {
         this.el.parentNode.removeChild(this.el)
       } else if (mustRemoveRoot !== null) {
-        cleanNode(this.el)
+        if (this.children) {
+          clearChildren(this.children[0].parentNode, this.children)
+        } else {
+          cleanNode(this.el)
+        }
       }
 
       this.el = null

@@ -116,11 +116,11 @@ describe('core specs', () => {
   it('Template fragments could be created properly with if directives', () => {
     const target = document.createElement('div')
 
-    const el = template('<template expr0/>', [{
+    const el = template('<h1>Title</h1><template expr0/>', [{
       selector: '[expr0]',
       type: bindingTypes.IF,
       redundantAttribute: 'expr0',
-      evaluate: () => true,
+      evaluate: (scope) => scope.isVisible,
       template: template('<div><p expr0><!----></p></div>', [{
         selector: '[expr0]',
         redundantAttribute: 'expr0',
@@ -133,14 +133,24 @@ describe('core specs', () => {
         ]
       }])
     }]).mount(target, {
-      text: 'hello'
+      text: 'hello',
+      isVisible: true
     })
 
     const p = target.querySelector('p')
 
     expect(target.querySelectorAll('p')).to.have.length(1)
     expect(target.querySelector('template')).to.be.not.ok
+    expect(target.querySelector('h1')).to.be.ok
     expect(p.textContent).to.be.equal('hello')
+
+    el.update({
+      isVisible: false
+    })
+
+    expect(target.querySelector('p')).to.be.not.ok
+    expect(target.querySelector('template')).to.be.not.ok
+    expect(target.querySelector('h1')).to.be.ok
 
     el.unmount()
   })
@@ -148,7 +158,7 @@ describe('core specs', () => {
   it('Template fragments could be created properly with each directives', () => {
     const target = document.createElement('div')
 
-    const el = template('<template expr0/>', [{
+    const el = template('<h1>Title</h1><template expr0/>', [{
       selector: '[expr0]',
       type: bindingTypes.EACH,
       itemName: 'val',
@@ -170,6 +180,15 @@ describe('core specs', () => {
     })
 
     expect(target.querySelectorAll('p')).to.have.length(2)
+    expect(target.querySelector('template')).to.be.not.ok
+
+    el.update({
+      items: [1],
+      text: 'goodbye'
+    })
+
+    expect(target.querySelectorAll('p')).to.have.length(1)
+    expect(target.querySelector('h1')).to.be.ok
     expect(target.querySelector('template')).to.be.not.ok
 
     el.unmount()

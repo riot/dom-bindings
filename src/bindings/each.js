@@ -1,4 +1,6 @@
+import createTemplateMeta from '../util/create-template-meta'
 import domdiff from 'domdiff'
+import isTemplate from '../util/is-template'
 
 export const EachBinding = Object.seal({
   // dynamic binding properties
@@ -8,6 +10,7 @@ export const EachBinding = Object.seal({
   condition: null,
   evaluate: null,
   template: null,
+  isTemplateTag: false,
   nodes: [],
   getKey: null,
   indexName: null,
@@ -135,7 +138,7 @@ function extendScope(scope, {itemName, indexName, index, item}) {
  * @returns {Array} data.futureNodes - array containing the nodes we need to diff
  */
 function createPatch(items, scope, parentScope, binding) {
-  const { condition, template, childrenMap, itemName, getKey, indexName, root } = binding
+  const { condition, template, childrenMap, itemName, getKey, indexName, root, isTemplateTag } = binding
   const newChildrenMap = new Map()
   const batches = []
   const futureNodes = []
@@ -151,15 +154,23 @@ function createPatch(items, scope, parentScope, binding) {
 
     const componentTemplate = oldItem ? oldItem.template : template.clone()
     const el = oldItem ? componentTemplate.el : root.cloneNode()
+    const mustMount = !oldItem
+    const meta = isTemplateTag && mustMount ? createTemplateMeta(componentTemplate) : {}
 
-    if (!oldItem) {
-      batches.push(() => componentTemplate.mount(el, context, parentScope))
+    if (mustMount) {
+      batches.push(() => componentTemplate.mount(el, context, parentScope, meta))
     } else {
       batches.push(() => componentTemplate.update(context, parentScope))
     }
 
     // create the collection of nodes to update or to add
-    futureNodes.push(el)
+    // in case of template tags we need to add all its children nodes
+    if (isTemplateTag) {
+      futureNodes.push(...meta.children || componentTemplate.children)
+    } else {
+      futureNodes.push(el)
+    }
+
     // delete the old item from the children map
     childrenMap.delete(key)
 
@@ -182,7 +193,6 @@ export default function create(node, { evaluate, condition, itemName, indexName,
   const placeholder = document.createTextNode('')
   const parent = node.parentNode
   const root = node.cloneNode()
-  const offset = Array.from(parent.childNodes).indexOf(node)
 
   parent.insertBefore(placeholder, node)
   parent.removeChild(node)
@@ -192,9 +202,9 @@ export default function create(node, { evaluate, condition, itemName, indexName,
     childrenMap: new Map(),
     node,
     root,
-    offset,
     condition,
     evaluate,
+    isTemplateTag: isTemplate(root),
     template: template.createDOM(node),
     getKey,
     indexName,
