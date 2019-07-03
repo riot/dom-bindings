@@ -1202,9 +1202,9 @@ const SlotBinding = Object.seal({
 
     return this
   },
-  unmount(scope, parentScope) {
+  unmount(scope, parentScope, mustRemoveRoot) {
     if (this.template) {
-      this.template.unmount(parentScope);
+      this.template.unmount(parentScope, null, mustRemoveRoot);
     }
 
     return this
@@ -1558,7 +1558,7 @@ const TemplateChunk = Object.freeze({
    */
   unmount(scope, parentScope, mustRemoveRoot) {
     if (this.el) {
-      this.bindings.forEach(b => b.unmount(scope, parentScope));
+      this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot));
 
       if (mustRemoveRoot && this.el.parentNode) {
         this.el.parentNode.removeChild(this.el);

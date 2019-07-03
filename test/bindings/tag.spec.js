@@ -206,6 +206,50 @@ describe('tag bindings', () => {
 
   it('custom tags can be properly unmounted in each bindings', () => {
     const target = document.createElement('div')
+    const components = {
+      'my-tag': function({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
+
+        return {
+          mount() {},
+          update() {},
+          unmount(shouldRemoveRoot) {
+            if (components.isInactive) {
+              expect(shouldRemoveRoot).to.be.equal(true)
+            } else {
+              expect(shouldRemoveRoot).to.be.equal(null)
+            }
+          }
+        }
+      }
+    }
+
+    const el = template('<ul><li expr0></li></ul>', [{
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      selector: '[expr0]',
+      evaluate: scope => scope.items,
+      template: template(null, [{
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent(name) {
+          return components[name]
+        }
+      }])
+    }]).mount(target, { items: [1, 2] })
+
+    el.update({
+      items: [1]
+    })
+
+    components.isInactive = true
+
+    el.unmount()
+  })
+
+  it('custom tags can be properly unmounted in each bindings', () => {
+    const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
       'my-tag': function({ slots, attributes }) {

@@ -32,9 +32,9 @@ export const SlotBinding = Object.seal({
 
     return this
   },
-  unmount(scope, parentScope) {
+  unmount(scope, parentScope, mustRemoveRoot) {
     if (this.template) {
-      this.template.unmount(parentScope)
+      this.template.unmount(parentScope, null, mustRemoveRoot)
     }
 
     return this
