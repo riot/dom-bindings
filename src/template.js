@@ -114,7 +114,9 @@ export const TemplateChunk = Object.freeze({
 
       if (mustRemoveRoot && this.el.parentNode) {
         this.el.parentNode.removeChild(this.el)
-      } else if (mustRemoveRoot !== null) {
+      }
+
+      if (mustRemoveRoot !== null) {
         if (this.children) {
           clearChildren(this.children[0].parentNode, this.children)
         } else {

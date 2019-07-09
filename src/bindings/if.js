@@ -42,7 +42,7 @@ export const IfBinding = Object.seal({
     return this
   },
   unmount(scope, parentScope) {
-    this.template.unmount(scope, parentScope)
+    this.template.unmount(scope, parentScope, true)
 
     return this
   }
