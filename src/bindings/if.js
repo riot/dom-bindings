@@ -44,6 +44,10 @@ export const IfBinding = Object.seal({
   unmount(scope, parentScope) {
     this.template.unmount(scope, parentScope)
 
+    if (this.parent.contains(this.node)) {
+      this.parent.removeChild(this.node)
+    }
+
     return this
   }
 })
