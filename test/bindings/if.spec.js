@@ -68,9 +68,9 @@ describe('if bindings', () => {
     }]).mount(target, { isVisible: true })
 
     expect(target.querySelectorAll('strong')).to.have.length(1)
-    el.update({ text: 'goodbye', isVisible: false })
+    el.update({ isVisible: false })
     expect(target.querySelectorAll('strong')).to.have.length(0)
-    el.update({ text: 'goodbye', isVisible: true })
+    el.update({ isVisible: true })
     expect(target.querySelectorAll('strong')).to.have.length(1)
 
     el.unmount()
