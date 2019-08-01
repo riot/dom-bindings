@@ -92,7 +92,7 @@ describe('attribute specs', () => {
 
     el.update({ attr: null })
 
-    expect(p.hasAttribute('class')).to.be.equal
+    expect(p.hasAttribute('class')).to.be.not.ok
     expect(p.hasAttribute('name')).to.be.not.ok
   })
 

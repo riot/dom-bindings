@@ -205,14 +205,14 @@ For example:
 
 ```js
 // add an event listener
-{ type: expressionTypes.EVENT, evaluate(scope) { return function() { console.log('Hello There') } }}
+{ type: expressionTypes.EVENT, name: 'onclick', evaluate(scope) { return function() { console.log('Hello There') } }}
 ```
 
 To remove an event listener you should only `return null` via evaluate function:
 
 ```js
 // remove an event listener
-{ type: expressionTypes.EVENT, evaluate(scope) { return null } }}
+{ type: expressionTypes.EVENT, name: 'onclick', evaluate(scope) { return null } }}
 ```
 
 </details>
