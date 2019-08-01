@@ -55,14 +55,17 @@
   /* get rid of the @ungap/essential-map polyfill */
 
   const append = (get, parent, children, start, end, before) => {
-    if ((end - start) < 2)
-      parent.insertBefore(get(children[start], 1), before);
-    else {
-      const fragment = parent.ownerDocument.createDocumentFragment();
-      while (start < end)
-        fragment.appendChild(get(children[start++], 1));
-      parent.insertBefore(fragment, before);
+    const isSelect = 'selectedIndex' in parent;
+    let selectedIndex = -1;
+    while (start < end) {
+      const child = get(children[start], 1);
+      if (isSelect && selectedIndex < 0 && child.selected)
+        selectedIndex = start;
+      parent.insertBefore(child, before);
+      start++;
     }
+    if (isSelect && -1 < selectedIndex)
+      parent.selectedIndex = selectedIndex;
   };
 
   const eqeq = (a, b) => a == b;
@@ -913,7 +916,7 @@
       return this
     },
     unmount(scope, parentScope) {
-      this.template.unmount(scope, parentScope);
+      this.template.unmount(scope, parentScope, true);
 
       return this
     }
@@ -1568,7 +1571,9 @@
 
         if (mustRemoveRoot && this.el.parentNode) {
           this.el.parentNode.removeChild(this.el);
-        } else if (mustRemoveRoot !== null) {
+        }
+
+        if (mustRemoveRoot !== null) {
           if (this.children) {
             clearChildren(this.children[0].parentNode, this.children);
           } else {

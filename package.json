@@ -37,21 +37,21 @@
   "devDependencies": {
     "benchmark": "^2.1.4",
     "chai": "^4.2.0",
-    "coveralls": "^3.0.4",
-    "eslint": "^6.0.0",
+    "coveralls": "^3.0.5",
+    "eslint": "^6.1.0",
     "eslint-config-riot": "^2.0.0",
     "esm": "^3.2.25",
     "jsdom": "15.1.1",
     "jsdom-global": "3.0.2",
-    "mocha": "^6.1.4",
+    "mocha": "^6.2.0",
     "nyc": "^14.1.1",
-    "rollup": "^1.16.2",
+    "rollup": "^1.18.0",
     "rollup-plugin-alias": "^1.5.2",
-    "rollup-plugin-node-resolve": "^5.0.4",
+    "rollup-plugin-node-resolve": "^5.2.0",
     "sinon": "^7.3.2",
     "sinon-chai": "^3.3.0"
   },
   "dependencies": {
-    "domdiff": "^2.0.3"
+    "domdiff": "^2.0.6"
   }
 }
