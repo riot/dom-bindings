@@ -23,9 +23,11 @@ describe('if bindings', () => {
     const target = document.createElement('div')
     const el = createDummyIfTemplate().mount(target, { text: 'hello', isVisible: true })
 
+    expect(target.querySelector('p')).to.be.ok
     expect(target.querySelector('b').textContent).to.be.equal('hello')
     el.update({ text: 'hello', isVisible: false })
 
+    expect(target.querySelector('p')).to.be.not.ok
     expect(target.querySelector('b')).to.be.not.ok
 
     el.unmount()
@@ -35,8 +37,9 @@ describe('if bindings', () => {
     const target = document.createElement('div')
     const el = createDummyIfTemplate().mount(target, { text: 'hello', isVisible: false })
 
-    expect(target.querySelector('b')).to.be.not.ok
+    expect(target.querySelector('p')).to.be.not.ok
     el.update({ text: 'hello', isVisible: true })
+    expect(target.querySelector('p')).to.be.ok
     expect(target.querySelector('b').textContent).to.be.equal('hello')
 
     el.unmount()
@@ -65,9 +68,9 @@ describe('if bindings', () => {
     }]).mount(target, { isVisible: true })
 
     expect(target.querySelectorAll('strong')).to.have.length(1)
-    el.update({ text: 'goodbye', isVisible: false })
+    el.update({ isVisible: false })
     expect(target.querySelectorAll('strong')).to.have.length(0)
-    el.update({ text: 'goodbye', isVisible: true })
+    el.update({ isVisible: true })
     expect(target.querySelectorAll('strong')).to.have.length(1)
 
     el.unmount()
@@ -77,11 +80,11 @@ describe('if bindings', () => {
     const target = document.createElement('div')
     const el = createDummyIfTemplate().mount(target, { text: 'hello', isVisible: null })
 
-    expect(target.querySelector('b')).to.be.not.ok
+    expect(target.querySelector('p')).to.be.not.ok
 
     el.update({ text: 'goodbye', isVisible: [] })
 
-    expect(target.querySelector('b')).to.be.ok
+    expect(target.querySelector('p')).to.be.ok
 
     el.unmount()
   })
