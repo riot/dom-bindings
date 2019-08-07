@@ -9,7 +9,7 @@ function createHTMLTree(html, root) {
 }
 
 // for svg nodes we need a bit more work
-function creteSVGTree(html, container) {
+function createSVGTree(html, container) {
   // create the SVGNode
   const svgNode = container.ownerDocument.importNode(
     new window.DOMParser()
@@ -31,7 +31,7 @@ function creteSVGTree(html, container) {
  * @returns {HTMLDocumentFragment|HTMLElement} a new html fragment
  */
 export default function createDOMTree(root, html) {
-  if (isSvg(root)) return creteSVGTree(html, root)
+  if (isSvg(root)) return createSVGTree(html, root)
 
   return createHTMLTree(html, root)
 }
