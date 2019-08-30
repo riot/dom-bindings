@@ -1,6 +1,8 @@
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
+import isBoolean from '../util/is-boolean'
 import isNil from '../util/is-nil'
+import isObject from '../util/is-object'
 
 /**
  * Add all the attributes provided
@@ -50,7 +52,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
   }
 
   // handle boolean attributes
-  if (typeof value === 'boolean') {
+  if (isBoolean(value) || isObject(value)) {
     node[name] = value
   }
 
@@ -63,7 +65,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return isNil(value) || value === false || value === '' || typeof value === 'object' ?
+  return isNil(value) || value === false || value === '' || isObject(value) ?
     REMOVE_ATTRIBUTE :
     SET_ATTIBUTE
 }

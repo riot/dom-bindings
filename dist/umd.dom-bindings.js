@@ -945,6 +945,24 @@
     VALUE
   };
 
+  /**
+   * Check if a value is a Boolean
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the value is a boolean
+   */
+  function isBoolean(value) {
+    return typeof value === 'boolean'
+  }
+
+  /**
+   * Check if a value is an Object
+   * @param   {*}  value - anything
+   * @returns {boolean} true only for the value is an object
+   */
+  function isObject(value) {
+    return typeof value === 'object'
+  }
+
   const REMOVE_ATTRIBUTE = 'removeAttribute';
   const SET_ATTIBUTE = 'setAttribute';
 
@@ -996,7 +1014,7 @@
     }
 
     // handle boolean attributes
-    if (typeof value === 'boolean') {
+    if (isBoolean(value) || isObject(value)) {
       node[name] = value;
     }
 
@@ -1009,7 +1027,7 @@
    * @returns {string} the node attribute modifier method name
    */
   function getMethod(value) {
-    return isNil(value) || value === false || value === '' || typeof value === 'object' ?
+    return isNil(value) || value === false || value === '' || isObject(value) ?
       REMOVE_ATTRIBUTE :
       SET_ATTIBUTE
   }
@@ -1399,7 +1417,7 @@
   }
 
   // for svg nodes we need a bit more work
-  function creteSVGTree(html, container) {
+  function createSVGTree(html, container) {
     // create the SVGNode
     const svgNode = container.ownerDocument.importNode(
       new window.DOMParser()
@@ -1421,7 +1439,7 @@
    * @returns {HTMLDocumentFragment|HTMLElement} a new html fragment
    */
   function createDOMTree(root, html) {
-    if (isSvg(root)) return creteSVGTree(html, root)
+    if (isSvg(root)) return createSVGTree(html, root)
 
     return createHTMLTree(html, root)
   }

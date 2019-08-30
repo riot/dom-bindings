@@ -113,4 +113,18 @@ describe('attribute specs', () => {
 
     expect(p.hasAttribute('class')).to.be.ok
   })
+
+  it('object attributes will be set as DOM properties', () => {
+    const target = document.createElement('div')
+    template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'foo', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: { bar: 'bar' }})
+
+    const p = target.querySelector('p')
+
+    expect(p.foo.bar).to.be.equal('bar')
+  })
 })
