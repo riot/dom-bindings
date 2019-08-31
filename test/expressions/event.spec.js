@@ -39,4 +39,25 @@ describe('event specs', () => {
 
     expect(spy).to.have.been.calledOnce
   })
+
+  it('custom DOM events can be dispatched', () => {
+    const spy = sinon.spy()
+    const target = document.createElement('div')
+    const el = template('<button expr0/>Click me</button>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.EVENT, name: 'onclick', evaluate: scope => scope.callback }
+      ]
+    }]).mount(target, { callback: spy })
+
+    const button = target.querySelector('button')
+
+    fireEvent(button, 'click')
+
+    el.update({ callback: null })
+
+    fireEvent(button, 'click')
+
+    expect(spy).to.have.been.calledOnce
+  })
 })

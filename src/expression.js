@@ -1,3 +1,5 @@
+
+import {EVENT} from './expressions/expression-types'
 import expressions from './expressions'
 
 export const Expression = Object.seal({
@@ -42,6 +44,9 @@ export const Expression = Object.seal({
    * @returns {Expression} self
    */
   unmount() {
+    // unmount only the event handling expressions
+    if (this.type === EVENT) apply(this, null)
+
     return this
   }
 })
