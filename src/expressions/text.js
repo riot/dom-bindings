@@ -1,3 +1,4 @@
+import isNil from '../util/is-nil'
 /**
  * This methods handles a simple text expression update
  * @param   {HTMLElement} node - target node
@@ -25,5 +26,5 @@ export default function textExpression(node, { childNodeIndex }, value) {
  * @returns {string} hopefully a string
  */
 function normalizeValue(value) {
-  return value != null ? value : ''
+  return isNil(value) ? '' : value
 }

@@ -9,7 +9,9 @@ const base  = {
   },
   plugins: [
     alias({
-      '@ungap/essential-map': 'src/map.js'
+      entries: [{
+        find: '@ungap/essential-map', replacement: 'src/map.js'
+      }]
     }),
     resolve({
       jsnext: true

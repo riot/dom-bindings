@@ -4,5 +4,5 @@
  * @returns {boolean} true only for the 'undefined' and 'null' types
  */
 export default function isNil(value) {
-  return value == null
+  return value === null || value === undefined
 }
