@@ -10,17 +10,16 @@
    * @returns {undefined}
    */
   function cleanNode(node) {
-    clearChildren(node, node.childNodes);
+    clearChildren(node.childNodes);
   }
 
   /**
    * Clear multiple children in a node
-   * @param   {HTMLElement} parent - parent node where the children will be removed
    * @param   {HTMLElement[]} children - direct children nodes
    * @returns {undefined}
    */
-  function clearChildren(parent, children) {
-    Array.from(children).forEach(n => parent.removeChild(n));
+  function clearChildren(children) {
+    Array.from(children).forEach(n => n.parentNode && n.parentNode.removeChild(n));
   }
 
   const EACH = 0;
@@ -899,14 +898,18 @@
       const value = !!this.evaluate(scope);
       const mustMount = !this.value && value;
       const mustUnmount = this.value && !value;
+      const mount = () => {
+        const pristine = this.node.cloneNode();
+
+        this.parent.insertBefore(pristine, this.placeholder);
+
+        this.template = this.template.clone();
+        this.template.mount(pristine, scope, parentScope);
+      };
 
       switch (true) {
       case mustMount:
-        this.parent.insertBefore(this.node, this.placeholder);
-
-        this.template = this.template.clone();
-        this.template.mount(this.node, scope, parentScope);
-
+        mount();
         break
       case mustUnmount:
         this.unmount(scope);
@@ -1607,16 +1610,23 @@
       if (this.el) {
         this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot));
 
-        if (mustRemoveRoot && this.el.parentNode) {
-          this.el.parentNode.removeChild(this.el);
-        }
+        switch (true) {
+        // <template> tags should be treated a bit differently
+        // we need to clear their children only if it's explicitly required by the caller
+        // via mustRemoveRoot !== null
+        case this.isTemplateTag === true && mustRemoveRoot !== null:
+          clearChildren(this.children);
+          break
 
-        if (mustRemoveRoot !== null) {
-          if (this.children) {
-            clearChildren(this.children[0].parentNode, this.children);
-          } else {
-            cleanNode(this.el);
-          }
+        // remove the root node only if the mustRemoveRoot === true
+        case mustRemoveRoot === true && this.el.parentNode !== null:
+          this.el.parentNode.removeChild(this.el);
+          break
+
+        // otherwise we clean the node children
+        case mustRemoveRoot !== null:
+          cleanNode(this.el);
+          break
         }
 
         this.el = null;

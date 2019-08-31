@@ -193,4 +193,75 @@ describe('core specs', () => {
 
     el.unmount()
   })
+
+  it('Nested template fragments could be created properly with each directives', () => {
+    const target = document.createElement('div')
+
+    const el = template('<h1>Title</h1><template expr0/>', [{
+      selector: '[expr0]',
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      evaluate: scope => scope.items,
+      template: template('<h2 expr0><!----></h2><template expr1>', [{
+        selector: '[expr0]',
+        redundantAttribute: 'expr0',
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.val.text
+          }
+        ]
+      }, {
+        selector: '[expr1]',
+        type: bindingTypes.EACH,
+        itemName: 'val',
+        evaluate: scope => scope.val.children,
+        template: template('<h3 expr2><!----></h3>', [{
+          selector: '[expr2]',
+          redundantAttribute: 'expr2',
+          expressions: [
+            {
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: scope => scope.val.text
+            }
+          ]
+        }])
+      }])
+    }]).mount(target, {
+      items: [{
+        text: 'foo',
+        children: [{
+          text: 'bar'
+        }]
+      }, {
+        text: 'buz',
+        children: [{
+          text: 'baz'
+        }]
+      }]
+    })
+
+    expect(target.querySelectorAll('h2')).to.have.length(2)
+    expect(target.querySelectorAll('h3')).to.have.length(2)
+    expect(target.querySelector('template')).to.be.not.ok
+
+    el.update({
+      items: [{
+        text: 'foo'
+      }, {
+        text: 'buz',
+        children: [{
+          text: 'baz'
+        }]
+      }]
+    })
+
+    expect(target.querySelectorAll('h2')).to.have.length(2)
+    expect(target.querySelectorAll('h3')).to.have.length(1)
+    expect(target.querySelector('template')).to.be.not.ok
+
+    el.unmount()
+  })
 })

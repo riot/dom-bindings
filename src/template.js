@@ -112,16 +112,23 @@ export const TemplateChunk = Object.freeze({
     if (this.el) {
       this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot))
 
-      if (mustRemoveRoot && this.el.parentNode) {
-        this.el.parentNode.removeChild(this.el)
-      }
+      switch (true) {
+      // <template> tags should be treated a bit differently
+      // we need to clear their children only if it's explicitly required by the caller
+      // via mustRemoveRoot !== null
+      case this.isTemplateTag === true && mustRemoveRoot !== null:
+        clearChildren(this.children)
+        break
 
-      if (mustRemoveRoot !== null) {
-        if (this.children) {
-          clearChildren(this.children[0].parentNode, this.children)
-        } else {
-          cleanNode(this.el)
-        }
+      // remove the root node only if the mustRemoveRoot === true
+      case mustRemoveRoot === true && this.el.parentNode !== null:
+        this.el.parentNode.removeChild(this.el)
+        break
+
+      // otherwise we clean the node children
+      case mustRemoveRoot !== null:
+        cleanNode(this.el)
+        break
       }
 
       this.el = null

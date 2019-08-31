@@ -21,14 +21,18 @@ export const IfBinding = Object.seal({
     const value = !!this.evaluate(scope)
     const mustMount = !this.value && value
     const mustUnmount = this.value && !value
+    const mount = () => {
+      const pristine = this.node.cloneNode()
+
+      this.parent.insertBefore(pristine, this.placeholder)
+
+      this.template = this.template.clone()
+      this.template.mount(pristine, scope, parentScope)
+    }
 
     switch (true) {
     case mustMount:
-      this.parent.insertBefore(this.node, this.placeholder)
-
-      this.template = this.template.clone()
-      this.template.mount(this.node, scope, parentScope)
-
+      mount()
       break
     case mustUnmount:
       this.unmount(scope)
