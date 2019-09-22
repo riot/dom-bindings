@@ -63,8 +63,12 @@ export const TemplateChunk = Object.freeze({
     // <template> bindings of course can not have a root element
     // so we check the parent node to set the query selector bindings
     const {parentNode} = children ? children[0] : el
-
-    this.isTemplateTag = isTemplate(el)
+    const isTemplateTag = isTemplate(el)
+    const templateTagOffset = isTemplateTag ? Math.max(
+      Array.from(parentNode.children).indexOf(el),
+      0
+    ) : null
+    this.isTemplateTag = isTemplateTag
 
     // create the DOM if it wasn't created before
     this.createDOM(el)
@@ -84,7 +88,11 @@ export const TemplateChunk = Object.freeze({
     if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment)
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => createBinding(this.el, binding))
+    this.bindings = this.bindingsData.map(binding => createBinding(
+      this.el,
+      binding,
+      templateTagOffset
+    ))
     this.bindings.forEach(b => b.mount(scope, parentScope))
 
     return this

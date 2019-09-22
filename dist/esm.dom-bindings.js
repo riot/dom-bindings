@@ -30,6 +30,18 @@ var bindingTypes = {
   SLOT
 };
 
+const ATTRIBUTE = 0;
+const EVENT = 1;
+const TEXT = 2;
+const VALUE = 3;
+
+var expressionTypes = {
+  ATTRIBUTE,
+  EVENT,
+  TEXT,
+  VALUE
+};
+
 /**
  * Create the template meta object in case of <template> fragments
  * @param   {TemplateChunk} componentTemplate - template chunk object
@@ -945,18 +957,6 @@ function create$1(node, { evaluate, template }) {
   }
 }
 
-const ATTRIBUTE = 0;
-const EVENT = 1;
-const TEXT = 2;
-const VALUE = 3;
-
-var expressionTypes = {
-  ATTRIBUTE,
-  EVENT,
-  TEXT,
-  VALUE
-};
-
 /**
  * Check if a value is a Boolean
  * @param   {*}  value - anything
@@ -1404,24 +1404,41 @@ var bindings = {
 };
 
 /**
+ * Text expressions in a template tag will get childNodeIndex value normalized
+ * depending on the position of the <template> tag offset
+ * @param   {Expression[]} expressions - riot expressions array
+ * @param   {number} textExpressionsOffset - offset of the <template> tag
+ * @returns {Expression[]} expressions containing the text expressions normalized
+ */
+function fixTextExpressionsOffset(expressions, textExpressionsOffset) {
+  return expressions.map(e => e.type === TEXT ? {
+    ...e,
+    childNodeIndex: e.childNodeIndex + textExpressionsOffset
+  } : e)
+}
+
+/**
  * Bind a new expression object to a DOM node
  * @param   {HTMLElement} root - DOM node where to bind the expression
  * @param   {Object} binding - binding data
+ * @param   {number|null} templateTagOffset - if it's defined we need to fix the text expressions childNodeIndex offset
  * @returns {Expression} Expression object
  */
-function create$5(root, binding) {
+function create$5(root, binding, templateTagOffset) {
   const { selector, type, redundantAttribute, expressions } = binding;
   // find the node to apply the bindings
   const node = selector ? root.querySelector(selector) : root;
   // remove eventually additional attributes created only to select this node
   if (redundantAttribute) node.removeAttribute(redundantAttribute);
-
+  const bindingExpressions = expressions || [];
   // init the binding
   return (bindings[type] || bindings[SIMPLE])(
     node,
     {
       ...binding,
-      expressions: expressions || []
+      expressions: templateTagOffset && !selector ?
+        fixTextExpressionsOffset(bindingExpressions, templateTagOffset) :
+        bindingExpressions
     }
   )
 }
@@ -1566,8 +1583,12 @@ const TemplateChunk = Object.freeze({
     // <template> bindings of course can not have a root element
     // so we check the parent node to set the query selector bindings
     const {parentNode} = children ? children[0] : el;
-
-    this.isTemplateTag = isTemplate(el);
+    const isTemplateTag = isTemplate(el);
+    const templateTagOffset = isTemplateTag ? Math.max(
+      Array.from(parentNode.children).indexOf(el),
+      0
+    ) : null;
+    this.isTemplateTag = isTemplateTag;
 
     // create the DOM if it wasn't created before
     this.createDOM(el);
@@ -1587,7 +1608,11 @@ const TemplateChunk = Object.freeze({
     if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment);
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => create$5(this.el, binding));
+    this.bindings = this.bindingsData.map(binding => create$5(
+      this.el,
+      binding,
+      templateTagOffset
+    ));
     this.bindings.forEach(b => b.mount(scope, parentScope));
 
     return this

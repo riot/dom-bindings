@@ -155,6 +155,44 @@ describe('core specs', () => {
     el.unmount()
   })
 
+  it('Template fragments work also with text nodes', () => {
+    const target = document.createElement('div')
+
+    const el = template('<h1>Title</h1><template expr0/>', [{
+      selector: '[expr0]',
+      type: bindingTypes.IF,
+      redundantAttribute: 'expr0',
+      evaluate: (scope) => scope.isVisible,
+      template: template(' ', [{
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }
+        ]
+      }])
+    }]).mount(target, {
+      text: 'hello',
+      isVisible: true
+    })
+
+    expect(target.childNodes).to.have.length(3)
+    expect(target.querySelector('template')).to.be.not.ok
+    expect(target.querySelector('h1')).to.be.ok
+    expect(target.textContent).to.be.equal('Titlehello')
+
+    el.update({
+      isVisible: false
+    })
+
+    expect(target.childNodes).to.have.length(2)
+    expect(target.querySelector('template')).to.be.not.ok
+    expect(target.querySelector('h1')).to.be.ok
+
+    el.unmount()
+  })
+
   it('Template fragments could be created properly with each directives', () => {
     const target = document.createElement('div')
 
