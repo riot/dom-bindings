@@ -1,5 +1,5 @@
 
-import {EVENT} from './expressions/expression-types'
+import {EVENT} from '@riotjs/util/expression-types'
 import expressions from './expressions'
 
 export const Expression = Object.seal({

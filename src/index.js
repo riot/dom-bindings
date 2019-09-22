@@ -77,10 +77,10 @@ export { default as createExpression } from './expression'
  * Object containing all the binding types
  * @type {Object}
  */
-export { default as bindingTypes } from './bindings/binding-types'
+export { default as bindingTypes } from '@riotjs/util/binding-types'
 
 /**
  * Object containing all the expression types
  * @type {Object}
  */
-export { default as expressionTypes } from './expressions/expression-types'
+export { default as expressionTypes } from '@riotjs/util/expression-types'

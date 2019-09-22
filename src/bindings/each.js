@@ -1,6 +1,6 @@
 import createTemplateMeta from '../util/create-template-meta'
 import domdiff from 'domdiff'
-import isTemplate from '../util/is-template'
+import {isTemplate} from '@riotjs/util/checks'
 
 export const EachBinding = Object.seal({
   // dynamic binding properties

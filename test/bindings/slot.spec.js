@@ -20,6 +20,49 @@ describe('slot bindings', () => {
     el.unmount()
   })
 
+  it('The slots attribute values will be passed to the children scope', () => {
+    const target = document.createElement('div')
+
+    const el = template('<article><slot expr0/></article>', [{
+      type: bindingTypes.SLOT,
+      selector: '[expr0]',
+      name: 'default',
+      attributes: [{
+        name: 'message',
+        evaluate: scope => scope.message
+      }]
+    }]).mount(target, {
+      message: 'hello',
+      slots: [
+        {
+          id: 'default',
+          bindings: [{
+            selector: '[expr1]',
+            expressions: [{
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: scope => scope.message
+            }]
+          }],
+          html: '<p expr1><!----></p>'
+        }
+      ]
+    })
+
+    const p = target.querySelector('p')
+
+    expect(p.textContent).to.be.equal('hello')
+
+    el.update({ message: 'goodbye' })
+
+    expect(p.textContent).to.be.equal('goodbye')
+
+    expect(target.querySelector('slot')).to.be.not.ok
+    expect(p).to.be.ok
+
+    el.unmount({ message: '' })
+  })
+
   it('A default slot binding can be properly mounted', () => {
     const target = document.createElement('div')
 
@@ -120,7 +163,9 @@ describe('slot bindings', () => {
 
     expect(p.textContent).to.be.equal('hello')
 
-    el.update()
+    el.update({}, {
+      text: 'hello'
+    })
 
     expect(p.textContent).to.be.equal('hello')
     expect(target.querySelector('slot')).to.be.not.ok

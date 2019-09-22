@@ -1,4 +1,4 @@
-import isNil from '../util/is-nil'
+import {isNil} from '@riotjs/util/checks'
 /**
  * This methods handles a simple text expression update
  * @param   {HTMLElement} node - target node

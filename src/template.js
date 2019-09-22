@@ -1,8 +1,8 @@
-import cleanNode, { clearChildren } from './util/clean-node'
+import { cleanNode, clearChildren } from '@riotjs/util/dom'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
-import isTemplate from './util/is-template'
+import {isTemplate} from '@riotjs/util/checks'
 
 /**
  * Create the Template DOM skeleton

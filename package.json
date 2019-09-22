@@ -52,6 +52,7 @@
     "sinon-chai": "^3.3.0"
   },
   "dependencies": {
+    "@riotjs/util": "^1.1.0",
     "domdiff": "^2.1.0"
   }
 }

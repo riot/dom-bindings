@@ -1,8 +1,7 @@
+import {isBoolean, isNil, isObject} from '@riotjs/util/checks'
+
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
-import isBoolean from '../util/is-boolean'
-import isNil from '../util/is-nil'
-import isObject from '../util/is-object'
 
 /**
  * Add all the attributes provided

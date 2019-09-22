@@ -1,4 +1,4 @@
-import {ATTRIBUTE, EVENT, TEXT, VALUE} from './expression-types'
+import {ATTRIBUTE, EVENT, TEXT, VALUE} from '@riotjs/util/expression-types'
 import attributeExpression from './attribute'
 import eventExpression from './event'
 import textExpression from './text'

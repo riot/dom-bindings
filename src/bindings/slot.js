@@ -1,10 +1,30 @@
+import {evaluateAttributeExpressions} from '@riotjs/util/misc'
 import template from '../template'
+
+function extendParentScope(attributes, scope, parentScope) {
+  if (!attributes || !attributes.length) return parentScope
+
+  const expressions = attributes.map(attr => ({
+    ...attr,
+    value: attr.evaluate(scope)
+  }))
+
+  return Object.assign(
+    Object.create(parentScope || null),
+    evaluateAttributeExpressions(expressions)
+  )
+}
 
 export const SlotBinding = Object.seal({
   // dynamic binding properties
   node: null,
   name: null,
+  attributes: [],
   template: null,
+
+  getTemplateScope(scope, parentScope) {
+    return extendParentScope(this.attributes, scope, parentScope)
+  },
 
   // API methods
   mount(scope, parentScope) {
@@ -17,7 +37,7 @@ export const SlotBinding = Object.seal({
     ).createDOM(parentNode)
 
     if (this.template) {
-      this.template.mount(this.node, parentScope)
+      this.template.mount(this.node, this.getTemplateScope(scope, parentScope))
       moveSlotInnerContent(this.node)
     }
 
@@ -26,15 +46,15 @@ export const SlotBinding = Object.seal({
     return this
   },
   update(scope, parentScope) {
-    if (this.template && parentScope) {
-      this.template.update(parentScope)
+    if (this.template) {
+      this.template.update(this.getTemplateScope(scope, parentScope))
     }
 
     return this
   },
   unmount(scope, parentScope, mustRemoveRoot) {
     if (this.template) {
-      this.template.unmount(parentScope, null, mustRemoveRoot)
+      this.template.unmount(this.getTemplateScope(scope, parentScope), null, mustRemoveRoot)
     }
 
     return this
@@ -59,9 +79,10 @@ function moveSlotInnerContent(slot) {
  * @param   {string} options.name - slot id
  * @returns {Object} Slot binding object
  */
-export default function createSlot(node, { name }) {
+export default function createSlot(node, { name, attributes }) {
   return {
     ...SlotBinding,
+    attributes,
     node,
     name
   }
