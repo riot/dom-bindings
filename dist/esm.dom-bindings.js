@@ -126,14 +126,8 @@ const next = (get, list, i, length, before) => i < length ?
                 before);
 
 const remove = (get, parent, children, start, end) => {
-  if ((end - start) < 2)
-    parent.removeChild(get(children[start], -1));
-  else {
-    const range = parent.ownerDocument.createRange();
-    range.setStartBefore(get(children[start], -1));
-    range.setEndAfter(get(children[end - 1], -1));
-    range.deleteContents();
-  }
+  while (start < end)
+    removeChild(get(children[start++], -1), parent);
 };
 
 // - - - - - - - - - - - - - - - - - - -
@@ -422,6 +416,23 @@ const smartDiff = (
     currentLength,
     before
   );
+};
+
+let removeChild = (child, parentNode) => {
+  /* istanbul ignore if */
+  if ('remove' in child) {
+    removeChild = child => {
+      child.remove();
+    };
+  }
+  else {
+    removeChild = (child, parentNode) => {
+      /* istanbul ignore else */
+      if (child.parentNode === parentNode)
+        parentNode.removeChild(child);
+    };
+  }
+  removeChild(child, parentNode);
 };
 
 /*! (c) 2018 Andrea Giammarchi (ISC) */
