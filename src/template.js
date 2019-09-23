@@ -124,7 +124,7 @@ export const TemplateChunk = Object.freeze({
       // <template> tags should be treated a bit differently
       // we need to clear their children only if it's explicitly required by the caller
       // via mustRemoveRoot !== null
-      case this.isTemplateTag === true && mustRemoveRoot !== null:
+      case this.children && mustRemoveRoot !== null:
         clearChildren(this.children)
         break
 

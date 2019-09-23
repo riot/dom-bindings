@@ -38,7 +38,7 @@ export const SlotBinding = Object.seal({
 
     if (this.template) {
       this.template.mount(this.node, this.getTemplateScope(scope, parentScope))
-      moveSlotInnerContent(this.node)
+      this.template.children = moveSlotInnerContent(this.node)
     }
 
     parentNode.removeChild(this.node)
@@ -64,13 +64,17 @@ export const SlotBinding = Object.seal({
 /**
  * Move the inner content of the slots outside of them
  * @param   {HTMLNode} slot - slot node
- * @returns {undefined} it's a void function
+ * @param   {HTMLElement} children - array to fill with the child nodes detected
+ * @returns {HTMLElement[]} list of the node moved
  */
-function moveSlotInnerContent(slot) {
-  if (slot.firstChild) {
-    slot.parentNode.insertBefore(slot.firstChild, slot)
-    moveSlotInnerContent(slot)
+function moveSlotInnerContent(slot, children = []) {
+  const child = slot.firstChild
+  if (child) {
+    slot.parentNode.insertBefore(child, slot)
+    return [child, ...moveSlotInnerContent(slot)]
   }
+
+  return children
 }
 
 /**

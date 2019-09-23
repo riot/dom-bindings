@@ -101,6 +101,55 @@ describe('slot bindings', () => {
     el.unmount()
   })
 
+  it('Text Slot in a conditional <template> will be properly mounted and unmounted', () => {
+    const target = document.createElement('div')
+
+    const slots = [
+      {
+        id: 'default',
+        bindings: [{
+          expressions: [{
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }]
+        }],
+        html: '<!---->'
+      }
+    ]
+
+    const el = template('<p><template></template></p>', [{
+      selector: 'template',
+      type: bindingTypes.IF,
+      evaluate: scope => scope.isVisible,
+      template: template('<slot/>', [{
+        type: bindingTypes.SLOT,
+        selector: 'slot',
+        name: 'default'
+      }])
+    }]).mount(target, {
+      slots,
+      isVisible: false
+    })
+
+
+    expect(target.querySelector('p').textContent).to.be.equal('')
+
+    el.update({ slots, isVisible: true }, { text: 'hello' })
+
+    expect(target.querySelector('p').textContent).to.be.equal('hello')
+
+    el.update({ slots, isVisible: false })
+
+    expect(target.querySelector('p').textContent).to.be.equal('')
+
+    el.update({ slots, isVisible: true }, { text: 'hello' })
+
+    expect(target.querySelector('p').textContent).to.be.equal('hello')
+
+    el.unmount()
+  })
+
   it('A named slot binding can be properly mounted', () => {
     const target = document.createElement('div')
 
