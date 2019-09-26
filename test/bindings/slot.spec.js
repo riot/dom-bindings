@@ -63,6 +63,39 @@ describe('slot bindings', () => {
     el.unmount({ message: '' })
   })
 
+  it('The parent scope will be cached', () => {
+    const target = document.createElement('div')
+
+    const el = template('<article><slot expr0/></article>', [{
+      type: bindingTypes.SLOT,
+      selector: '[expr0]',
+      name: 'default'
+    }]).mount(target, {
+      slots: [
+        {
+          id: 'default',
+          bindings: [{
+            selector: '[expr1]',
+            expressions: [{
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: scope => scope.message
+            }]
+          }],
+          html: '<p expr1><!----></p>'
+        }
+      ]
+    }, { message: 'hello' })
+
+    const p = target.querySelector('p')
+
+    expect(p.textContent).to.be.equal('hello')
+
+    expect(() => el.update()).to.not.throw()
+
+    el.unmount()
+  })
+
   it('A default slot binding can be properly mounted', () => {
     const target = document.createElement('div')
 

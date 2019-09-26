@@ -21,9 +21,12 @@ export const SlotBinding = Object.seal({
   name: null,
   attributes: [],
   template: null,
+  cachedParentScope: null,
 
   getTemplateScope(scope, parentScope) {
-    return extendParentScope(this.attributes, scope, parentScope)
+    // cache the parent scope to avoid this issue https://github.com/riot/riot/issues/2762
+    this.cachedParentScope = parentScope || this.cachedParentScope
+    return extendParentScope(this.attributes, scope, this.cachedParentScope)
   },
 
   // API methods
