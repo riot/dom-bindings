@@ -40,10 +40,7 @@ export const SlotBinding = Object.seal({
     ).createDOM(parentNode)
 
     if (this.template) {
-      this.template.mount(this.node,
-        this.getTemplateScope(scope, parentScope),
-        parentScope
-      )
+      this.template.mount(this.node, this.getTemplateScope(scope, parentScope))
       this.template.children = moveSlotInnerContent(this.node)
     }
 
@@ -53,10 +50,7 @@ export const SlotBinding = Object.seal({
   },
   update(scope, parentScope) {
     if (this.template) {
-      this.template.update(
-        this.getTemplateScope(scope, parentScope),
-        parentScope
-      )
+      this.template.update(this.getTemplateScope(scope, parentScope))
     }
 
     return this
