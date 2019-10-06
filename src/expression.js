@@ -4,8 +4,8 @@ import expressions from './expressions'
 
 export const Expression = Object.seal({
   // Static props
-  node: null,
-  value: null,
+  // node: null,
+  // value: null,
 
   // API methods
   /**

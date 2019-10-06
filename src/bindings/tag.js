@@ -54,13 +54,13 @@ function slotsToMarkup(slots) {
 
 export const TagBinding = Object.seal({
   // dynamic binding properties
-  node: null,
-  evaluate: null,
-  name: null,
-  slots: null,
-  tag: null,
-  attributes: null,
-  getComponent: null,
+  // node: null,
+  // evaluate: null,
+  // name: null,
+  // slots: null,
+  // tag: null,
+  // attributes: null,
+  // getComponent: null,
 
   mount(scope) {
     return this.update(scope)

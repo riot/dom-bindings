@@ -4,19 +4,19 @@ import {isTemplate} from '@riotjs/util/checks'
 
 export const EachBinding = Object.seal({
   // dynamic binding properties
-  childrenMap: null,
-  node: null,
-  root: null,
-  condition: null,
-  evaluate: null,
-  template: null,
-  isTemplateTag: false,
+  // childrenMap: null,
+  // node: null,
+  // root: null,
+  // condition: null,
+  // evaluate: null,
+  // template: null,
+  // isTemplateTag: false,
   nodes: [],
-  getKey: null,
-  indexName: null,
-  itemName: null,
-  afterPlaceholder: null,
-  placeholder: null,
+  // getKey: null,
+  // indexName: null,
+  // itemName: null,
+  // afterPlaceholder: null,
+  // placeholder: null,
 
   // API methods
   mount(scope, parentScope) {

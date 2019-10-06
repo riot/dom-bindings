@@ -22,14 +22,14 @@ function createTemplateDOM(el, html) {
  */
 export const TemplateChunk = Object.freeze({
   // Static props
-  bindings: null,
-  bindingsData: null,
-  html: null,
-  isTemplateTag: false,
-  fragment: null,
-  children: null,
-  dom: null,
-  el: null,
+  // bindings: null,
+  // bindingsData: null,
+  // html: null,
+  // isTemplateTag: false,
+  // fragment: null,
+  // children: null,
+  // dom: null,
+  // el: null,
 
   /**
    * Create the template DOM structure that will be cloned on each mount

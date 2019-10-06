@@ -17,16 +17,13 @@ function extendParentScope(attributes, scope, parentScope) {
 
 export const SlotBinding = Object.seal({
   // dynamic binding properties
-  node: null,
-  name: null,
+  // node: null,
+  // name: null,
   attributes: [],
-  template: null,
-  cachedParentScope: null,
+  // template: null,
 
   getTemplateScope(scope, parentScope) {
-    // cache the parent scope to avoid this issue https://github.com/riot/riot/issues/2762
-    this.cachedParentScope = parentScope || this.cachedParentScope
-    return extendParentScope(this.attributes, scope, this.cachedParentScope)
+    return extendParentScope(this.attributes, scope, parentScope)
   },
 
   // API methods

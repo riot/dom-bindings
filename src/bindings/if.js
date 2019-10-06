@@ -3,12 +3,12 @@
  */
 export const IfBinding = Object.seal({
   // dynamic binding properties
-  node: null,
-  evaluate: null,
-  parent: null,
-  isTemplateTag: false,
-  placeholder: null,
-  template: null,
+  // node: null,
+  // evaluate: null,
+  // parent: null,
+  // isTemplateTag: false,
+  // placeholder: null,
+  // template: null,
 
   // API methods
   mount(scope, parentScope) {
