@@ -1,6 +1,7 @@
 
-import {EVENT} from '@riotjs/util/expression-types'
+import {EVENT, TEXT} from '@riotjs/util/expression-types'
 import expressions from './expressions'
+import {getTextNode} from './expressions/text'
 
 export const Expression = Object.seal({
   // Static props
@@ -65,6 +66,8 @@ export default function create(node, data) {
   return {
     ...Expression,
     ...data,
-    node
+    node: data.type === TEXT ?
+      getTextNode(node, data.childNodeIndex) :
+      node
   }
 }

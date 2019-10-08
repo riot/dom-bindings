@@ -19,6 +19,4 @@ export default function eventExpression(node, { name }, value, oldValue) {
   if (value) {
     node.addEventListener(normalizedEventName, value, false)
   }
-
-  return value
 }
