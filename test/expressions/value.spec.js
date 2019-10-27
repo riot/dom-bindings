@@ -35,4 +35,19 @@ describe('value specs', () => {
     expect(textarea.value).to.be.equal('world')
     expect(textarea.getAttribute('value')).to.be.not.ok
   })
+
+  it('undefined values should render clean strings', () => {
+    const target = document.createElement('div')
+    template('<input expr0/>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.VALUE, evaluate: scope => scope.val }
+      ]
+    }]).mount(target, { val: undefined })
+
+    const input = target.querySelector('input')
+
+    expect(input.value).to.be.equal('')
+    expect(input.getAttribute('value')).to.be.not.ok
+  })
 })

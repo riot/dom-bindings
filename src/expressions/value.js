@@ -1,3 +1,4 @@
+import normalizeStringValue from '../util/normalize-string-value'
 /**
  * This methods handles the input fileds value updates
  * @param   {HTMLElement} node - target node
@@ -6,5 +7,5 @@
  * @returns {undefined}
  */
 export default function valueExpression(node, expression, value) {
-  node.value = value
+  node.value = normalizeStringValue(value)
 }

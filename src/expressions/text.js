@@ -1,4 +1,4 @@
-import {isNil} from '@riotjs/util/checks'
+import normalizeStringValue from '../util/normalize-string-value'
 
 /**
  * Get the the target text node to update or create one from of a comment node
@@ -27,14 +27,5 @@ export const getTextNode = (node, childNodeIndex) => {
  * @returns {undefined}
  */
 export default function textExpression(node, data, value) {
-  node.data = normalizeValue(value)
-}
-
-/**
- * Normalize the user value in order to render a empty string in case of falsy values
- * @param   {*} value - user input value
- * @returns {string} hopefully a string
- */
-function normalizeValue(value) {
-  return isNil(value) ? '' : value
+  node.data = normalizeStringValue(value)
 }
