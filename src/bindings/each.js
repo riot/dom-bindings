@@ -91,14 +91,12 @@ function patch(redundant, parentScope) {
  * Unmount the remaining template instances
  * @param   {Map} childrenMap - map containing the children template to unmount
  * @param   {*} parentScope - scope of the parent template
- * @returns {TemplateChunk[]} collection containing the template chunks unmounted
+ * @returns {undefined} IO function
  */
 function unmountRedundant(childrenMap, parentScope) {
-  return Array
-    .from(childrenMap.values())
-    .map(({template, context}) => {
-      return template.unmount(context, parentScope, true)
-    })
+  childrenMap.forEach(({template, context}) => {
+    template.unmount(context, parentScope, true)
+  })
 }
 
 /**
