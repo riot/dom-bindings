@@ -158,7 +158,7 @@ function createPatch(items, scope, parentScope, binding) {
     if (mustMount) {
       batches.push(() => componentTemplate.mount(el, context, parentScope, meta))
     } else {
-      componentTemplate.update(context, parentScope)
+      batches.push(() => componentTemplate.update(context, parentScope))
     }
 
     // create the collection of nodes to update or to add

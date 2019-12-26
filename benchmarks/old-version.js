@@ -2,7 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
   (global = global || self, factory(global.riotDOMBindings = {}));
-}(this, function (exports) { 'use strict';
+}(this, (function (exports) { 'use strict';
 
   /**
    * Convert a string from camel case to dash-case
@@ -93,8 +93,6 @@
     }
   }
 
-  /* get rid of the @ungap/essential-map polyfill */
-
   const {indexOf: iOF} = [];
   const append = (get, parent, children, start, end, before) => {
     const isSelect = 'selectedIndex' in parent;
@@ -173,9 +171,9 @@
                   get(list[i - 1], -0).nextSibling :
                   before);
 
-  const remove = (get, parent, children, start, end) => {
+  const remove = (get, children, start, end) => {
     while (start < end)
-      removeChild(get(children[start++], -1), parent);
+      drop(get(children[start++], -1));
   };
 
   // - - - - - - - - - - - - - - - - - - -
@@ -208,13 +206,12 @@
     for (let i = 1; i < minLen; i++)
       tresh[i] = currentEnd;
 
-    const keymap = new Map;
-    for (let i = currentStart; i < currentEnd; i++)
-      keymap.set(currentNodes[i], i);
+    const nodes = currentNodes.slice(currentStart, currentEnd);
 
     for (let i = futureStart; i < futureEnd; i++) {
-      const idxInOld = keymap.get(futureNodes[i]);
-      if (idxInOld != null) {
+      const index = nodes.indexOf(futureNodes[i]);
+      if (-1 < index) {
+        const idxInOld = index + currentStart;
         k = findK(tresh, minLen, idxInOld);
         /* istanbul ignore else */
         if (-1 < k) {
@@ -355,7 +352,7 @@
     currentLength,
     before
   ) => {
-    const live = new Map;
+    const live = [];
     const length = diff.length;
     let currentIndex = currentStart;
     let i = 0;
@@ -367,7 +364,7 @@
           break;
         case INSERTION:
           // TODO: bulk appends for sequential nodes
-          live.set(futureNodes[futureStart], 1);
+          live.push(futureNodes[futureStart]);
           append(
             get,
             parentNode,
@@ -392,12 +389,11 @@
           break;
         case DELETION:
           // TODO: bulk removes for sequential nodes
-          if (live.has(currentNodes[currentStart]))
+          if (-1 < live.indexOf(currentNodes[currentStart]))
             currentStart++;
           else
             remove(
               get,
-              parentNode,
               currentNodes,
               currentStart++,
               currentStart
@@ -466,22 +462,14 @@
     );
   };
 
-  let removeChild = (child, parentNode) => {
-    /* istanbul ignore if */
-    if ('remove' in child) {
-      removeChild = child => {
-        child.remove();
-      };
-    }
-    else {
-      removeChild = (child, parentNode) => {
-        /* istanbul ignore else */
-        if (child.parentNode === parentNode)
-          parentNode.removeChild(child);
-      };
-    }
-    removeChild(child, parentNode);
-  };
+  const drop = node => (node.remove || dropChild).call(node);
+
+  function dropChild() {
+    const {parentNode} = this;
+    /* istanbul ignore else */
+    if (parentNode)
+      parentNode.removeChild(this);
+  }
 
   /*! (c) 2018 Andrea Giammarchi (ISC) */
 
@@ -552,7 +540,6 @@
     if (futureSame && currentStart < currentEnd) {
       remove(
         get,
-        parentNode,
         currentNodes,
         currentStart,
         currentEnd
@@ -611,14 +598,12 @@
       if (-1 < i) {
         remove(
           get,
-          parentNode,
           currentNodes,
           currentStart,
           i
         );
         remove(
           get,
-          parentNode,
           currentNodes,
           i + futureChanges,
           currentEnd
@@ -641,7 +626,6 @@
       );
       remove(
         get,
-        parentNode,
         currentNodes,
         currentStart,
         currentEnd
@@ -1135,29 +1119,6 @@
     if (value) {
       node.addEventListener(normalizedEventName, value, false);
     }
-
-    return value
-  }
-
-  /**
-   * This methods handles a simple text expression update
-   * @param   {HTMLElement} node - target node
-   * @param   {Object} expression - expression object
-   * @param   {number} expression.childNodeIndex - index to find the text node to update
-   * @param   {*} value - new expression value
-   * @returns {undefined}
-   */
-  function textExpression(node, { childNodeIndex }, value) {
-    const target = node.childNodes[childNodeIndex];
-    const val = normalizeValue$1(value);
-
-    // replace the target if it's a placeholder comment
-    if (target.nodeType === Node.COMMENT_NODE) {
-      const textNode = document.createTextNode(val);
-      node.replaceChild(textNode, target);
-    } else {
-      target.data = normalizeValue$1(val);
-    }
   }
 
   /**
@@ -1165,8 +1126,38 @@
    * @param   {*} value - user input value
    * @returns {string} hopefully a string
    */
-  function normalizeValue$1(value) {
+  function normalizeStringValue(value) {
     return isNil(value) ? '' : value
+  }
+
+  /**
+   * Get the the target text node to update or create one from of a comment node
+   * @param   {HTMLElement} node - any html element containing childNodes
+   * @param   {number} childNodeIndex - index of the text node in the childNodes list
+   * @returns {HTMLTextNode} the text node to update
+   */
+  const getTextNode = (node, childNodeIndex) => {
+    const target = node.childNodes[childNodeIndex];
+
+    if (target.nodeType === Node.COMMENT_NODE) {
+      const textNode = document.createTextNode('');
+      node.replaceChild(textNode, target);
+
+      return textNode
+    }
+
+    return target
+  };
+
+  /**
+   * This methods handles a simple text expression update
+   * @param   {HTMLElement} node - target node
+   * @param   {Object} data - expression object
+   * @param   {*} value - new expression value
+   * @returns {undefined}
+   */
+  function textExpression(node, data, value) {
+    node.data = normalizeStringValue(value);
   }
 
   /**
@@ -1177,7 +1168,7 @@
    * @returns {undefined}
    */
   function valueExpression(node, expression, value) {
-    node.value = value;
+    node.value = normalizeStringValue(value);
   }
 
   var expressions = {
@@ -1250,7 +1241,9 @@
     return {
       ...Expression,
       ...data,
-      node
+      node: data.type === TEXT ?
+        getTextNode(node, data.childNodeIndex) :
+        node
     }
   }
 
@@ -1781,4 +1774,4 @@
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
-}));
+})));
