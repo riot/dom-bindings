@@ -21,7 +21,7 @@ function fixTextExpressionsOffset(expressions, textExpressionsOffset) {
  * @param   {HTMLElement} root - DOM node where to bind the expression
  * @param   {Object} binding - binding data
  * @param   {number|null} templateTagOffset - if it's defined we need to fix the text expressions childNodeIndex offset
- * @returns {Expression} Expression object
+ * @returns {Binding} Binding object
  */
 export default function create(root, binding, templateTagOffset) {
   const { selector, type, redundantAttribute, expressions } = binding

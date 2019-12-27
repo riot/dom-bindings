@@ -5,6 +5,7 @@
   "main": "dist/umd.dom-bindings.js",
   "jsnext:main": "dist/esm.dom-bindings.js",
   "module": "dist/esm.dom-bindings.js",
+  "types": "./dom-bindings.d.ts",
   "scripts": {
     "lint": "eslint src/ test/ rollup.config.js",
     "cov": "nyc report --reporter=text-lcov | coveralls",
@@ -14,10 +15,12 @@
     "postest": "npm run cov-html",
     "bench": "node benchmarks",
     "test": "npm run lint && nyc mocha -r esm test/index.js",
+    "test-typing": "tsc -p test",
     "test-debug": "mocha -r esm --inspect --inspect-brk test/index.js",
     "prepublishOnly": "npm test"
   },
   "files": [
+    "dom-bindings.d.ts",
     "dist"
   ],
   "repository": {
@@ -49,7 +52,8 @@
     "rollup-plugin-alias": "^2.2.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "sinon": "^8.0.1",
-    "sinon-chai": "^3.4.0"
+    "sinon-chai": "^3.4.0",
+    "typescript": "^3.7.4"
   },
   "dependencies": {
     "@riotjs/util": "^1.1.0",
