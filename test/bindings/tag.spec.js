@@ -204,7 +204,7 @@ describe('tag bindings', () => {
     expect(spy).to.have.been.calledTwice
   })
 
-  it('custom tags can be properly unmounted in each bindings', () => {
+  it('shouldRemoveRoot should always be null for each directives', () => {
     const target = document.createElement('div')
     const components = {
       'my-tag': function({ slots, attributes }) {
@@ -215,11 +215,7 @@ describe('tag bindings', () => {
           mount() {},
           update() {},
           unmount(shouldRemoveRoot) {
-            if (components.isInactive) {
-              expect(shouldRemoveRoot).to.be.equal(true)
-            } else {
-              expect(shouldRemoveRoot).to.be.equal(null)
-            }
+            expect(shouldRemoveRoot).to.be.equal(null)
           }
         }
       }

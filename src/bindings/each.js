@@ -2,6 +2,8 @@ import createTemplateMeta from '../util/create-template-meta'
 import domdiff from 'domdiff'
 import {isTemplate} from '@riotjs/util/checks'
 
+const UNMOUNT_SCOPE = Symbol('unmount')
+
 export const EachBinding = Object.seal({
   // dynamic binding properties
   // childrenMap: null,
@@ -23,8 +25,8 @@ export const EachBinding = Object.seal({
     return this.update(scope, parentScope)
   },
   update(scope, parentScope) {
-    const { placeholder } = this
-    const collection = this.evaluate(scope)
+    const { placeholder, nodes, childrenMap } = this
+    const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
     const parent = placeholder.parentNode
 
@@ -36,18 +38,13 @@ export const EachBinding = Object.seal({
     } = createPatch(items, scope, parentScope, this)
 
     // patch the DOM only if there are new nodes
-    if (futureNodes.length) {
-      domdiff(parent, this.nodes, futureNodes, {
-        before: placeholder,
-        node: patch(
-          Array.from(this.childrenMap.values()),
-          parentScope
-        )
-      })
-    } else {
-      // remove all redundant templates
-      unmountRedundant(this.childrenMap)
-    }
+    domdiff(parent, nodes, futureNodes, {
+      before: placeholder,
+      node: patch(
+        Array.from(childrenMap.values()),
+        parentScope
+      )
+    })
 
     // trigger the mounts and the updates
     batches.forEach(fn => fn())
@@ -59,10 +56,7 @@ export const EachBinding = Object.seal({
     return this
   },
   unmount(scope, parentScope) {
-    unmountRedundant(this.childrenMap, parentScope)
-
-    this.childrenMap = new Map()
-    this.nodes = []
+    this.update(UNMOUNT_SCOPE, parentScope)
 
     return this
   }
@@ -77,26 +71,17 @@ export const EachBinding = Object.seal({
 function patch(redundant, parentScope) {
   return (item, info) => {
     if (info < 0) {
-      const {template, context} = redundant.pop()
-      // notice that we pass null as last argument because
-      // the root node and its children will be removed by domdiff
-      template.unmount(context, parentScope, null)
+      const element = redundant.pop()
+      if (element) {
+        const {template, context} = element
+        // notice that we pass null as last argument because
+        // the root node and its children will be removed by domdiff
+        template.unmount(context, parentScope, null)
+      }
     }
 
     return item
   }
-}
-
-/**
- * Unmount the remaining template instances
- * @param   {Map} childrenMap - map containing the children template to unmount
- * @param   {*} parentScope - scope of the parent template
- * @returns {undefined} IO function
- */
-function unmountRedundant(childrenMap, parentScope) {
-  childrenMap.forEach(({template, context}) => {
-    template.unmount(context, parentScope, true)
-  })
 }
 
 /**
@@ -164,7 +149,15 @@ function createPatch(items, scope, parentScope, binding) {
     // create the collection of nodes to update or to add
     // in case of template tags we need to add all its children nodes
     if (isTemplateTag) {
-      futureNodes.push(...meta.children || componentTemplate.children)
+      const children = meta.children || componentTemplate.children
+
+      futureNodes.push(...children)
+
+      // add fake children into the childrenMap in order to preserve
+      // the index in case of unmount calls
+      children.forEach(child => {
+        newChildrenMap.set(child, null)
+      })
     } else {
       futureNodes.push(el)
     }

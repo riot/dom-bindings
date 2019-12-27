@@ -14,7 +14,7 @@
     "pretest": "npm run build",
     "postest": "npm run cov-html",
     "bench": "node benchmarks",
-    "test": "npm run lint && nyc mocha -r esm test/index.js",
+    "test": "npm run lint && nyc mocha -r esm test/index.js && npm run test-typing",
     "test-typing": "tsc -p test",
     "test-debug": "mocha -r esm --inspect --inspect-brk test/index.js",
     "prepublishOnly": "npm test"
