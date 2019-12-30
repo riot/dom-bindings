@@ -5,16 +5,12 @@ export const IfBinding = Object.seal({
   // dynamic binding properties
   // node: null,
   // evaluate: null,
-  // parent: null,
   // isTemplateTag: false,
   // placeholder: null,
   // template: null,
 
   // API methods
   mount(scope, parentScope) {
-    this.parent.insertBefore(this.placeholder, this.node)
-    this.parent.removeChild(this.node)
-
     return this.update(scope, parentScope)
   },
   update(scope, parentScope) {
@@ -24,8 +20,7 @@ export const IfBinding = Object.seal({
     const mount = () => {
       const pristine = this.node.cloneNode()
 
-      this.parent.insertBefore(pristine, this.placeholder)
-
+      this.placeholder.parentNode.insertBefore(pristine, this.placeholder)
       this.template = this.template.clone()
       this.template.mount(pristine, scope, parentScope)
     }
@@ -53,12 +48,17 @@ export const IfBinding = Object.seal({
 })
 
 export default function create(node, { evaluate, template }) {
+  const parent = node.parentNode
+  const placeholder = document.createTextNode('')
+
+  parent.insertBefore(placeholder, node)
+  parent.removeChild(node)
+
   return {
     ...IfBinding,
     node,
     evaluate,
-    parent: node.parentNode,
-    placeholder: document.createTextNode(''),
+    placeholder,
     template: template.createDOM(node)
   }
 }

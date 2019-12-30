@@ -309,4 +309,41 @@ describe('slot bindings', () => {
 
     el.unmount()
   })
+
+  it('Nested if condition work in slots', () => {
+    const target = document.createElement('div')
+    const el = template('<div><slot expr0/></div>', [{
+      type: bindingTypes.SLOT,
+      selector: '[expr0]',
+      name: 'default'
+    }])
+    const defaultSlot = {
+      'id': 'default',
+      'html': '<p expr2="expr2"></p>',
+
+      'bindings': [{
+        'type': bindingTypes.IF,
+
+        'evaluate': function(scope) {
+          return scope.isVisible
+        },
+
+        'redundantAttribute': 'expr2',
+        'selector': '[expr2]',
+        'template': template('hello', [])
+      }]
+    }
+
+    el.mount(target, {
+      slots: [defaultSlot]
+    }, { isVisible: false })
+
+    expect(target.querySelector('p')).to.be.not.ok
+
+    el.update({
+      slots: [defaultSlot]
+    }, { isVisible: true })
+
+    expect(target.querySelector('p')).to.be.ok
+  })
 })
