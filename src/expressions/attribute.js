@@ -1,4 +1,4 @@
-import {isBoolean, isNil, isObject} from '@riotjs/util/checks'
+import {isBoolean, isFunction, isNil, isObject} from '@riotjs/util/checks'
 
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
@@ -51,7 +51,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
   }
 
   // handle boolean attributes
-  if (isBoolean(value) || isObject(value)) {
+  if (isBoolean(value) || isObject(value) || isFunction(value)) {
     node[name] = value
   }
 
@@ -64,7 +64,11 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  * @returns {string} the node attribute modifier method name
  */
 function getMethod(value) {
-  return isNil(value) || value === false || value === '' || isObject(value) ?
+  return isNil(value) ||
+    value === false ||
+    value === '' ||
+    isObject(value) ||
+    isFunction(value) ?
     REMOVE_ATTRIBUTE :
     SET_ATTIBUTE
 }

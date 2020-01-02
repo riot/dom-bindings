@@ -114,6 +114,24 @@ describe('attribute specs', () => {
     expect(p.hasAttribute('class')).to.be.ok
   })
 
+  it('function attributes will be skipped', () => {
+    const target = document.createElement('div')
+    const el = template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: () => {} })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('class')).to.be.not.ok
+
+    el.update({ attr: 'hello' })
+
+    expect(p.hasAttribute('class')).to.be.ok
+  })
+
   it('object attributes will be set as DOM properties', () => {
     const target = document.createElement('div')
     template('<p expr0></p>', [{
