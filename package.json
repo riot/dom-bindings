@@ -56,7 +56,7 @@
     "typescript": "^3.7.4"
   },
   "dependencies": {
-    "@riotjs/util": "^1.1.0",
+    "@riotjs/util": "^1.2.0",
     "domdiff": "^2.2.1"
   }
 }

@@ -1,4 +1,4 @@
-import { cleanNode, clearChildren } from '@riotjs/util/dom'
+import { cleanNode, clearChildren, removeNode } from '@riotjs/util/dom'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
@@ -129,8 +129,8 @@ export const TemplateChunk = Object.freeze({
         break
 
       // remove the root node only if the mustRemoveRoot === true
-      case mustRemoveRoot === true && this.el.parentNode !== null:
-        this.el.parentNode.removeChild(this.el)
+      case mustRemoveRoot === true:
+        removeNode(this.el)
         break
 
       // otherwise we clean the node children

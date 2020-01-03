@@ -1,7 +1,11 @@
 import {isBoolean, isFunction, isNil, isObject} from '@riotjs/util/checks'
+import {memoize} from '@riotjs/util/misc'
 
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
+const HTMLProto = HTMLElement.prototype
+
+const isNativeHtmlProperty = memoize(name => HTMLProto.hasOwnProperty(name) || HTMLProto[name]) // eslint-disable-line
 
 /**
  * Add all the attributes provided
@@ -52,7 +56,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
 
   // handle boolean attributes
   if (
-    !HTMLElement.prototype[name] && (
+    !isNativeHtmlProperty(name) && (
       isBoolean(value) ||
       isObject(value) ||
       isFunction(value)

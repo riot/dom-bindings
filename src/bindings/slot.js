@@ -1,4 +1,5 @@
 import {evaluateAttributeExpressions} from '@riotjs/util/misc'
+import {removeNode} from '@riotjs/util/dom'
 import template from '../template'
 
 function extendParentScope(attributes, scope, parentScope) {
@@ -41,7 +42,7 @@ export const SlotBinding = Object.seal({
       this.template.children = moveSlotInnerContent(this.node)
     }
 
-    parentNode.removeChild(this.node)
+    removeNode(this.node)
 
     return this
   },

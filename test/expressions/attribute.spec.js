@@ -153,9 +153,10 @@ describe('attribute specs', () => {
     template('<p expr0></p>', [{
       selector: '[expr0]',
       expressions: [
-        { type: expressionTypes.ATTRIBUTE, name: 'remove', evaluate: scope => scope.remove }
+        { type: expressionTypes.ATTRIBUTE, name: 'remove', evaluate: scope => scope.remove },
+        { type: expressionTypes.ATTRIBUTE, name: 'hidden', evaluate: scope => scope.isHidden }
       ]
-    }]).mount(target, { remove: removeSpy })
+    }]).mount(target, { remove: removeSpy, isHidden: true })
 
     const p = target.querySelector('p')
 

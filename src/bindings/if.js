@@ -1,3 +1,5 @@
+import {removeNode} from '@riotjs/util/dom'
+
 /**
  * Binding responsible for the `if` directive
  */
@@ -52,7 +54,7 @@ export default function create(node, { evaluate, template }) {
   const placeholder = document.createTextNode('')
 
   parent.insertBefore(placeholder, node)
-  parent.removeChild(node)
+  removeNode(node)
 
   return {
     ...IfBinding,

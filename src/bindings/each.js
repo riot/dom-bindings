@@ -1,6 +1,7 @@
 import createTemplateMeta from '../util/create-template-meta'
 import domdiff from 'domdiff'
 import {isTemplate} from '@riotjs/util/checks'
+import {removeNode} from '@riotjs/util/dom'
 
 const UNMOUNT_SCOPE = Symbol('unmount')
 
@@ -183,7 +184,7 @@ export default function create(node, { evaluate, condition, itemName, indexName,
   const root = node.cloneNode()
 
   parent.insertBefore(placeholder, node)
-  parent.removeChild(node)
+  removeNode(node)
 
   return {
     ...EachBinding,
