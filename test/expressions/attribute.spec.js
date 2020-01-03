@@ -1,4 +1,5 @@
 import { expressionTypes, template } from '../../src'
+import {spy} from 'sinon'
 
 describe('attribute specs', () => {
   it('set simple attribute if it\'s truthy', () => {
@@ -144,5 +145,22 @@ describe('attribute specs', () => {
     const p = target.querySelector('p')
 
     expect(p.foo.bar).to.be.equal('bar')
+  })
+
+  it('native HTMLElement properties can not be overridden', () => {
+    const target = document.createElement('div')
+    const removeSpy = spy()
+    template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'remove', evaluate: scope => scope.remove }
+      ]
+    }]).mount(target, { remove: removeSpy })
+
+    const p = target.querySelector('p')
+
+    p.remove()
+
+    expect(removeSpy).to.have.been.not.called
   })
 })

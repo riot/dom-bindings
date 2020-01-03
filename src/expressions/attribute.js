@@ -51,7 +51,13 @@ export default function attributeExpression(node, { name }, value, oldValue) {
   }
 
   // handle boolean attributes
-  if (isBoolean(value) || isObject(value) || isFunction(value)) {
+  if (
+    !HTMLElement.prototype[name] && (
+      isBoolean(value) ||
+      isObject(value) ||
+      isFunction(value)
+    )
+  ) {
     node[name] = value
   }
 
