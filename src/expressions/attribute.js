@@ -3,9 +3,9 @@ import {memoize} from '@riotjs/util/misc'
 
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
-const HTMLProto = HTMLElement.prototype
+const ElementProto = Element.prototype
 
-const isNativeHtmlProperty = memoize(name => HTMLProto.hasOwnProperty(name) || HTMLProto[name]) // eslint-disable-line
+const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name) ) // eslint-disable-line
 
 /**
  * Add all the attributes provided

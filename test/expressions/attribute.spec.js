@@ -154,9 +154,10 @@ describe('attribute specs', () => {
       selector: '[expr0]',
       expressions: [
         { type: expressionTypes.ATTRIBUTE, name: 'remove', evaluate: scope => scope.remove },
-        { type: expressionTypes.ATTRIBUTE, name: 'hidden', evaluate: scope => scope.isHidden }
+        { type: expressionTypes.ATTRIBUTE, name: 'hidden', evaluate: scope => scope.isHidden },
+        { type: expressionTypes.ATTRIBUTE, name: 'id', evaluate: scope => scope.id }
       ]
-    }]).mount(target, { remove: removeSpy, isHidden: true })
+    }]).mount(target, { remove: removeSpy, isHidden: true, id: 'my-id' })
 
     const p = target.querySelector('p')
 
