@@ -3,8 +3,7 @@ import {memoize} from '@riotjs/util/misc'
 
 const REMOVE_ATTRIBUTE = 'removeAttribute'
 const SET_ATTIBUTE = 'setAttribute'
-const ElementProto = Element.prototype
-
+const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
 const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name) ) // eslint-disable-line
 
 /**
