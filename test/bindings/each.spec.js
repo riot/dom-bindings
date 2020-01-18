@@ -44,7 +44,7 @@ function createDummyListWithSiblingsTemplate(options = {}) {
   }, ...options}])
 }
 
-function runTests(options) {
+function runCoreTests(options) {
   it('List reverse', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
@@ -260,6 +260,19 @@ function runTests(options) {
 
     el.unmount()
   })
+}
+
+describe('each bindings', () => {
+  describe('Keyed vs unkeyed', () => {
+    describe('keyed', () => {
+      runCoreTests({
+        getKey(scope) { return scope.val }
+      })
+    })
+    describe('unkeyed', () => {
+      runCoreTests({})
+    })
+  })
 
   it('Items indexes can be handled via "indexName" property', () => {
     const items = ['a', 'b']
@@ -288,16 +301,40 @@ function runTests(options) {
 
     el.unmount()
   })
-}
 
-describe('each bindings', () => {
-  describe('keyed', () => {
-    runTests({
-      getKey(scope) { return scope.val }
+  it('Looped <template> tags and nested conditional should work properly', () => {
+    const target = document.createElement('div')
+    const el = template('<ul><template expr1="expr1"></template></ul>', [{
+      type: bindingTypes.EACH,
+      itemName: 'item',
+      template: template('<li expr2="expr2"></li>', [{
+        type: bindingTypes.IF,
+        evaluate: () => true,
+        redundantAttribute: 'expr2',
+        selector: '[expr2]',
+        template: template(' ', [{
+          expressions: [{
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.item
+          }]
+        }])
+      }]),
+      redundantAttribute: 'expr1',
+      selector: '[expr1]',
+      evaluate: scope => scope.items
+    }]).mount(target, {
+      items: ['aaa', 'bbb', 'ccc', 'ddd']
     })
-  })
 
-  describe('unkeyed', () => {
-    runTests({})
+    expect(target.querySelectorAll('li')).to.have.length(4)
+
+    el.update({
+      items: ['eee', 'fff']
+    })
+
+    expect(target.querySelectorAll('li')).to.have.length(2)
+
+    el.unmount()
   })
 })

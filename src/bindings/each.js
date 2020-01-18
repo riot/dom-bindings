@@ -151,11 +151,7 @@ function createPatch(items, scope, parentScope, binding) {
     // in case of template tags we need to add all its children nodes
     if (isTemplateTag) {
       const children = meta.children || componentTemplate.children
-
       futureNodes.push(...children)
-      // add fake children into the childrenMap in order to preserve
-      // the index in case of unmount calls
-      children.forEach(child => newChildrenMap.set(child, null))
     } else {
       futureNodes.push(el)
     }
