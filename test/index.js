@@ -1,6 +1,5 @@
 require('jsdom-global')()
 
-
 const chai = require('chai')
 const sinonChai = require('sinon-chai')
 

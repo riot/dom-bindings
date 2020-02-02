@@ -21,12 +21,16 @@ function setAllAttributes(node, attributes) {
 /**
  * Remove all the attributes provided
  * @param   {HTMLElement} node - target node
- * @param   {Object} attributes - object containing all the attribute names
+ * @param   {Object} newAttributes - object containing all the new attribute names
+ * @param   {Object} oldAttributes - object containing all the old attribute names
  * @returns {undefined} sorry it's a void function :(
  */
-function removeAllAttributes(node, attributes) {
+function removeAllAttributes(node, newAttributes, oldAttributes) {
+  const newKeys = newAttributes ? Object.keys(newAttributes) : []
+
   Object
-    .keys(attributes)
+    .keys(oldAttributes)
+    .filter(name => !newKeys.includes(name))
     .forEach(attribute => node.removeAttribute(attribute))
 }
 
@@ -42,12 +46,14 @@ function removeAllAttributes(node, attributes) {
 export default function attributeExpression(node, { name }, value, oldValue) {
   // is it a spread operator? {...attributes}
   if (!name) {
+    if (oldValue) {
+      // remove all the old attributes
+      removeAllAttributes(node, value, oldValue)
+    }
+
     // is the value still truthy?
     if (value) {
       setAllAttributes(node, value)
-    } else if (oldValue) {
-      // otherwise remove all the old attributes
-      removeAllAttributes(node, oldValue)
     }
 
     return

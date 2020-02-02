@@ -97,6 +97,26 @@ describe('attribute specs', () => {
     expect(p.hasAttribute('name')).to.be.not.ok
   })
 
+  it('reset object attributes', () => {
+    const target = document.createElement('div')
+    const el = template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: { class: 'hello', 'name': 'world' }})
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('class')).to.be.equal('hello')
+    expect(p.getAttribute('name')).to.be.equal('world')
+
+    el.update({ attr: {} })
+
+    expect(p.hasAttribute('class')).to.be.not.ok
+    expect(p.hasAttribute('name')).to.be.not.ok
+  })
+
   it('object attributes will be skipped', () => {
     const target = document.createElement('div')
     const el = template('<p expr0></p>', [{
