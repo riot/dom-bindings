@@ -88,4 +88,27 @@ describe('if bindings', () => {
 
     el.unmount()
   })
+
+  it('Text above <template> tags should be properly rendered', () => {
+    const target = document.createElement('div')
+    const el = template(
+      '<div>hello <template expr1="expr1"></template></div>',
+      [{
+        'type': bindingTypes.IF,
+        'evaluate': () => true,
+        'redundantAttribute': 'expr1',
+        'selector': '[expr1]',
+        'template': template(' ', [{
+          'expressions': [{
+            'type': expressionTypes.TEXT,
+            'childNodeIndex': 0,
+            'evaluate': () => 'world'
+          }]
+        }])
+      }]
+    ).mount(target, {})
+
+    expect(target.innerHTML).to.be.equal('<div>hello world</div>')
+    el.unmount()
+  })
 })

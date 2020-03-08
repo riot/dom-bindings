@@ -65,7 +65,7 @@ export const TemplateChunk = Object.freeze({
     const {parentNode} = children ? children[0] : el
     const isTemplateTag = isTemplate(el)
     const templateTagOffset = isTemplateTag ? Math.max(
-      Array.from(parentNode.children).indexOf(el),
+      Array.from(parentNode.childNodes).indexOf(el),
       0
     ) : null
     this.isTemplateTag = isTemplateTag
