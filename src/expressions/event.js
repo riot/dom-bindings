@@ -1,5 +1,7 @@
 const RE_EVENTS_PREFIX = /^on/
 
+const getCallbackAndOptions = value => Array.isArray(value) ? value : [value, false]
+
 /**
  * Set a new event listener
  * @param   {HTMLElement} node - target node
@@ -13,10 +15,10 @@ export default function eventExpression(node, { name }, value, oldValue) {
   const normalizedEventName = name.replace(RE_EVENTS_PREFIX, '')
 
   if (oldValue) {
-    node.removeEventListener(normalizedEventName, oldValue)
+    node.removeEventListener(normalizedEventName, ...getCallbackAndOptions(oldValue))
   }
 
   if (value) {
-    node.addEventListener(normalizedEventName, value, false)
+    node.addEventListener(normalizedEventName, ...getCallbackAndOptions(value))
   }
 }
