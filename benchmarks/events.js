@@ -1,3 +1,4 @@
+const { fireEvent } = require('../test/util')
 
 
 module.exports = function(suite, testName, domBindings) {
@@ -6,7 +7,7 @@ module.exports = function(suite, testName, domBindings) {
     while (amount--) { // eslint-disable-line
       items.push({
         name: `foo ${Math.random()}`,
-        props: hasChildren ? generateItems(3, false) : []
+        props: hasChildren ? generateItems(5, false) : []
       })
     }
     return items
@@ -23,6 +24,21 @@ module.exports = function(suite, testName, domBindings) {
           type: domBindings.expressionTypes.TEXT,
           childNodeIndex: 0,
           evaluate(scope) { return scope.item.name }
+        },
+        {
+          'type': domBindings.expressionTypes.EVENT,
+          'name': 'onclick',
+
+          evaluate() {
+            return () => 'click'
+          }
+        }, {
+          'type': domBindings.expressionTypes.EVENT,
+          'name': 'onhover',
+
+          evaluate() {
+            return () => 'hover'
+          }
         }
       ]
     }, {
@@ -43,19 +59,29 @@ module.exports = function(suite, testName, domBindings) {
   }])
 
 
+  const loopTag = document.createElement('div')
+
   suite
     .on('start', function() {
       // setup
-      const loopTag = document.createElement('div')
       tag.mount(loopTag, { items: [] })
     })
     .on('complete', function() {
       tag.unmount()
     })
     .add(testName, () => {
-      const items = generateItems(50, true)
+      const items = generateItems(10, true)
       tag.update({ items })
-      tag.update({ items: items.concat(generateItems(30, true)) })
+      const beforeLi = loopTag.querySelector('li:nth-child(2)')
+      fireEvent(beforeLi, 'click')
+      fireEvent(beforeLi, 'hover')
+      items.splice(2, 1)
+      items.splice(9, 1)
+      tag.update({ items: items.concat(generateItems(5, true)) })
+
+      const afterLi = loopTag.querySelector('li:nth-child(2)')
+      fireEvent(afterLi, 'click')
+      fireEvent(afterLi, 'hover')
     })
 
 }

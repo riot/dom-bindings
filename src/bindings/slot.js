@@ -1,3 +1,4 @@
+import {PARENT_KEY_SYMBOL} from '@riotjs/util/constants'
 import {evaluateAttributeExpressions} from '@riotjs/util/misc'
 import {removeNode} from '@riotjs/util/dom'
 import template from '../template'
@@ -16,6 +17,12 @@ function extendParentScope(attributes, scope, parentScope) {
   )
 }
 
+// this function is only meant to fix an edge case
+// https://github.com/riot/riot/issues/2842
+const getRealParent = (scope, parentScope) => parentScope ?
+  parentScope === scope ? scope[PARENT_KEY_SYMBOL] : parentScope
+  : undefined
+
 export const SlotBinding = Object.seal({
   // dynamic binding properties
   // node: null,
@@ -31,6 +38,7 @@ export const SlotBinding = Object.seal({
   mount(scope, parentScope) {
     const templateData = scope.slots ? scope.slots.find(({id}) => id === this.name) : false
     const {parentNode} = this.node
+    const realParent = getRealParent(scope, parentScope)
 
     this.template = templateData && template(
       templateData.html,
@@ -38,7 +46,7 @@ export const SlotBinding = Object.seal({
     ).createDOM(parentNode)
 
     if (this.template) {
-      this.template.mount(this.node, this.getTemplateScope(scope, parentScope))
+      this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent)
       this.template.children = moveSlotInnerContent(this.node)
     }
 
@@ -48,7 +56,8 @@ export const SlotBinding = Object.seal({
   },
   update(scope, parentScope) {
     if (this.template) {
-      this.template.update(this.getTemplateScope(scope, parentScope))
+      const realParent = getRealParent(scope, parentScope)
+      this.template.update(this.getTemplateScope(scope, realParent), realParent)
     }
 
     return this

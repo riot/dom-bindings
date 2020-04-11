@@ -9,6 +9,7 @@ const
   oldVersion = require('./old-version'),
   benchmarks = {
     'List with keys': require('./keyed.list'),
+    'Events': require('./events'),
     'Normal list': require('./list'),
     'Toggle if': require('./if'),
     'Simple mount': require('./if')
