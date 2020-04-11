@@ -27,13 +27,6 @@ export default [
       file: 'dist/umd.dom-bindings.js',
       format: 'umd'
     }]
-  },
-  {
-    ...base,
-    output: [{
-      file: 'dist/esm.dom-bindings.js',
-      format: 'esm'
-    }]
   }
 ]
 
