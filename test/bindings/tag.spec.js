@@ -1,4 +1,4 @@
-import { bindingTypes, expressionTypes, template } from '../../src'
+import {bindingTypes, expressionTypes, template} from '../../src'
 
 describe('tag bindings', () => {
   it('tags not registered will fallback to default templates', () => {
@@ -25,7 +25,7 @@ describe('tag bindings', () => {
           html: '<p expr1><!----></p>'
         }
       ]
-    }]).mount(target, { text: 'hello' })
+    }]).mount(target, {text: 'hello'})
 
     const p = target.querySelector('p')
 
@@ -38,23 +38,38 @@ describe('tag bindings', () => {
   it('attributes for tags not registered will be converted into expressions', () => {
     const target = document.createElement('div')
 
-    const el = template('<section><b expr0></b></section>', [{
+    const el = template('<section><b expr0></b><slot name="main" expr1></slot></section>', [{
       selector: '[expr0]',
       type: bindingTypes.TAG,
       evaluate: () => 'my-tag',
       getComponent() {
         return null
       },
+      slots: [{
+        'id': 'main',
+        'html': '<p>hello</p>',
+        'bindings': []
+      }],
       attributes: [{
         evaluate: scope => scope.class,
         name: 'class'
       }]
-    }]).mount(target, { class: 'hello' })
+    }, {
+      'type': bindingTypes.SLOT,
+      'attributes': [],
+      'name': 'main',
+      'redundantAttribute': 'expr1',
+      'selector': '[expr1]'
+    }]).mount(target, {class: 'hello'})
 
     const b = target.querySelector('b')
+    const slot = target.querySelector('slot')
+
+    expect(slot).to.be.ok
+    expect(b).to.be.ok
 
     expect(b.getAttribute('class')).to.be.equal('hello')
-    expect(b).to.be.ok
+    expect(slot.getAttribute('name')).to.be.equal('main')
 
     el.unmount()
   })
@@ -65,7 +80,7 @@ describe('tag bindings', () => {
     const spyUnmount = sinon.spy()
 
     const components = {
-      'my-tag-1': function({ slots, attributes }) {
+      'my-tag-1': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -75,14 +90,15 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spyMount()
           },
-          update() {},
+          update() {
+          },
           unmount(keepRoot) {
             expect(keepRoot).to.be.equal(true)
             spyUnmount()
           }
         }
       },
-      'my-tag-2': function({ slots, attributes }) {
+      'my-tag-2': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -92,7 +108,8 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spyMount()
           },
-          update() {},
+          update() {
+          },
           unmount() {
             spyUnmount()
           }
@@ -111,17 +128,17 @@ describe('tag bindings', () => {
         evaluate: scope => scope.class,
         name: 'class'
       }]
-    }]).mount(target, { tagName: 'my-tag-1' })
+    }]).mount(target, {tagName: 'my-tag-1'})
 
     expect(spyMount).to.have.been.calledOnce
     expect(spyUnmount).to.not.have.been.called
 
-    el.update({ tagName: 'my-tag-2' })
+    el.update({tagName: 'my-tag-2'})
 
     expect(spyMount).to.have.been.calledTwice
     expect(spyUnmount).to.have.been.calledOnce
 
-    el.update({ tagName: 'my-tag-2' })
+    el.update({tagName: 'my-tag-2'})
 
     expect(spyMount).to.have.been.calledTwice
     expect(spyUnmount).to.have.been.calledOnce
@@ -133,7 +150,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({ slots, attributes }) {
+      'my-tag': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -143,7 +160,8 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spy()
           },
-          unmount() {}
+          unmount() {
+          }
         }
       }
     }
@@ -160,7 +178,7 @@ describe('tag bindings', () => {
         evaluate: scope => scope.class,
         name: 'class'
       }]
-    }]).mount(target, { class: 'hello' })
+    }]).mount(target, {class: 'hello'})
 
     el.unmount()
     expect(spy).to.have.been.calledOnce
@@ -170,7 +188,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({ slots, attributes }) {
+      'my-tag': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -181,7 +199,8 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spy()
           },
-          unmount() {}
+          unmount() {
+          }
         }
       }
     }
@@ -198,7 +217,7 @@ describe('tag bindings', () => {
           return components[name]
         }
       }])
-    }]).mount(target, { items: [1, 2] })
+    }]).mount(target, {items: [1, 2]})
 
     el.unmount()
     expect(spy).to.have.been.calledTwice
@@ -207,13 +226,15 @@ describe('tag bindings', () => {
   it('shouldRemoveRoot should always be null for each directives', () => {
     const target = document.createElement('div')
     const components = {
-      'my-tag': function({ slots, attributes }) {
+      'my-tag': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
         return {
-          mount() {},
-          update() {},
+          mount() {
+          },
+          update() {
+          },
           unmount(shouldRemoveRoot) {
             expect(shouldRemoveRoot).to.be.equal(null)
           }
@@ -233,7 +254,7 @@ describe('tag bindings', () => {
           return components[name]
         }
       }])
-    }]).mount(target, { items: [1, 2] })
+    }]).mount(target, {items: [1, 2]})
 
     el.update({
       items: [1]
@@ -248,7 +269,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({ slots, attributes }) {
+      'my-tag': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -256,7 +277,8 @@ describe('tag bindings', () => {
           mount(el) {
             this.el = el
           },
-          update() {},
+          update() {
+          },
           unmount() {
             expect(this.el.parentNode).to.be.ok
             spy()
@@ -277,9 +299,9 @@ describe('tag bindings', () => {
           return components[name]
         }
       }])
-    }]).mount(target, { items: [1, 2] })
+    }]).mount(target, {items: [1, 2]})
 
-    el.update({ items: [1] })
+    el.update({items: [1]})
     expect(spy).to.have.been.calledOnce
 
     el.unmount()
@@ -289,7 +311,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({ slots, attributes }) {
+      'my-tag': function({slots, attributes}) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -300,7 +322,8 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spy()
           },
-          unmount() {}
+          unmount() {
+          }
         }
       }
     }
@@ -316,7 +339,7 @@ describe('tag bindings', () => {
           return components[name]
         }
       }])
-    }]).mount(target, { isVisible: true })
+    }]).mount(target, {isVisible: true})
 
     el.unmount()
     expect(spy).to.have.been.calledOnce

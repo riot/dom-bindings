@@ -12,14 +12,14 @@ import template from '../template'
 function getTag(component, slots = [], attributes = []) {
   // if this tag was registered before we will return its implementation
   if (component) {
-    return component({ slots, attributes })
+    return component({slots, attributes})
   }
 
   // otherwise we return a template chunk
   return template(slotsToMarkup(slots), [
     ...slotBindings(slots), {
-    // the attributes should be registered as binding
-    // if we fallback to a normal template chunk
+      // the attributes should be registered as binding
+      // if we fallback to a normal template chunk
       expressions: attributes.map(attr => {
         return {
           type: ATTRIBUTE,
@@ -37,7 +37,7 @@ function getTag(component, slots = [], attributes = []) {
  * @returns {Array<Bindings>} flatten bindings array
  */
 function slotBindings(slots) {
-  return slots.reduce((acc, { bindings }) => acc.concat(bindings), [])
+  return slots.reduce((acc, {bindings}) => acc.concat(bindings), [])
 }
 
 /**
@@ -47,7 +47,7 @@ function slotBindings(slots) {
  */
 function slotsToMarkup(slots) {
   return slots.reduce((acc, slot) => {
-    return acc + slot.html
+    return `${acc}<slot name="${slot.id}">${slot.html}</slot>`
   }, '')
 }
 
@@ -93,7 +93,7 @@ export const TagBinding = Object.seal({
   }
 })
 
-export default function create(node, { evaluate, getComponent, slots, attributes }) {
+export default function create(node, {evaluate, getComponent, slots, attributes}) {
   return {
     ...TagBinding,
     node,
