@@ -47,8 +47,15 @@ describe('tag bindings', () => {
       },
       slots: [{
         'id': 'main',
-        'html': '<p>hello</p>',
-        'bindings': []
+        'html': '<p expr2> </p>',
+        'bindings': [{
+          selector: '[expr2]',
+          expressions: [{
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.text
+          }]
+        }]
       }],
       attributes: [{
         evaluate: scope => scope.class,
@@ -60,16 +67,16 @@ describe('tag bindings', () => {
       'name': 'main',
       'redundantAttribute': 'expr1',
       'selector': '[expr1]'
-    }]).mount(target, {class: 'hello'})
+    }]).mount(target, {class: 'hello', text: 'hello'})
 
     const b = target.querySelector('b')
-    const slot = target.querySelector('slot')
+    const p = target.querySelector('p')
 
-    expect(slot).to.be.ok
     expect(b).to.be.ok
+    expect(p).to.be.ok
 
     expect(b.getAttribute('class')).to.be.equal('hello')
-    expect(slot.getAttribute('name')).to.be.equal('main')
+    expect(p.innerHTML).to.be.equal('hello')
 
     el.unmount()
   })

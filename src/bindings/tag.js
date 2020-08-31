@@ -47,7 +47,7 @@ function slotBindings(slots) {
  */
 function slotsToMarkup(slots) {
   return slots.reduce((acc, slot) => {
-    return `${acc}<slot name="${slot.id}">${slot.html}</slot>`
+    return acc + slot.html
   }, '')
 }
 

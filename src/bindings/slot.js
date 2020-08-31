@@ -19,9 +19,7 @@ function extendParentScope(attributes, scope, parentScope) {
 
 // this function is only meant to fix an edge case
 // https://github.com/riot/riot/issues/2842
-const getRealParent = (scope, parentScope) => parentScope ?
-  parentScope === scope ? scope[PARENT_KEY_SYMBOL] : parentScope
-  : undefined
+const getRealParent = (scope, parentScope) => scope[PARENT_KEY_SYMBOL] || parentScope
 
 export const SlotBinding = Object.seal({
   // dynamic binding properties
