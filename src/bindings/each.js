@@ -1,7 +1,7 @@
 import createTemplateMeta from '../util/create-template-meta'
-import domdiff from 'domdiff'
 import {isTemplate} from '@riotjs/util/checks'
 import {removeNode} from '@riotjs/util/dom'
+import udomdiff from '../util/udomdiff'
 
 const UNMOUNT_SCOPE = Symbol('unmount')
 
@@ -26,7 +26,7 @@ export const EachBinding = Object.seal({
     return this.update(scope, parentScope)
   },
   update(scope, parentScope) {
-    const { placeholder, nodes, childrenMap } = this
+    const {placeholder, nodes, childrenMap} = this
     const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
     const parent = placeholder.parentNode
@@ -39,13 +39,15 @@ export const EachBinding = Object.seal({
     } = createPatch(items, scope, parentScope, this)
 
     // patch the DOM only if there are new nodes
-    domdiff(parent, nodes, futureNodes, {
-      before: placeholder,
-      node: patch(
+    udomdiff(parent,
+      nodes,
+      futureNodes,
+      patch(
         Array.from(childrenMap.values()),
         parentScope
-      )
-    })
+      ),
+      placeholder
+    )
 
     // trigger the mounts and the updates
     batches.forEach(fn => fn())
@@ -122,7 +124,7 @@ function extendScope(scope, {itemName, indexName, index, item}) {
  * @returns {Array} data.futureNodes - array containing the nodes we need to diff
  */
 function createPatch(items, scope, parentScope, binding) {
-  const { condition, template, childrenMap, itemName, getKey, indexName, root, isTemplateTag } = binding
+  const {condition, template, childrenMap, itemName, getKey, indexName, root, isTemplateTag} = binding
   const newChildrenMap = new Map()
   const batches = []
   const futureNodes = []
@@ -174,7 +176,7 @@ function createPatch(items, scope, parentScope, binding) {
   }
 }
 
-export default function create(node, { evaluate, condition, itemName, indexName, getKey, template }) {
+export default function create(node, {evaluate, condition, itemName, indexName, getKey, template}) {
   const placeholder = document.createTextNode('')
   const parent = node.parentNode
   const root = node.cloneNode()
