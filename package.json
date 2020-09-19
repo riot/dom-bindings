@@ -1,6 +1,6 @@
 {
   "name": "@riotjs/dom-bindings",
-  "version": "4.8.3",
+  "version": "5.0.0-alpha.0",
   "description": "Riot.js DOM bindings",
   "main": "dist/umd.dom-bindings.js",
   "jsnext:main": "src/index.js",
