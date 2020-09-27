@@ -20,19 +20,10 @@
 // due to https://github.com/WebReflection/udomdiff/pull/2
 /* eslint-disable */
 
-/**
- * Remove a node from the DOM
- * @param   {HTMLElement} node - target node to remove
- * @returns {undefined} void function
- */
-const drop = node => {
-  const {parentNode} = node
-
-  if (parentNode) {
-    if (node.remove) node.remove()
-    else parentNode.removeChild(node)
-  }
-}
+// DOM manipulation helper functions
+const drop = node => node && node.parentNode && node.parentNode.removeChild(node)
+const append = (node, prev) => prev && prev.parentNode && prev.parentNode.insertBefore(node, prev)
+const replace = (node, prev) => prev && prev.parentNode && prev.parentNode.replaceChild(node, prev)
 
 /**
  * @param {Node} parentNode The container where children live
@@ -63,7 +54,7 @@ export default (parentNode, a, b, get, before) => {
           get(b[bEnd - bStart], 0)) :
         before
       while (bStart < bEnd)
-        parentNode.insertBefore(get(b[bStart++], 1), node)
+        append(get(b[bStart++], 1), node)
     }
     // remove head or tail: fast path
     else if (bEnd === bStart) {
@@ -98,11 +89,11 @@ export default (parentNode, a, b, get, before) => {
       // [1, 2, 3, 4, 5]
       // [1, 2, 3, 5, 6, 4]
       const node = get(a[--aEnd], -1).nextSibling
-      parentNode.insertBefore(
+      append(
         get(b[bStart++], 1),
         get(a[aStart++], -1).nextSibling
       )
-      parentNode.insertBefore(get(b[--bEnd], 1), node)
+      append(get(b[--bEnd], 1), node)
       // mark the future index as identical (yeah, it's dirty, but cheap 👍)
       // The main reason to do this, is that when a[aEnd] will be reached,
       // the loop will likely be on the fast path, as identical to b[bEnd].
@@ -148,13 +139,13 @@ export default (parentNode, a, b, get, before) => {
           if (sequence > (index - bStart)) {
             const node = get(a[aStart], 0)
             while (bStart < index)
-              parentNode.insertBefore(get(b[bStart++], 1), node)
+              append(get(b[bStart++], 1), node)
           }
             // if the effort wasn't good enough, fallback to a replace,
             // moving both source and target indexes forward, hoping that some
           // similar node will be found later on, to go back to the fast path
           else {
-            parentNode.replaceChild(
+            replace(
               get(b[bStart++], 1),
               get(a[aStart++], -1)
             )
