@@ -1,4 +1,4 @@
-import {removeNode} from '@riotjs/util/dom'
+import {insertBefore, removeChild} from '@riotjs/util/dom'
 
 /**
  * Binding responsible for the `if` directive
@@ -22,7 +22,7 @@ export const IfBinding = Object.seal({
     const mount = () => {
       const pristine = this.node.cloneNode()
 
-      this.placeholder.parentNode.insertBefore(pristine, this.placeholder)
+      insertBefore(pristine, this.placeholder)
       this.template = this.template.clone()
       this.template.mount(pristine, scope, parentScope)
     }
@@ -50,11 +50,10 @@ export const IfBinding = Object.seal({
 })
 
 export default function create(node, { evaluate, template }) {
-  const parent = node.parentNode
   const placeholder = document.createTextNode('')
 
-  parent.insertBefore(placeholder, node)
-  removeNode(node)
+  insertBefore(placeholder, node)
+  removeChild(node)
 
   return {
     ...IfBinding,

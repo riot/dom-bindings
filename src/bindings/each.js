@@ -1,6 +1,6 @@
+import {insertBefore, removeChild} from '@riotjs/util/dom'
 import createTemplateMeta from '../util/create-template-meta'
 import {isTemplate} from '@riotjs/util/checks'
-import {removeNode} from '@riotjs/util/dom'
 import udomdiff from '../util/udomdiff'
 
 const UNMOUNT_SCOPE = Symbol('unmount')
@@ -178,11 +178,10 @@ function createPatch(items, scope, parentScope, binding) {
 
 export default function create(node, {evaluate, condition, itemName, indexName, getKey, template}) {
   const placeholder = document.createTextNode('')
-  const parent = node.parentNode
   const root = node.cloneNode()
 
-  parent.insertBefore(placeholder, node)
-  removeNode(node)
+  insertBefore(placeholder, node)
+  removeChild(node)
 
   return {
     ...EachBinding,
