@@ -16,7 +16,7 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-// fork of https://github.com/WebReflection/udomdiff
+// fork of https://github.com/WebReflection/udomdiff version 1.1.0
 // due to https://github.com/WebReflection/udomdiff/pull/2
 /* eslint-disable */
 

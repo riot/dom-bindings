@@ -32,6 +32,10 @@
     "riot",
     "dom-bindings"
   ],
+  "nyc": {
+    "include": "src",
+    "exclude": "src/util/udomdiff.js"
+  },
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
   "license": "MIT",
   "bugs": {
