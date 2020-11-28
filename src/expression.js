@@ -3,7 +3,7 @@ import {EVENT, TEXT} from '@riotjs/util/expression-types'
 import expressions from './expressions'
 import {getTextNode} from './expressions/text'
 
-export const Expression = Object.seal({
+export const Expression = {
   // Static props
   // node: null,
   // value: null,
@@ -50,7 +50,7 @@ export const Expression = Object.seal({
 
     return this
   }
-})
+}
 
 /**
  * IO() function to handle the DOM updates

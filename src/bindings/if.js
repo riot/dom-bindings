@@ -3,7 +3,7 @@ import {insertBefore, removeChild} from '@riotjs/util/dom'
 /**
  * Binding responsible for the `if` directive
  */
-export const IfBinding = Object.seal({
+export const IfBinding = {
   // dynamic binding properties
   // node: null,
   // evaluate: null,
@@ -47,7 +47,7 @@ export const IfBinding = Object.seal({
 
     return this
   }
-})
+}
 
 export default function create(node, { evaluate, template }) {
   const placeholder = document.createTextNode('')

@@ -5,7 +5,7 @@ import udomdiff from '../util/udomdiff'
 
 const UNMOUNT_SCOPE = Symbol('unmount')
 
-export const EachBinding = Object.seal({
+export const EachBinding = {
   // dynamic binding properties
   // childrenMap: null,
   // node: null,
@@ -63,7 +63,7 @@ export const EachBinding = Object.seal({
 
     return this
   }
-})
+}
 
 /**
  * Patch the DOM while diffing

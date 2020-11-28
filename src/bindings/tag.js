@@ -52,7 +52,7 @@ function slotsToMarkup(slots) {
 }
 
 
-export const TagBinding = Object.seal({
+export const TagBinding = {
   // dynamic binding properties
   // node: null,
   // evaluate: null,
@@ -91,7 +91,7 @@ export const TagBinding = Object.seal({
 
     return this
   }
-})
+}
 
 export default function create(node, {evaluate, getComponent, slots, attributes}) {
   return {

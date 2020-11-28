@@ -21,7 +21,7 @@ function extendParentScope(attributes, scope, parentScope) {
 // https://github.com/riot/riot/issues/2842
 const getRealParent = (scope, parentScope) => scope[PARENT_KEY_SYMBOL] || parentScope
 
-export const SlotBinding = Object.seal({
+export const SlotBinding = {
   // dynamic binding properties
   // node: null,
   // name: null,
@@ -45,7 +45,8 @@ export const SlotBinding = Object.seal({
 
     if (this.template) {
       this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent)
-      this.template.children = moveSlotInnerContent(this.node)
+      this.template.children = Array.from(this.node.childNodes)
+      moveSlotInnerContent(this.node)
     }
 
     removeChild(this.node)
@@ -67,22 +68,20 @@ export const SlotBinding = Object.seal({
 
     return this
   }
-})
+}
 
 /**
  * Move the inner content of the slots outside of them
  * @param   {HTMLElement} slot - slot node
- * @param   {HTMLElement} children - array to fill with the child nodes detected
- * @returns {HTMLElement[]} list of the node moved
+ * @returns {undefined} it's a void method ¯\_(ツ)_/¯
  */
-function moveSlotInnerContent(slot, children = []) {
-  const child = slot.firstChild
-  if (child) {
-    insertBefore(child, slot)
-    return [child, ...moveSlotInnerContent(slot)]
-  }
+function moveSlotInnerContent(slot) {
+  const child = slot && slot.firstChild
 
-  return children
+  if (!child) return
+
+  insertBefore(child, slot)
+  moveSlotInnerContent(slot)
 }
 
 /**
