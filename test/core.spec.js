@@ -1,4 +1,5 @@
 import { bindingTypes, expressionTypes, template } from '../src'
+import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
 
 describe('core specs', () => {
   it('The riot DOM bindings public methods get properly exported', () => {
@@ -45,6 +46,22 @@ describe('core specs', () => {
     const tag = el.mount(target)
 
     expect(() => tag.unmount({}, {}, true)).to.not.throw()
+  })
+
+  it('The pure components should handle the unmount DOM updates by themselves', () => {
+    const el = template('hello')
+    const target = document.createElement('div')
+
+    target[IS_PURE_SYMBOL] = true
+
+    document.body.appendChild(target)
+
+    el.mount(target)
+    el.unmount({}, {}, true)
+
+    expect(target.parentNode).to.be.ok
+    target.parentNode.removeChild(target)
+    expect(target.parentNode).to.be.not.ok
   })
 
   it('The template.unmount can be able to remove the root node (node appended to the dom)', () => {

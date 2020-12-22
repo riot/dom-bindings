@@ -1,4 +1,5 @@
 import { cleanNode, clearChildren, removeChild } from '@riotjs/util/dom'
+import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
@@ -121,6 +122,9 @@ export const TemplateChunk = Object.freeze({
       this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot))
 
       switch (true) {
+      // pure components should handle the DOM unmount updates by themselves
+      case this.el[IS_PURE_SYMBOL]:
+        break
       // <template> tags should be treated a bit differently
       // we need to clear their children only if it's explicitly required by the caller
       // via mustRemoveRoot !== null
