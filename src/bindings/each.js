@@ -67,19 +67,29 @@ export const EachBinding = {
 
 /**
  * Patch the DOM while diffing
- * @param   {TemplateChunk[]} redundant - redundant tepmplate chunks
+ * @param   {any[]} redundant - list of all the children (template, nodes, context) added via each
  * @param   {*} parentScope - scope of the parent template
  * @returns {Function} patch function used by domdiff
  */
 function patch(redundant, parentScope) {
   return (item, info) => {
     if (info < 0) {
-      const element = redundant.pop()
+      // get the last element added to the childrenMap saved previously
+      const element = redundant[redundant.length - 1]
+
       if (element) {
-        const {template, context} = element
+        // get the nodes and the template in stored in the last child of the childrenMap
+        const {template, nodes, context} = element
+        // remove the last node (notice <template> tags might have more children nodes)
+        nodes.pop()
+
         // notice that we pass null as last argument because
         // the root node and its children will be removed by domdiff
-        template.unmount(context, parentScope, null)
+        if (nodes.length === 0) {
+          // we have cleared all the children nodes and we can unmount this template
+          redundant.pop()
+          template.unmount(context, parentScope, null)
+        }
       }
     }
 
@@ -133,14 +143,15 @@ function createPatch(items, scope, parentScope, binding) {
     const context = extendScope(Object.create(scope), {itemName, indexName, index, item})
     const key = getKey ? getKey(context) : index
     const oldItem = childrenMap.get(key)
+    const nodes = []
 
     if (mustFilterItem(condition, context)) {
       return
     }
 
-    const componentTemplate = oldItem ? oldItem.template : template.clone()
-    const el = oldItem ? componentTemplate.el : root.cloneNode()
     const mustMount = !oldItem
+    const componentTemplate = oldItem ? oldItem.template : template.clone()
+    const el = componentTemplate.el || root.cloneNode()
     const meta = isTemplateTag && mustMount ? createTemplateMeta(componentTemplate) : {}
 
     if (mustMount) {
@@ -153,16 +164,18 @@ function createPatch(items, scope, parentScope, binding) {
     // in case of template tags we need to add all its children nodes
     if (isTemplateTag) {
       const children = meta.children || componentTemplate.children
-      futureNodes.push(...children)
+      nodes.push(...children)
     } else {
-      futureNodes.push(el)
+      nodes.push(el)
     }
 
     // delete the old item from the children map
     childrenMap.delete(key)
+    futureNodes.push(...nodes)
 
     // update the children map
     newChildrenMap.set(key, {
+      nodes,
       template: componentTemplate,
       context,
       index

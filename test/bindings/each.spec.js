@@ -388,7 +388,7 @@ describe('each bindings', () => {
                 'redundantAttribute': 'expr3',
                 'selector': '[expr3]',
                 'itemName': 'x',
-                'evaluate': () => [1]
+                'evaluate': () => [1, 2, 3]
               }
             ]
           ),
@@ -410,20 +410,27 @@ describe('each bindings', () => {
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(1)
-    expect(target.querySelectorAll('p')).to.have.length(1)
+    expect(target.querySelectorAll('p')).to.have.length(3)
 
     el.update({
       items: ['a', 'c']
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(2)
-    expect(target.querySelectorAll('p')).to.have.length(2)
+    expect(target.querySelectorAll('p')).to.have.length(6)
 
     el.update({
       items: ['a', 'b', 'c']
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(3)
-    expect(target.querySelectorAll('p')).to.have.length(3)
+    expect(target.querySelectorAll('p')).to.have.length(9)
+
+    el.update({
+      items: ['a', 'c']
+    })
+
+    expect(target.querySelectorAll('h1')).to.have.length(2)
+    expect(target.querySelectorAll('p')).to.have.length(6)
   })
 })
