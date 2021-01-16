@@ -1,4 +1,4 @@
-import { bindingTypes, expressionTypes, template } from '../../src'
+import {bindingTypes, expressionTypes, template} from '../../src'
 
 function compareNodesContents(target, selector, items) {
   const domNodes = target.querySelectorAll(selector)
@@ -9,54 +9,58 @@ function compareNodesContents(target, selector, items) {
 }
 
 function createDummyListTemplate(options = {}) {
-  return template('<ul><li expr0></li></ul>', [{...{
-    selector: '[expr0]',
-    type: bindingTypes.EACH,
-    itemName: 'val',
-    evaluate: scope => scope.items,
-    template: template('<!---->', [{
-      expressions: [
-        {
-          type: expressionTypes.TEXT,
-          childNodeIndex: 0,
-          evaluate: scope => scope.val
-        }
-      ]
-    }])
-  }, ...options}])
+  return template('<ul><li expr0></li></ul>', [{
+    ...{
+      selector: '[expr0]',
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      evaluate: scope => scope.items,
+      template: template('<!---->', [{
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.val
+          }
+        ]
+      }])
+    }, ...options
+  }])
 }
 
 function createDummyListWithSiblingsTemplate(options = {}) {
-  return template('<ul><li>first</li><li expr0></li><li>last</li></ul>', [{...{
-    selector: '[expr0]',
-    type: bindingTypes.EACH,
-    itemName: 'val',
-    evaluate: scope => scope.items,
-    template: template('<!---->', [{
-      expressions: [
-        {
-          type: expressionTypes.TEXT,
-          childNodeIndex: 0,
-          evaluate: scope => scope.val
-        }
-      ]
-    }])
-  }, ...options}])
+  return template('<ul><li>first</li><li expr0></li><li>last</li></ul>', [{
+    ...{
+      selector: '[expr0]',
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      evaluate: scope => scope.items,
+      template: template('<!---->', [{
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: scope => scope.val
+          }
+        ]
+      }])
+    }, ...options
+  }])
 }
 
 function runCoreTests(options) {
   it('List reverse', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
-    el.update({ items: items.reverse() })
+    el.update({items: items.reverse()})
 
     compareNodesContents(target, 'li', items)
 
-    el.update({ items: items.reverse() })
+    el.update({items: items.reverse()})
 
     compareNodesContents(target, 'li', items)
 
@@ -66,11 +70,11 @@ function runCoreTests(options) {
   it('Empty list', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
-    el.update({ items: [] })
+    el.update({items: []})
 
     expect(Array.from(target.querySelectorAll('li'))).to.have.length(0)
 
@@ -80,17 +84,17 @@ function runCoreTests(options) {
   it('List add', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
     items.push(6)
-    el.update({ items: items })
+    el.update({items: items})
 
     compareNodesContents(target, 'li', items)
 
     items.push(7)
-    el.update({ items: items })
+    el.update({items: items})
 
     compareNodesContents(target, 'li', items)
 
@@ -100,17 +104,17 @@ function runCoreTests(options) {
   it('List insert in the middle', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
     items.splice(3, 0, 10)
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
     items.splice(3, 0, 9)
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
@@ -120,17 +124,17 @@ function runCoreTests(options) {
   it('List prepend', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
     items.unshift(-1)
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
     items.unshift(-2)
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
@@ -140,17 +144,17 @@ function runCoreTests(options) {
   it('List pop', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
     items.pop()
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
     items.pop()
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
@@ -160,17 +164,17 @@ function runCoreTests(options) {
   it('List shift', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListTemplate(options).mount(target, { items })
+    const el = createDummyListTemplate(options).mount(target, {items})
 
     compareNodesContents(target, 'li', items)
 
     items.shift()
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
     items.shift()
-    el.update({ items })
+    el.update({items})
 
     compareNodesContents(target, 'li', items)
 
@@ -185,7 +189,7 @@ function runCoreTests(options) {
         return scope.val % 2 !== 0
       },
       ...options
-    }).mount(target, { items })
+    }).mount(target, {items})
 
     const beforeLis = target.querySelectorAll('li')
 
@@ -193,7 +197,7 @@ function runCoreTests(options) {
 
     items.push(6)
     items.push(7)
-    el.update({ items })
+    el.update({items})
 
     const afterLis = target.querySelectorAll('li')
 
@@ -210,7 +214,7 @@ function runCoreTests(options) {
         return scope.val % 2 !== 0 ? true : undefined
       },
       ...options
-    }).mount(target, { items })
+    }).mount(target, {items})
 
     const beforeLis = target.querySelectorAll('li')
 
@@ -218,7 +222,7 @@ function runCoreTests(options) {
 
     items.push(6)
     items.push(7)
-    el.update({ items })
+    el.update({items})
 
     const afterLis = target.querySelectorAll('li')
 
@@ -230,7 +234,7 @@ function runCoreTests(options) {
   it('List having siblings nodes', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
-    const el = createDummyListWithSiblingsTemplate(options).mount(target, { items })
+    const el = createDummyListWithSiblingsTemplate(options).mount(target, {items})
 
     const beforeLis = target.querySelectorAll('li')
 
@@ -238,7 +242,7 @@ function runCoreTests(options) {
     expect(beforeLis[0].textContent).to.be.equal('first')
     expect(beforeLis[beforeLis.length - 1].textContent).to.be.equal('last')
 
-    el.update({ items: items.reverse() })
+    el.update({items: items.reverse()})
 
     const afterLis = target.querySelectorAll('li')
 
@@ -252,7 +256,7 @@ function runCoreTests(options) {
   it('Each bindings should not throw if no array will be received', () => {
     const items = null
     const target = document.createElement('div')
-    const el = createDummyListWithSiblingsTemplate(options).mount(target, { items })
+    const el = createDummyListWithSiblingsTemplate(options).mount(target, {items})
 
     const lis = target.querySelectorAll('li')
 
@@ -266,7 +270,9 @@ describe('each bindings', () => {
   describe('Keyed vs unkeyed', () => {
     describe('keyed', () => {
       runCoreTests({
-        getKey(scope) { return scope.val }
+        getKey(scope) {
+          return scope.val
+        }
       })
     })
     describe('unkeyed', () => {
@@ -292,7 +298,7 @@ describe('each bindings', () => {
           }
         ]
       }])
-    }]).mount(target, { items })
+    }]).mount(target, {items})
 
     const divs = target.querySelectorAll('div')
 
@@ -336,5 +342,88 @@ describe('each bindings', () => {
     expect(target.querySelectorAll('li')).to.have.length(2)
 
     el.unmount()
+  })
+
+  it('Looped and nested <template> tags with keys should work properly (issue https://github.com/riot/riot/issues/2892)', () => {
+    const target = document.createElement('div')
+    const el = template(
+      '<template expr1="expr1"></template>',
+      [
+        {
+          'type': bindingTypes.EACH,
+          'getKey': scope => scope.e,
+          'condition': null,
+          'template': template(
+            '<h1 expr2="expr2"> </h1><p expr3="expr3"></p>',
+            [
+              {
+                'redundantAttribute': 'expr2',
+                'selector': '[expr2]',
+                'expressions': [
+                  {
+                    'type': expressionTypes.TEXT,
+                    'childNodeIndex': 0,
+                    'evaluate': scope => scope.e
+                  }
+                ]
+              },
+              {
+                'type': bindingTypes.EACH,
+                'getKey': null,
+                'condition': null,
+                'template': template(
+                  ' ',
+                  [
+                    {
+                      'expressions': [
+                        {
+                          'type': expressionTypes.TEXT,
+                          'childNodeIndex': 0,
+                          'evaluate': scope => [scope.x].join('')
+                        }
+                      ]
+                    }
+                  ]
+                ),
+                'redundantAttribute': 'expr3',
+                'selector': '[expr3]',
+                'itemName': 'x',
+                'evaluate': () => [1]
+              }
+            ]
+          ),
+          'redundantAttribute': 'expr1',
+          'selector': '[expr1]',
+          'itemName': 'e',
+          'indexName': null,
+          'evaluate': scope => scope.items
+        }
+      ]
+    ).mount(target, {
+      items: []
+    })
+
+    expect(target.querySelectorAll('p')).to.have.length(0)
+
+    el.update({
+      items: ['a']
+    })
+
+    expect(target.querySelectorAll('h1')).to.have.length(1)
+    expect(target.querySelectorAll('p')).to.have.length(1)
+
+    el.update({
+      items: ['a', 'c']
+    })
+
+    expect(target.querySelectorAll('h1')).to.have.length(2)
+    expect(target.querySelectorAll('p')).to.have.length(2)
+
+    el.update({
+      items: ['a', 'b', 'c']
+    })
+
+    expect(target.querySelectorAll('h1')).to.have.length(3)
+    expect(target.querySelectorAll('p')).to.have.length(3)
   })
 })

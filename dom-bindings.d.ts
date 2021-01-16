@@ -98,9 +98,9 @@ export interface TemplateChunkMeta {
 }
 
 export interface TemplateChunk<Scope = any, ParentScope = any> {
-  mount(el: HTMLElement, scope: Scope, parentScope: ParentScope, meta: TemplateChunkMeta): TemplateChunk
-  update(scope: Scope, parentScope: ParentScope): TemplateChunk
-  unmount(scope: Scope, parentScope: ParentScope, mustRemoveRoot: boolean): TemplateChunk
+  mount(el: HTMLElement, scope: Scope, parentScope?: ParentScope, meta?: TemplateChunkMeta): TemplateChunk
+  update(scope: Scope, parentScope?: ParentScope): TemplateChunk
+  unmount(scope: Scope, parentScope?: ParentScope, mustRemoveRoot?: boolean): TemplateChunk
   clone(): TemplateChunk
   createDOM(el: HTMLElement): TemplateChunk
 
