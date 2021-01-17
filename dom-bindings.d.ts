@@ -84,9 +84,9 @@ export interface TagBindingData extends BaseBindingData {
 export type BindingData = IfBindingData | EachBindingData | SimpleBindingData | SlotBindingData | TagBindingData
 
 export interface Binding<Scope = any, ParentScope = any> {
-  mount(el: HTMLElement, scope: Scope, parentScope: ParentScope, meta: TemplateChunkMeta): Binding
-  update(scope: Scope, parentScope: ParentScope): Binding
-  unmount(scope: Scope, parentScope: ParentScope, mustRemoveRoot: boolean): Binding
+  mount(el: HTMLElement, scope: Scope, parentScope?: ParentScope, meta?: TemplateChunkMeta): Binding
+  update(scope: Scope, parentScope?: ParentScope): Binding
+  unmount(scope: Scope, parentScope?: ParentScope, mustRemoveRoot?: boolean): Binding
 }
 
 // Template Object

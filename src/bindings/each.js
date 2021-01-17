@@ -29,7 +29,7 @@ export const EachBinding = {
     const {placeholder, nodes, childrenMap} = this
     const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
-    const parent = placeholder.parentNode
+    //const parent = placeholder.parentNode
 
     // prepare the diffing
     const {
@@ -39,7 +39,7 @@ export const EachBinding = {
     } = createPatch(items, scope, parentScope, this)
 
     // patch the DOM only if there are new nodes
-    udomdiff(parent,
+    udomdiff(
       nodes,
       futureNodes,
       patch(
@@ -193,7 +193,7 @@ export default function create(node, {evaluate, condition, itemName, indexName, 
   const placeholder = document.createTextNode('')
   const root = node.cloneNode()
 
-  insertBefore(placeholder, node)
+  insertBefore(placeholder,  node)
   removeChild(node)
 
   return {

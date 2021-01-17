@@ -1,4 +1,5 @@
 import {bindingTypes, expressionTypes, template} from '../../src'
+import {domNodesToTextArray} from '../util'
 
 function compareNodesContents(target, selector, items) {
   const domNodes = target.querySelectorAll(selector)
@@ -410,6 +411,8 @@ describe('each bindings', () => {
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(1)
+
+    expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a'])
     expect(target.querySelectorAll('p')).to.have.length(3)
 
     el.update({
@@ -417,6 +420,7 @@ describe('each bindings', () => {
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(2)
+    expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(6)
 
     el.update({
@@ -424,6 +428,7 @@ describe('each bindings', () => {
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(3)
+    expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'b', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(9)
 
     el.update({
@@ -431,6 +436,7 @@ describe('each bindings', () => {
     })
 
     expect(target.querySelectorAll('h1')).to.have.length(2)
+    expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(6)
   })
 })

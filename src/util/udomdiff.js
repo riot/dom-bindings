@@ -22,7 +22,27 @@ import { insertBefore, removeChild, replaceChild } from '@riotjs/util/dom'
 /* eslint-disable */
 
 /**
- * @param {Node} parentNode The container where children live
+ * udomdiff assumes that nodes can not be inserted or modified by other scripts
+ * That's not the case in Riot.js, so we need to create a safeSibling method to assure that the DOM mutations
+ * will be properly applied
+ * @param {Node[]} list - node list
+ * @param {number} index - index were we will search the nextSibling node to use
+  * @param {(entry: Node, action: number) => Node} get
+ * The callback invoked per each entry related DOM operation.
+ * @param {number} info - parameter provided to the get function
+ * @returns {Node} the node we were looking for
+ */
+const getSafeNextSibling = (list, index, get, info) => {
+  let node
+  while (node = get(list[index], info)) {
+    const { nextSibling } = node
+
+    if (nextSibling) return nextSibling
+    index--
+  }
+}
+
+/**
  * @param {Node[]} a The list of current/live children
  * @param {Node[]} b The list of future children
  * @param {(entry: Node, action: number) => Node} get
@@ -30,7 +50,7 @@ import { insertBefore, removeChild, replaceChild } from '@riotjs/util/dom'
  * @param {Node} [before] The optional node used as anchor to insert before.
  * @returns {Node[]} The same list of future children.
  */
-export default (parentNode, a, b, get, before) => {
+export default (a, b, get, before) => {
   const bLength = b.length
   let aEnd = a.length
   let bEnd = bLength
@@ -46,11 +66,13 @@ export default (parentNode, a, b, get, before) => {
       // must be retrieved, otherwise it's gonna be the first item.
       const node = bEnd < bLength ?
         (bStart ?
-          (get(b[bStart - 1], -0).nextSibling) :
+          (getSafeNextSibling(b, bStart - 1, get, -1)) :
           get(b[bEnd - bStart], 0)) :
         before
-      while (bStart < bEnd)
+      while (bStart < bEnd) {
+
         insertBefore(get(b[bStart++], 1), node)
+      }
     }
     // remove head or tail: fast path
     else if (bEnd === bStart) {
@@ -84,10 +106,10 @@ export default (parentNode, a, b, get, before) => {
       // or asymmetric too
       // [1, 2, 3, 4, 5]
       // [1, 2, 3, 5, 6, 4]
-      const node = get(a[--aEnd], -1).nextSibling
+      const node = getSafeNextSibling(a, --aEnd, get, -1)
       insertBefore(
         get(b[bStart++], 1),
-        get(a[aStart++], -1).nextSibling
+        getSafeNextSibling(a, aStart++, get, -1)
       )
       insertBefore(get(b[--bEnd], 1), node)
       // mark the future index as identical (yeah, it's dirty, but cheap 👍)
