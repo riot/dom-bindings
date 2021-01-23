@@ -380,7 +380,7 @@ describe('each bindings', () => {
                         {
                           'type': expressionTypes.TEXT,
                           'childNodeIndex': 0,
-                          'evaluate': scope => [scope.x].join('')
+                          'evaluate': scope => [scope.e, scope.x].join('')
                         }
                       ]
                     }
@@ -422,6 +422,8 @@ describe('each bindings', () => {
     expect(target.querySelectorAll('h1')).to.have.length(2)
     expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(6)
+    expect(target.querySelectorAll('h1')[0].nextSibling.innerHTML).to.be.equal('a1')
+    expect(target.querySelectorAll('h1')[1].nextSibling.innerHTML).to.be.equal('c1')
 
     el.update({
       items: ['a', 'b', 'c']
@@ -430,6 +432,9 @@ describe('each bindings', () => {
     expect(target.querySelectorAll('h1')).to.have.length(3)
     expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'b', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(9)
+    expect(target.querySelectorAll('h1')[0].nextSibling.innerHTML).to.be.equal('a1')
+    expect(target.querySelectorAll('h1')[1].nextSibling.innerHTML).to.be.equal('b1')
+    expect(target.querySelectorAll('h1')[2].nextSibling.innerHTML).to.be.equal('c1')
 
     el.update({
       items: ['a', 'c']
@@ -437,6 +442,8 @@ describe('each bindings', () => {
 
     expect(target.querySelectorAll('h1')).to.have.length(2)
     expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'c'])
+    expect(target.querySelectorAll('h1')[0].nextSibling.innerHTML).to.be.equal('a1')
+    expect(target.querySelectorAll('h1')[1].nextSibling.innerHTML).to.be.equal('c1')
     expect(target.querySelectorAll('p')).to.have.length(6)
   })
 })
