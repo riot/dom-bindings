@@ -1,5 +1,7 @@
+import {HEAD_SYMBOL, TAIL_SYMBOL} from '../constants'
 import {insertBefore, removeChild} from '@riotjs/util/dom'
 import createTemplateMeta from '../util/create-template-meta'
+import getFragmentChildren from '../util/get-fragment-children'
 import {isTemplate} from '@riotjs/util/checks'
 import udomdiff from '../util/udomdiff'
 
@@ -29,7 +31,6 @@ export const EachBinding = {
     const {placeholder, nodes, childrenMap} = this
     const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
-    //const parent = placeholder.parentNode
 
     // prepare the diffing
     const {
@@ -55,6 +56,9 @@ export const EachBinding = {
     // update the children map
     this.childrenMap = newChildrenMap
     this.nodes = futureNodes
+
+    // make sure that the loop edge nodes are marked
+    markEdgeNodes(this.nodes)
 
     return this
   },
@@ -123,6 +127,19 @@ function extendScope(scope, {itemName, indexName, index, item}) {
 }
 
 /**
+ * Mark the first and last nodes in order to ignore them in case we need to retrieve the <template> fragment nodes
+ * @param {Array[]} nodes - each binding nodes list
+ * @returns {undefined} void function
+ */
+function markEdgeNodes(nodes) {
+  const first = nodes[0]
+  const last = nodes[nodes.length - 1]
+
+  if (first) first[HEAD_SYMBOL] = true
+  if (last) last[TAIL_SYMBOL] = true
+}
+
+/**
  * Loop the current template items
  * @param   {Array} items - expression collection value
  * @param   {*} scope - template scope
@@ -152,7 +169,7 @@ function createPatch(items, scope, parentScope, binding) {
     const mustMount = !oldItem
     const componentTemplate = oldItem ? oldItem.template : template.clone()
     const el = componentTemplate.el || root.cloneNode()
-    const meta = isTemplateTag && mustMount ? createTemplateMeta(componentTemplate) : {}
+    const meta = isTemplateTag && mustMount ? createTemplateMeta(componentTemplate) : componentTemplate.meta
 
     if (mustMount) {
       batches.push(() => componentTemplate.mount(el, context, parentScope, meta))
@@ -163,8 +180,7 @@ function createPatch(items, scope, parentScope, binding) {
     // create the collection of nodes to update or to add
     // in case of template tags we need to add all its children nodes
     if (isTemplateTag) {
-      const children = meta.children || componentTemplate.children
-      nodes.push(...children)
+      nodes.push(...(mustMount ? meta.children : getFragmentChildren(meta)))
     } else {
       nodes.push(el)
     }

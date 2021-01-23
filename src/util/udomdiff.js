@@ -22,7 +22,6 @@ import { insertBefore, removeChild, replaceChild } from '@riotjs/util/dom'
 /* eslint-disable */
 
 /**
- * @param {Node} parentNode The container where children live
  * @param {Node[]} a The list of current/live children
  * @param {Node[]} b The list of future children
  * @param {(entry: Node, action: number) => Node} get

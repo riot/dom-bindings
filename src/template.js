@@ -96,6 +96,9 @@ export const TemplateChunk = Object.freeze({
     ))
     this.bindings.forEach(b => b.mount(scope, parentScope))
 
+    // store the template meta properties
+    this.meta = meta
+
     return this
   },
   /**
@@ -155,6 +158,7 @@ export const TemplateChunk = Object.freeze({
   clone() {
     return {
       ...this,
+      meta: {},
       el: null
     }
   }

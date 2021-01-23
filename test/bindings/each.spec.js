@@ -1,5 +1,5 @@
 import {bindingTypes, expressionTypes, template} from '../../src'
-import {domNodesToTextArray} from '../util'
+import {domNodesToTextArray, getNextSiblingChild} from '../util'
 
 function compareNodesContents(target, selector, items) {
   const domNodes = target.querySelectorAll(selector)
@@ -422,8 +422,8 @@ describe('each bindings', () => {
     expect(target.querySelectorAll('h1')).to.have.length(2)
     expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(6)
-    expect(target.querySelectorAll('h1')[0].nextSibling.innerHTML).to.be.equal('a1')
-    expect(target.querySelectorAll('h1')[1].nextSibling.innerHTML).to.be.equal('c1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[0]).innerHTML).to.be.equal('a1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[1]).innerHTML).to.be.equal('c1')
 
     el.update({
       items: ['a', 'b', 'c']
@@ -432,9 +432,9 @@ describe('each bindings', () => {
     expect(target.querySelectorAll('h1')).to.have.length(3)
     expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'b', 'c'])
     expect(target.querySelectorAll('p')).to.have.length(9)
-    expect(target.querySelectorAll('h1')[0].nextSibling.innerHTML).to.be.equal('a1')
-    expect(target.querySelectorAll('h1')[1].nextSibling.innerHTML).to.be.equal('b1')
-    expect(target.querySelectorAll('h1')[2].nextSibling.innerHTML).to.be.equal('c1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[0]).innerHTML).to.be.equal('a1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[1]).innerHTML).to.be.equal('b1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[2]).innerHTML).to.be.equal('c1')
 
     el.update({
       items: ['a', 'c']
@@ -442,8 +442,8 @@ describe('each bindings', () => {
 
     expect(target.querySelectorAll('h1')).to.have.length(2)
     expect(domNodesToTextArray(target, 'h1')).to.be.deep.equal(['a', 'c'])
-    expect(target.querySelectorAll('h1')[0].nextSibling.innerHTML).to.be.equal('a1')
-    expect(target.querySelectorAll('h1')[1].nextSibling.innerHTML).to.be.equal('c1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[0]).innerHTML).to.be.equal('a1')
+    expect(getNextSiblingChild(target.querySelectorAll('h1')[1]).innerHTML).to.be.equal('c1')
     expect(target.querySelectorAll('p')).to.have.length(6)
   })
 })

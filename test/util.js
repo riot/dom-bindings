@@ -8,3 +8,8 @@ export function domNodesToTextArray(target, selector) {
   return Array.from(target.querySelectorAll(selector)).map(n => n.innerHTML)
 }
 
+export function getNextSiblingChild(node) {
+  const {nextSibling} = node
+
+  return nextSibling.tagName ? nextSibling : getNextSiblingChild(nextSibling)
+}
