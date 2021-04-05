@@ -1,8 +1,6 @@
 import {isBoolean, isFunction, isNil, isObject} from '@riotjs/util/checks'
 import {memoize} from '@riotjs/util/misc'
 
-const REMOVE_ATTRIBUTE = 'removeAttribute'
-const SET_ATTIBUTE = 'setAttribute'
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
 const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name) ) // eslint-disable-line
 
@@ -32,6 +30,24 @@ function removeAllAttributes(node, newAttributes, oldAttributes) {
     .keys(oldAttributes)
     .filter(name => !newKeys.includes(name))
     .forEach(attribute => node.removeAttribute(attribute))
+}
+
+/**
+ * Check whether the attribute value can be rendered
+ * @param {*} value - expression value
+ * @returns {boolean} true if we can render this attribute value
+ */
+function canRenderAttribute(value) {
+  return value === true || typeof value === 'string'
+}
+
+/**
+ * Check whether the attribute should be removed
+ * @param {*} value - expression value
+ * @returns {boolean} boolean - true if the attribute can be removed}
+ */
+function shouldRemoveAttribute(value) {
+  return isNil(value) || value === false || value === ''
 }
 
 /**
@@ -70,22 +86,11 @@ export default function attributeExpression(node, { name }, value, oldValue) {
     node[name] = value
   }
 
-  node[getMethod(value)](name, normalizeValue(name, value))
-}
-
-/**
- * Get the attribute modifier method
- * @param   {*} value - if truthy we return `setAttribute` othewise `removeAttribute`
- * @returns {string} the node attribute modifier method name
- */
-function getMethod(value) {
-  return isNil(value) ||
-    value === false ||
-    value === '' ||
-    isObject(value) ||
-    isFunction(value) ?
-    REMOVE_ATTRIBUTE :
-    SET_ATTIBUTE
+  if (shouldRemoveAttribute(value)) {
+    node.removeAttribute(name)
+  } else if (canRenderAttribute(value)) {
+    node.setAttribute(name, normalizeValue(name, value))
+  }
 }
 
 /**

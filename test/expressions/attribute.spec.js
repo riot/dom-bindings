@@ -135,6 +135,42 @@ describe('attribute specs', () => {
     expect(p.hasAttribute('class')).to.be.ok
   })
 
+  it('symbol attributes will be skipped', () => {
+    const target = document.createElement('div')
+    const el = template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: Symbol() })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('class')).to.be.not.ok
+
+    el.update({ attr: 'hello' })
+
+    expect(p.hasAttribute('class')).to.be.ok
+  })
+
+  it('array attributes will be skipped', () => {
+    const target = document.createElement('div')
+    const el = template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: ['hello', 'there'] })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('class')).to.be.not.ok
+
+    el.update({ attr: 'hello' })
+
+    expect(p.hasAttribute('class')).to.be.ok
+  })
+
   it('function attributes will be skipped', () => {
     const target = document.createElement('div')
     const el = template('<p expr0></p>', [{
