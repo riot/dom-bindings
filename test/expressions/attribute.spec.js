@@ -31,6 +31,20 @@ describe('attribute specs', () => {
     expect(p.selected).to.be.ok
   })
 
+  it('number attributes will be rendered', () => {
+    const target = document.createElement('div')
+    template('<p expr0></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: 1 })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('class')).to.be.equal('1')
+  })
+
   it('remove attribute if it\'s falsy', () => {
     const target = document.createElement('div')
     template('<p class="hello" expr0></p>', [{

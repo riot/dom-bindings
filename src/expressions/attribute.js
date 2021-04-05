@@ -38,7 +38,7 @@ function removeAllAttributes(node, newAttributes, oldAttributes) {
  * @returns {boolean} true if we can render this attribute value
  */
 function canRenderAttribute(value) {
-  return value === true || typeof value === 'string'
+  return value === true || ['string', 'number'].includes(typeof value)
 }
 
 /**
