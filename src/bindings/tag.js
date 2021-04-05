@@ -69,7 +69,7 @@ export const TagBinding = {
     const name = this.evaluate(scope)
 
     // simple update
-    if (name === this.name) {
+    if (name && name === this.name) {
       this.tag.update(scope)
     } else {
       // unmount the old tag if it exists

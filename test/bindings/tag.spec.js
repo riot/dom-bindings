@@ -35,6 +35,40 @@ describe('tag bindings', () => {
     el.unmount()
   })
 
+  it('undefined tags will fall back to default templates', () => {
+    const target = document.createElement('div')
+
+    const el = template('<section><div expr0></div></section>', [{
+      selector: '[expr0]',
+      type: bindingTypes.TAG,
+      evaluate: () => undefined,
+      getComponent() {
+        return null
+      },
+      slots: [
+        {
+          id: 'default',
+          bindings: [{
+            selector: '[expr1]',
+            expressions: [{
+              type: expressionTypes.TEXT,
+              childNodeIndex: 0,
+              evaluate: scope => scope.text
+            }]
+          }],
+          html: '<p expr1><!----></p>'
+        }
+      ]
+    }]).mount(target, {text: 'hello'})
+
+    const p = target.querySelector('p')
+
+    expect(p.textContent).to.be.equal('hello')
+    expect(p).to.be.ok
+
+    el.unmount()
+  })
+
   it('attributes for tags not registered will be converted into expressions', () => {
     const target = document.createElement('div')
 
