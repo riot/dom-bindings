@@ -12,19 +12,19 @@ export interface BaseExpressionData<Scope = any> {
   evaluate(scope: Scope): any
 }
 
-export interface AttributeExpressionData<Scope = any> extends BaseExpressionData {
+export interface AttributeExpressionData<Scope = any> extends BaseExpressionData<Scope> {
   name: string
 }
 
-export interface EventExpressionData<Scope = any> extends BaseExpressionData {
+export interface EventExpressionData<Scope = any> extends BaseExpressionData<Scope> {
   name: string
 }
 
-export interface TextExpressionData<Scope = any> extends BaseExpressionData {
+export interface TextExpressionData<Scope = any> extends BaseExpressionData<Scope> {
   childNodeIndex: number
 }
 
-export interface ValueExpressionData<Scope = any> extends BaseExpressionData {}
+export interface ValueExpressionData<Scope = any> extends BaseExpressionData<Scope> {}
 
 export type ExpressionData<Scope = any> = AttributeExpressionData<Scope> | EventExpressionData<Scope> | TextExpressionData<Scope> | ValueExpressionData<Scope>
 
@@ -53,7 +53,7 @@ export interface BaseBindingData<Scope = any> {
   evaluate?(scope: Scope): any
 }
 
-export interface EachBindingData<Scope = any> extends BaseBindingData {
+export interface EachBindingData<Scope = any> extends BaseBindingData<Scope> {
   itemName: string
   indexName?: number
   template: TemplateChunk<Scope>
@@ -61,21 +61,21 @@ export interface EachBindingData<Scope = any> extends BaseBindingData {
   condition?: ((scope: Scope) => any) | null
 }
 
-export interface IfBindingData<Scope = any> extends BaseBindingData {
+export interface IfBindingData<Scope = any> extends BaseBindingData<Scope> {
   template: TemplateChunk<Scope>
 }
 
-export interface SimpleBindingData<Scope = any> extends BaseBindingData {
+export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
   expressions: ExpressionData<Scope>[]
 }
 
-export interface SlotBindingData<Scope = any> extends BaseBindingData {
+export interface SlotBindingData<Scope = any> extends BaseBindingData<Scope> {
   id: string
   html: string
-  bindings: BindingData<Scope>
+  bindings: BindingData<Scope>[]
 }
 
-export interface TagBindingData<Scope = any> extends BaseBindingData {
+export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
   getComponent(name: string): TemplateChunk<Scope>
   attributes: AttributeExpressionData<Scope>[]
   slots: SlotBindingData<Scope>[]
