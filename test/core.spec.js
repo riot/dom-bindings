@@ -172,6 +172,17 @@ describe('core specs', () => {
     el.unmount()
   })
 
+  // Not sure what this is the correct behavior
+  it('Template fragments without bindings must stay in the DOM', () => {
+    const target = document.createElement('div')
+
+    const el = template('<h1>Title</h1><template>Hello</template>', []).mount(target, {})
+
+    expect(target.querySelector('template')).to.be.ok
+    expect(target.querySelector('template').innerHTML).to.be.equal('Hello')
+
+    el.unmount()
+  })
 
   it('Template fragments can be empty', () => {
     const target = document.createElement('div')
