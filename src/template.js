@@ -58,9 +58,8 @@ export const TemplateChunk = Object.freeze({
 
     if (this.el) this.unmount(scope)
 
-    // <template> tags require a bit more work
-    // the template fragment might be already created via meta outside of this call
-    const {fragment, children, avoidDOMInjection} = meta
+    const {children, avoidDOMInjection} = meta
+
     // <template> bindings of course can not have a root element
     // so we check the parent node to set the query selector bindings
     const {parentNode} = children ? children[0] : el
@@ -74,19 +73,22 @@ export const TemplateChunk = Object.freeze({
     // create the DOM if it wasn't created before
     this.createDOM(el)
 
-    if (this.dom) {
-      // create the new template dom fragment if it want already passed in via meta
-      this.fragment = fragment || this.dom.cloneNode(true)
-    }
+    // <template> tags require a bit more work
+    // the template fragment might be already created via meta outside of this call
+    // create the new template dom fragment if it want already passed in via meta
+    const fragment = meta.fragment || (this.dom ? this.dom.cloneNode(true) : null)
 
     // store root node
     // notice that for template tags the root note will be the parent tag
     this.el = this.isTemplateTag ? parentNode : el
     // create the children array only for the <template> fragments
-    this.children = this.isTemplateTag ? children || Array.from(this.fragment.childNodes) : null
+    this.children = this.isTemplateTag && (children || fragment) ? children || Array.from(fragment.childNodes) : null
 
     // inject the DOM into the el only if a fragment is available
-    if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment)
+    if (!avoidDOMInjection) {
+      if (fragment) injectDOM(el, fragment)
+      else if (isTemplateTag) el.parentNode.removeChild(el)
+    }
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => createBinding(
@@ -98,6 +100,7 @@ export const TemplateChunk = Object.freeze({
 
     // store the template meta properties
     this.meta = meta
+    this.fragment = fragment
 
     return this
   },

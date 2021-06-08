@@ -172,6 +172,35 @@ describe('core specs', () => {
     el.unmount()
   })
 
+
+  it('Template fragments can be empty', () => {
+    const target = document.createElement('div')
+
+    const el = template(
+      '<header></header><template expr1="expr1"></template><footer></footer>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: (scope) => scope.isVisible,
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
+          template: template(
+            null,
+            []
+          )
+        }
+      ]
+    ).mount(target, {
+      isVisible: true
+    })
+
+    expect(target.querySelector('header')).to.be.ok
+    expect(target.querySelector('template')).to.be.not.ok
+    expect(target.querySelector('footer')).to.be.ok
+
+    el.unmount()
+  })
+
   it('Template fragments work also with text nodes', () => {
     const target = document.createElement('div')
 
