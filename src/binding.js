@@ -27,8 +27,12 @@ export default function create(root, binding, templateTagOffset) {
   const { selector, type, redundantAttribute, expressions } = binding
   // find the node to apply the bindings
   const node = selector ? root.querySelector(selector) : root
+
+  if (!node) return null
+
   // remove eventually additional attributes created only to select this node
   if (redundantAttribute) node.removeAttribute(redundantAttribute)
+
   const bindingExpressions = expressions || []
   // init the binding
   return (bindings[type] || bindings[SIMPLE])(

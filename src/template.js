@@ -95,7 +95,7 @@ export const TemplateChunk = Object.freeze({
       this.el,
       binding,
       templateTagOffset
-    ))
+    )).filter(binding => binding)
     this.bindings.forEach(b => b.mount(scope, parentScope))
 
     // store the template meta properties
