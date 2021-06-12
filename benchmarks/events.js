@@ -1,5 +1,8 @@
-const { fireEvent } = require('../test/util')
-
+function fireEvent(el, name) {
+  const e = document.createEvent('HTMLEvents')
+  e.initEvent(name, false, true)
+  el.dispatchEvent(e)
+}
 
 module.exports = function(suite, testName, domBindings) {
   function generateItems(amount, hasChildren) {
