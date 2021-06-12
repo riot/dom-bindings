@@ -64,11 +64,6 @@ export const TemplateChunk = Object.freeze({
     // so we check the parent node to set the query selector bindings
     const {parentNode} = children ? children[0] : el
     const isTemplateTag = isTemplate(el)
-    const templateTagOffset = isTemplateTag ? Math.max(
-      Array.from(parentNode.childNodes).indexOf(el),
-      0
-    ) : null
-    this.isTemplateTag = isTemplateTag
 
     // create the DOM if it wasn't created before
     this.createDOM(el)
@@ -78,11 +73,21 @@ export const TemplateChunk = Object.freeze({
     // create the new template dom fragment if it want already passed in via meta
     const fragment = meta.fragment || (this.dom ? this.dom.cloneNode(true) : null)
 
+    this.isTemplateTag = isTemplateTag
     // store root node
     // notice that for template tags the root note will be the parent tag
-    this.el = this.isTemplateTag ? parentNode : el
+    this.el = isTemplateTag ? parentNode : el
+
     // create the children array only for the <template> fragments
-    this.children = this.isTemplateTag && (children || fragment) ? children || Array.from(fragment.childNodes) : null
+    this.children = isTemplateTag && (children || fragment) ? children || Array.from(fragment.childNodes) : null
+
+    // find text expressions offset for <template> fragments
+    const templateSiblingNodes = isTemplateTag && Array.from(parentNode.childNodes)
+    const templateTagOffset = isTemplateTag && Math.max(
+      templateSiblingNodes.indexOf(el),
+      templateSiblingNodes.indexOf(meta.head) + 1,
+      0
+    )
 
     // inject the DOM into the el only if a fragment is available
     if (!avoidDOMInjection) {
@@ -104,6 +109,7 @@ export const TemplateChunk = Object.freeze({
 
     return this
   },
+
   /**
    * Update the template with fresh data
    * @param   {*} scope - template data
@@ -115,11 +121,12 @@ export const TemplateChunk = Object.freeze({
 
     return this
   },
+
   /**
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
-   * @param   {*} parentScope - scope of the parent template tag
-   * @param   {boolean|null} mustRemoveRoot - if true remove the root element,
+   * @param   {*?} parentScope - scope of the parent template tag
+   * @param   {boolean|null?} mustRemoveRoot - if true remove the root element,
    * if false or undefined clean the root tag content, if null don't touch the DOM
    * @returns {TemplateChunk} self
    */
@@ -154,6 +161,7 @@ export const TemplateChunk = Object.freeze({
 
     return this
   },
+
   /**
    * Clone the template chunk
    * @returns {TemplateChunk} a clone of this object resetting the this.el property
