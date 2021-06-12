@@ -65,8 +65,10 @@ export const TemplateChunk = Object.freeze({
     // so we check the parent node to set the query selector bindings
     const {parentNode} = children ? children[0] : el
     const isTemplateTag = isTemplate(el)
+    const siblingsNodes = isTemplateTag ? Array.from(parentNode.childNodes) : []
     const templateTagOffset = isTemplateTag ? Math.max(
-      Array.from(parentNode.childNodes).indexOf(el),
+      siblingsNodes.indexOf(el),
+      siblingsNodes.indexOf(meta.head) + 1,
       0
     ) : null
     this.isTemplateTag = isTemplateTag

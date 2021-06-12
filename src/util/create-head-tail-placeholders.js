@@ -2,12 +2,12 @@ import {HEAD_SYMBOL, TAIL_SYMBOL} from '../constants'
 
 
 /**
- * Create the <template> fragments comment nodes
- * @return {Object} {{head: Comment, tail: Comment}}
+ * Create the <template> fragments text nodes
+ * @return {Object} {{head: TextNode, tail: TextNode}}
  */
 export default function createHeadTailPlaceholders() {
-  const head = document.createComment('fragment head')
-  const tail = document.createComment('fragment tail')
+  const head = document.createTextNode('')
+  const tail = document.createTextNode('')
 
   head[HEAD_SYMBOL] = true
   tail[TAIL_SYMBOL] = true
