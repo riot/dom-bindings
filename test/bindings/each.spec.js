@@ -345,6 +345,46 @@ describe('each bindings', () => {
     el.unmount()
   })
 
+  it('Looped <template> tags with plain text nodes should work properly', () => {
+    const target = document.createElement('div')
+    const el = template('<template expr1="expr1"></template>', [
+      {
+        type: bindingTypes.EACH,
+        condition: scope => scope.item,
+        template: template(
+          ' ',
+          [
+            {
+              'expressions': [
+                {
+                  'type': expressionTypes.TEXT,
+                  'childNodeIndex': 0,
+                  'evaluate': scope => scope.item
+                }
+              ]
+            }
+          ]
+        ),
+        redundantAttribute: 'expr1',
+        selector: '[expr1]',
+        itemName: 'item',
+        evaluate: scope => scope.items
+      }
+    ]).mount(target, {
+      items: ['aaa', 'bbb', 'ccc', 'ddd']
+    })
+
+    expect(target.innerHTML).to.be.equal('aaabbbcccddd')
+
+    el.update({
+      items: ['eee', 'fff']
+    })
+
+    expect(target.innerHTML).to.be.equal('eeefff')
+
+    el.unmount()
+  })
+
   it('Looped and nested <template> tags with keys should work properly (issue https://github.com/riot/riot/issues/2892)', () => {
     const target = document.createElement('div')
     const el = template(
