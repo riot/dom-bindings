@@ -1,4 +1,4 @@
-import { cleanNode, clearChildren, removeChild } from '@riotjs/util/dom'
+import {cleanNode, clearChildren, removeChild} from '@riotjs/util/dom'
 import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
@@ -15,6 +15,23 @@ function createTemplateDOM(el, html) {
   return html && (typeof html === 'string' ?
     createDOMTree(el, html) :
     html)
+}
+
+/**
+ * Get the offset of the <template> tag
+ * @param {HTMLElement} parentNode - template tag parent node
+ * @param {HTMLElement} el - the template tag we want to render
+ * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
+ * @returns {number} offset of the <template> tag calculated from its siblings DOM nodes
+ */
+function getTemplateTagOffset(parentNode, el, meta) {
+  const siblings = Array.from(parentNode.childNodes)
+
+  return Math.max(
+    siblings.indexOf(el),
+    siblings.indexOf(meta.head) + 1,
+    0
+  )
 }
 
 /**
@@ -65,13 +82,7 @@ export const TemplateChunk = Object.freeze({
     // so we check the parent node to set the query selector bindings
     const {parentNode} = children ? children[0] : el
     const isTemplateTag = isTemplate(el)
-    const siblingsNodes = isTemplateTag ? Array.from(parentNode.childNodes) : []
-    const templateTagOffset = isTemplateTag ? Math.max(
-      siblingsNodes.indexOf(el),
-      siblingsNodes.indexOf(meta.head) + 1,
-      0
-    ) : null
-    this.isTemplateTag = isTemplateTag
+    const templateTagOffset = isTemplateTag ? getTemplateTagOffset(parentNode, el, meta) : null
 
     // create the DOM if it wasn't created before
     this.createDOM(el)
@@ -83,9 +94,9 @@ export const TemplateChunk = Object.freeze({
 
     // store root node
     // notice that for template tags the root note will be the parent tag
-    this.el = this.isTemplateTag ? parentNode : el
+    this.el = isTemplateTag ? parentNode : el
     // create the children array only for the <template> fragments
-    this.children = this.isTemplateTag ? children || Array.from(this.fragment.childNodes) : null
+    this.children = isTemplateTag ? children || Array.from(this.fragment.childNodes) : null
 
     // inject the DOM into the el only if a fragment is available
     if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment)
@@ -130,19 +141,19 @@ export const TemplateChunk = Object.freeze({
       // pure components should handle the DOM unmount updates by themselves
       case this.el[IS_PURE_SYMBOL]:
         break
-      // <template> tags should be treated a bit differently
-      // we need to clear their children only if it's explicitly required by the caller
-      // via mustRemoveRoot !== null
+        // <template> tags should be treated a bit differently
+        // we need to clear their children only if it's explicitly required by the caller
+        // via mustRemoveRoot !== null
       case this.children && mustRemoveRoot !== null:
         clearChildren(this.children)
         break
 
-      // remove the root node only if the mustRemoveRoot === true
+        // remove the root node only if the mustRemoveRoot === true
       case mustRemoveRoot === true:
         removeChild(this.el)
         break
 
-      // otherwise we clean the node children
+        // otherwise we clean the node children
       case mustRemoveRoot !== null:
         cleanNode(this.el)
         break
