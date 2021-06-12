@@ -1,4 +1,4 @@
-import { bindingTypes, expressionTypes, template } from '../src'
+import {bindingTypes, expressionTypes, template} from '../src'
 import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
 
 describe('core specs', () => {
@@ -105,7 +105,7 @@ describe('core specs', () => {
           evaluate: scope => scope.text
         }
       ]
-    }]).mount(target, { text: 'hello' })
+    }]).mount(target, {text: 'hello'})
 
     const p = target.querySelector('p')
 
@@ -168,6 +168,45 @@ describe('core specs', () => {
     expect(target.querySelector('p')).to.be.not.ok
     expect(target.querySelector('template')).to.be.not.ok
     expect(target.querySelector('h1')).to.be.ok
+
+    el.unmount()
+  })
+
+  it('Template fragments without bindings must stay in the DOM', () => {
+    const target = document.createElement('div')
+
+    const el = template('<h1>Title</h1><template>Hello</template>', []).mount(target, {})
+
+    expect(target.querySelector('template')).to.be.ok
+    expect(target.querySelector('template').innerHTML).to.be.equal('Hello')
+
+    el.unmount()
+  })
+
+  it('Template fragments can be empty', () => {
+    const target = document.createElement('div')
+
+    const el = template(
+      '<header></header><template expr1="expr1"></template><footer></footer>',
+      [
+        {
+          type: bindingTypes.IF,
+          evaluate: (scope) => scope.isVisible,
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
+          template: template(
+            null,
+            []
+          )
+        }
+      ]
+    ).mount(target, {
+      isVisible: true
+    })
+
+    expect(target.querySelector('header')).to.be.ok
+    expect(target.querySelector('template')).to.be.not.ok
+    expect(target.querySelector('footer')).to.be.ok
 
     el.unmount()
   })
