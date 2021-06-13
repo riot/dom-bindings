@@ -87,18 +87,19 @@ export const TemplateChunk = Object.freeze({
     // create the DOM if it wasn't created before
     this.createDOM(el)
 
-    // create the new template dom fragment if it want already passed in via meta
-    this.fragment = fragment || this.dom.cloneNode(true)
+    // create the DOM of this template cloning the original DOM structure stored in this instance
+    // notice that if a documentFragment was passed (via meta) we will use it instead
+    const cloneNode = fragment || this.dom.cloneNode(true)
 
     // store root node
     // notice that for template tags the root note will be the parent tag
     this.el = isTemplateTag ? parentNode : el
 
     // create the children array only for the <template> fragments
-    this.children = isTemplateTag ? children || Array.from(this.fragment.childNodes) : null
+    this.children = isTemplateTag ? children || Array.from(cloneNode.childNodes) : null
 
     // inject the DOM into the el only if a fragment is available
-    if (!avoidDOMInjection && this.fragment) injectDOM(el, this.fragment)
+    if (!avoidDOMInjection && cloneNode) injectDOM(el, cloneNode)
 
     // create the bindings
     this.bindings = this.bindingsData.map(binding => createBinding(
