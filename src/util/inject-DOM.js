@@ -4,7 +4,7 @@ import {moveChildren} from '@riotjs/util/dom'
 /**
  * Inject the DOM tree into a target node
  * @param   {HTMLElement} el - target element
- * @param   {HTMLFragment|SVGElement} dom - dom tree to inject
+ * @param   {DocumentFragment|SVGElement} dom - dom tree to inject
  * @returns {undefined}
  */
 export default function injectDOM(el, dom) {
