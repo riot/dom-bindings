@@ -1,4 +1,4 @@
-import {insertBefore, removeChild} from '@riotjs/util/dom'
+import {cleanNode, insertBefore, removeChild} from '@riotjs/util/dom'
 import {PARENT_KEY_SYMBOL} from '@riotjs/util/constants'
 import {evaluateAttributeExpressions} from '@riotjs/util/misc'
 import template from '../template'
@@ -44,11 +44,12 @@ export const SlotBinding = {
     ).createDOM(parentNode)
 
     if (this.template) {
+      cleanNode(this.node)
       this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent)
       this.template.children = Array.from(this.node.childNodes)
-      moveSlotInnerContent(this.node)
     }
 
+    moveSlotInnerContent(this.node)
     removeChild(this.node)
 
     return this
@@ -87,7 +88,8 @@ function moveSlotInnerContent(slot) {
 /**
  * Create a single slot binding
  * @param   {HTMLElement} node - slot node
- * @param   {string} options.name - slot id
+ * @param   {string} name - slot id
+ * @param   {AttributeExpressionData[]} attributes - slot attributes
  * @returns {Object} Slot binding object
  */
 export default function createSlot(node, { name, attributes }) {
