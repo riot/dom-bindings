@@ -359,7 +359,7 @@ describe('core specs', () => {
     el.unmount()
   })
 
-  it('The content attribute doesn\'t break the rendering (https://github.com/riot/riot/issues/2913)', () => {
+  it('The content attribute doesn\'t break the rendering (issue https://github.com/riot/riot/issues/2913)', () => {
     const target = document.createElement('div')
 
     target.content = true

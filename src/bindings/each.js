@@ -1,6 +1,7 @@
 import {HEAD_SYMBOL, TAIL_SYMBOL} from '../constants'
 import {insertBefore, removeChild} from '@riotjs/util/dom'
 import createTemplateMeta from '../util/create-template-meta'
+import {defineProperty} from '@riotjs/util/objects'
 import getFragmentChildren from '../util/get-fragment-children'
 import {isTemplate} from '@riotjs/util/checks'
 import udomdiff from '../util/udomdiff'
@@ -114,6 +115,7 @@ function mustFilterItem(condition, context) {
 /**
  * Extend the scope of the looped template
  * @param   {Object} scope - current template scope
+ * @param   {Object} options - options
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
  * @param   {number} options.index - current index
@@ -121,8 +123,15 @@ function mustFilterItem(condition, context) {
  * @returns {Object} enhanced scope object
  */
 function extendScope(scope, {itemName, indexName, index, item}) {
-  scope[itemName] = item
-  if (indexName) scope[indexName] = index
+  const options = {
+    enumerable: true,
+    writable: true,
+    configurable: true
+  }
+
+  defineProperty(scope, itemName, item, options)
+  if (indexName) defineProperty(scope, indexName, index, options)
+
   return scope
 }
 
