@@ -10,42 +10,44 @@ function compareNodesContents(target, selector, items) {
 }
 
 function createDummyListTemplate(options = {}) {
+  const itemName = options.itemName || 'val'
+
   return template('<ul><li expr0></li></ul>', [{
-    ...{
-      selector: '[expr0]',
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      evaluate: scope => scope.items,
-      template: template('<!---->', [{
-        expressions: [
-          {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.val
-          }
-        ]
-      }])
-    }, ...options
+    selector: '[expr0]',
+    type: bindingTypes.EACH,
+    itemName,
+    evaluate: scope => scope.items,
+    template: template('<!---->', [{
+      expressions: [
+        {
+          type: expressionTypes.TEXT,
+          childNodeIndex: 0,
+          evaluate: scope => scope[itemName]
+        }
+      ]
+    }]),
+    ...options
   }])
 }
 
 function createDummyListWithSiblingsTemplate(options = {}) {
+  const itemName = options.itemName || 'val'
+
   return template('<ul><li>first</li><li expr0></li><li>last</li></ul>', [{
-    ...{
-      selector: '[expr0]',
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      evaluate: scope => scope.items,
-      template: template('<!---->', [{
-        expressions: [
-          {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.val
-          }
-        ]
-      }])
-    }, ...options
+    selector: '[expr0]',
+    type: bindingTypes.EACH,
+    itemName,
+    evaluate: scope => scope.items,
+    template: template('<!---->', [{
+      expressions: [
+        {
+          type: expressionTypes.TEXT,
+          childNodeIndex: 0,
+          evaluate: scope => scope[itemName]
+        }
+      ]
+    }]),
+    ...options
   }])
 }
 
@@ -305,6 +307,23 @@ describe('each bindings', () => {
 
     expect(divs[0].textContent).to.be.equal('0')
     expect(divs[1].textContent).to.be.equal('1')
+
+    el.unmount()
+  })
+
+
+  it('Each bindings can use readonly field names from scope as itemName (issue https://github.com/riot/riot/issues/2925)', () => {
+    const items = ['q', 'w', 'e', 'r', 't', 'y']
+    const target = document.createElement('div')
+
+    const el = createDummyListTemplate({
+      itemName: 'root',
+      indexName: 'template'
+    }).mount(target, {items})
+
+    const content = target.textContent
+
+    expect(content).to.be.equal('qwerty')
 
     el.unmount()
   })
