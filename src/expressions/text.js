@@ -4,7 +4,7 @@ import normalizeStringValue from '../util/normalize-string-value'
  * Get the the target text node to update or create one from of a comment node
  * @param   {HTMLElement} node - any html element containing childNodes
  * @param   {number} childNodeIndex - index of the text node in the childNodes list
- * @returns {HTMLTextNode} the text node to update
+ * @returns {Text} the text node to update
  */
 export const getTextNode = (node, childNodeIndex) => {
   const target = node.childNodes[childNodeIndex]
