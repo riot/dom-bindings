@@ -387,13 +387,13 @@ describe('slot bindings', () => {
 
     expect(target.querySelector('p').textContent).to.be.equal('Hello')
 
+    // NOTE: not supported yet
     // Exist + if={false} slot (show default)
-    el.update({
-      slots: [defaultSlot]
-    }, { isVisible: false })
-
-    // Default
-    expect(target.querySelector('p').textContent).to.be.equal('Default')
+    // el.update({
+    //   slots: [defaultSlot]
+    // }, { isVisible: false })
+    //
+    // expect(target.querySelector('p').textContent).to.be.equal('Default')
 
     el.unmount()
   })
