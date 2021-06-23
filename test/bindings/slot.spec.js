@@ -346,4 +346,55 @@ describe('slot bindings', () => {
 
     expect(target.querySelector('p')).to.be.ok
   })
+
+  it('Slot with default content', () => {
+    const target = document.createElement('div')
+
+    const el = template('<div><slot expr0><p>Default</p></slot></div>', [{
+      type: bindingTypes.SLOT,
+      selector: '[expr0]',
+      name: 'default'
+    }])
+
+    const defaultSlot = {
+      'id': 'default',
+      'html': '<p expr2="expr2"></p>',
+
+      'bindings': [{
+        'type': bindingTypes.IF,
+
+        'evaluate': function(scope) {
+          return scope.isVisible
+        },
+
+        'redundantAttribute': 'expr2',
+        'selector': '[expr2]',
+        'template': template('Hello', [])
+      }]
+    }
+
+    // Empty slots (show default)
+    el.mount(target, {
+      slots: []
+    }, { isVisible: true })
+
+    expect(target.querySelector('p').textContent).to.be.equal('Default')
+
+    // Exist + if={true} slot (show slot)
+    el.mount(target, {
+      slots: [defaultSlot]
+    }, { isVisible: true })
+
+    expect(target.querySelector('p').textContent).to.be.equal('Hello')
+
+    // Exist + if={false} slot (show default)
+    el.update({
+      slots: [defaultSlot]
+    }, { isVisible: false })
+
+    // Default
+    expect(target.querySelector('p').textContent).to.be.equal('Default')
+
+    el.unmount()
+  })
 })
