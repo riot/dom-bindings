@@ -46,17 +46,35 @@ describe('attribute specs', () => {
   })
 
   it('remove attribute if it\'s falsy', () => {
-    const target = document.createElement('div')
-    template('<p class="hello" expr0></p>', [{
-      selector: '[expr0]',
+    const createExpression = (attr, name, key) => ({
+      selector: `[${attr}]`,
       expressions: [
-        { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.attr }
+        { type: expressionTypes.ATTRIBUTE, name, evaluate: scope => scope[key] }
       ]
-    }]).mount(target, { attr: '' })
+    })
+
+    const target = document.createElement('div')
+    template('<p class="hello" expr0 expr1 expr2 expr3 expr4></p>', [
+      createExpression('expr0', 'as-string', 'asString'),
+      createExpression('expr1', 'as-false', 'asFalse'),
+      createExpression('expr2', 'as-nan', 'asNaN'),
+      createExpression('expr3', 'as-null', 'asNull'),
+      createExpression('expr4', 'as-void', 'asVoid')
+    ]).mount(target, {
+      asString: '',
+      asFalse: false,
+      asNaN: NaN,
+      asNull: null,
+      asVoid: undefined
+    })
 
     const p = target.querySelector('p')
 
-    expect(p.hasAttribute('class')).to.be.not.ok
+    expect(p.hasAttribute('as-string')).to.be.not.ok
+    expect(p.hasAttribute('as-false')).to.be.not.ok
+    expect(p.hasAttribute('as-nan')).to.be.not.ok
+    expect(p.hasAttribute('as-null')).to.be.not.ok
+    expect(p.hasAttribute('as-void')).to.be.not.ok
   })
 
   it('do not remove remove number attributes', () => {
@@ -71,6 +89,20 @@ describe('attribute specs', () => {
     const p = target.querySelector('p')
 
     expect(p.hasAttribute('class')).to.be.ok
+  })
+
+  it('Expressions will replace own attributes', () => {
+    const target = document.createElement('div')
+    template('<p test="bar" expr0 test="baz"></p>', [{
+      selector: '[expr0]',
+      expressions: [
+        { type: expressionTypes.ATTRIBUTE, name: 'test', evaluate: scope => scope.attr }
+      ]
+    }]).mount(target, { attr: 'foo' })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('test')).to.be.equal('foo')
   })
 
   it('toggle attribute', () => {

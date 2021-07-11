@@ -8,8 +8,8 @@ import {isTemplate} from '@riotjs/util/checks'
 /**
  * Create the Template DOM skeleton
  * @param   {HTMLElement} el - root node where the DOM will be injected
- * @param   {string} html - markup that will be injected into the root node
- * @returns {HTMLFragment} fragment that will be injected into the root node
+ * @param   {string|HTMLElement} html - HTML markup or HTMLElement that will be injected into the root node
+ * @returns {?DocumentFragment} fragment that will be injected into the root node
  */
 function createTemplateDOM(el, html) {
   return html && (typeof html === 'string' ?
@@ -114,6 +114,7 @@ export const TemplateChunk = Object.freeze({
 
     return this
   },
+
   /**
    * Update the template with fresh data
    * @param   {*} scope - template data
@@ -125,6 +126,7 @@ export const TemplateChunk = Object.freeze({
 
     return this
   },
+
   /**
    * Remove the template from the node where it was initially mounted
    * @param   {*} scope - template data
@@ -133,37 +135,43 @@ export const TemplateChunk = Object.freeze({
    * if false or undefined clean the root tag content, if null don't touch the DOM
    * @returns {TemplateChunk} self
    */
-  unmount(scope, parentScope, mustRemoveRoot) {
-    if (this.el) {
-      this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot))
+  unmount(scope, parentScope, mustRemoveRoot = false) {
+    const el = this.el
 
-      switch (true) {
-      // pure components should handle the DOM unmount updates by themselves
-      case this.el[IS_PURE_SYMBOL]:
-        break
-        // <template> tags should be treated a bit differently
-        // we need to clear their children only if it's explicitly required by the caller
-        // via mustRemoveRoot !== null
-      case this.children && mustRemoveRoot !== null:
-        clearChildren(this.children)
-        break
-
-        // remove the root node only if the mustRemoveRoot === true
-      case mustRemoveRoot === true:
-        removeChild(this.el)
-        break
-
-        // otherwise we clean the node children
-      case mustRemoveRoot !== null:
-        cleanNode(this.el)
-        break
-      }
-
-      this.el = null
+    if (!el) {
+      return this
     }
+
+    this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot))
+
+    switch (true) {
+    // pure components should handle the DOM unmount updates by themselves
+    // for mustRemoveRoot === null don't touch the DOM
+    case (el[IS_PURE_SYMBOL] || mustRemoveRoot === null):
+      break
+
+    // if children are declared, clear them
+    // applicable for <template> and <slot/> bindings
+    case Array.isArray(this.children):
+      clearChildren(this.children)
+      break
+
+    // clean the node children only
+    case !mustRemoveRoot:
+      cleanNode(el)
+      break
+
+    // remove the root node only if the mustRemoveRoot is truly
+    case !!mustRemoveRoot:
+      removeChild(el)
+      break
+    }
+
+    this.el = null
 
     return this
   },
+
   /**
    * Clone the template chunk
    * @returns {TemplateChunk} a clone of this object resetting the this.el property
@@ -177,10 +185,11 @@ export const TemplateChunk = Object.freeze({
   }
 })
 
+
 /**
  * Create a template chunk wiring also the bindings
  * @param   {string|HTMLElement} html - template string
- * @param   {Array} bindings - bindings collection
+ * @param   {BindingData[]} bindings - bindings collection
  * @returns {TemplateChunk} a new TemplateChunk copy
  */
 export default function create(html, bindings = []) {

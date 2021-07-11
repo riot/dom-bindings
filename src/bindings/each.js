@@ -1,6 +1,7 @@
 import {HEAD_SYMBOL, TAIL_SYMBOL} from '../constants'
 import {insertBefore, removeChild} from '@riotjs/util/dom'
 import createTemplateMeta from '../util/create-template-meta'
+import {defineProperty} from '@riotjs/util/objects'
 import getFragmentChildren from '../util/get-fragment-children'
 import {isTemplate} from '@riotjs/util/checks'
 import udomdiff from '../util/udomdiff'
@@ -89,7 +90,7 @@ function patch(redundant, parentScope) {
 
         // notice that we pass null as last argument because
         // the root node and its children will be removed by domdiff
-        if (nodes.length === 0) {
+        if (!nodes.length) {
           // we have cleared all the children nodes and we can unmount this template
           redundant.pop()
           template.unmount(context, parentScope, null)
@@ -108,12 +109,13 @@ function patch(redundant, parentScope) {
  * @returns {boolean} true if this item should be skipped
  */
 function mustFilterItem(condition, context) {
-  return condition ? Boolean(condition(context)) === false : false
+  return condition ? !condition(context) : false
 }
 
 /**
  * Extend the scope of the looped template
  * @param   {Object} scope - current template scope
+ * @param   {Object} options - options
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
  * @param   {number} options.index - current index
@@ -121,8 +123,9 @@ function mustFilterItem(condition, context) {
  * @returns {Object} enhanced scope object
  */
 function extendScope(scope, {itemName, indexName, index, item}) {
-  scope[itemName] = item
-  if (indexName) scope[indexName] = index
+  defineProperty(scope, itemName, item)
+  if (indexName) defineProperty(scope, indexName, index)
+
   return scope
 }
 
@@ -144,7 +147,7 @@ function markEdgeNodes(nodes) {
  * @param   {Array} items - expression collection value
  * @param   {*} scope - template scope
  * @param   {*} parentScope - scope of the parent template
- * @param   {EeachBinding} binding - each binding object instance
+ * @param   {EachBinding} binding - each binding object instance
  * @returns {Object} data
  * @returns {Map} data.newChildrenMap - a Map containing the new children template structure
  * @returns {Array} data.batches - array containing the template lifecycle functions to trigger
