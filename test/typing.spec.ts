@@ -1,7 +1,4 @@
-import {
-  template,
-  ExpressionType,
-} from '../'
+import {ExpressionType, template,} from '../'
 
 template('<p>Hello</p>', [{
   selector: 'p',

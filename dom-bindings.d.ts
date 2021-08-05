@@ -55,7 +55,7 @@ export interface BaseBindingData<Scope = any> {
 
 export interface EachBindingData<Scope = any> extends BaseBindingData<Scope> {
   itemName: string
-  indexName?: number
+  indexName?: number | null
   template: TemplateChunk<Scope>
   getKey?: ((scope: Scope) => any) | null
   condition?: ((scope: Scope) => any) | null
