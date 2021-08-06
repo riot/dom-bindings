@@ -24,9 +24,14 @@ export interface TextExpressionData<Scope = any> extends BaseExpressionData<Scop
   childNodeIndex: number
 }
 
-export interface ValueExpressionData<Scope = any> extends BaseExpressionData<Scope> {}
+export interface ValueExpressionData<Scope = any> extends BaseExpressionData<Scope> {
+}
 
-export type ExpressionData<Scope = any> = AttributeExpressionData<Scope> | EventExpressionData<Scope> | TextExpressionData<Scope> | ValueExpressionData<Scope>
+export type ExpressionData<Scope = any> =
+  AttributeExpressionData<Scope>
+  | EventExpressionData<Scope>
+  | TextExpressionData<Scope>
+  | ValueExpressionData<Scope>
 
 export interface Expression<Scope = any> {
   type: ExpressionType
@@ -53,12 +58,19 @@ export interface BaseBindingData<Scope = any> {
   evaluate?(scope: Scope): any
 }
 
-export interface EachBindingData<Scope = any> extends BaseBindingData<Scope> {
-  itemName: string
-  indexName?: number | null
-  template: TemplateChunk<Scope>
-  getKey?: ((scope: Scope) => any) | null
-  condition?: ((scope: Scope) => any) | null
+export interface EachBindingData<Scope = any,
+  ItemName extends string = string,
+  IndexName extends string = string,
+  ItemValue extends any = any,
+  ExtendedScope = Scope & { [Property in ItemName]: ItemValue } & { [Property in IndexName]: number }> {
+  itemName: ItemName
+  indexName?: IndexName | null
+  template: TemplateChunk<ExtendedScope>,
+  getKey?: ((scope: ExtendedScope) => any) | null
+  condition?: ((scope: ExtendedScope) => any) | null,
+  evaluate(scope: Scope): ItemValue[],
+  selector?: string
+  redundantAttribute?: string
 }
 
 export interface IfBindingData<Scope = any> extends BaseBindingData<Scope> {
@@ -81,7 +93,12 @@ export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
   slots: SlotBindingData<Scope>[]
 }
 
-export type BindingData<Scope = any> = IfBindingData<Scope> | EachBindingData<Scope> | SimpleBindingData<Scope> | SlotBindingData<Scope> | TagBindingData<Scope>
+export type BindingData<Scope = any> =
+  EachBindingData<Scope>
+  | IfBindingData<Scope>
+  | SimpleBindingData<Scope>
+  | SlotBindingData<Scope>
+  | TagBindingData<Scope>
 
 export interface Binding<Scope = any, ParentScope = any> {
   mount(el: HTMLElement, scope: Scope, parentScope?: ParentScope, meta?: TemplateChunkMeta): Binding<Scope, ParentScope>
@@ -118,6 +135,7 @@ export interface TemplateChunk<Scope = any, ParentScope = any> {
 export function template<Scope = any, ParentScope = any>(template: string, bindings?: BindingData<Scope>[]): TemplateChunk<Scope, ParentScope>
 export function createBinding<Scope = any>(root: HTMLElement, binding: BindingData<Scope>, templateTagOffset?: number | null): Binding<Scope>
 export function createExpression<Scope = any>(node: HTMLElement, expression: ExpressionData<Scope>): Expression<Scope>
-export const bindingTypes:BindingType
-export const expressionTypes:ExpressionType
+
+export const bindingTypes: BindingType
+export const expressionTypes: ExpressionType
 
