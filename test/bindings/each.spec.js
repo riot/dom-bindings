@@ -4,28 +4,27 @@ import {domNodesToTextArray, getNextSiblingChild} from '../util'
 function compareNodesContents(target, selector, items) {
   const domNodes = target.querySelectorAll(selector)
 
-  items.forEach((item, index) => {
+  Array.from(items).forEach((item, index) => {
     expect(domNodes[index].textContent).to.be.equal(`${item}`)
   })
 }
 
 function createDummyListTemplate(options = {}) {
   return template('<ul><li expr0></li></ul>', [{
-    ...{
-      selector: '[expr0]',
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      evaluate: scope => scope.items,
-      template: template('<!---->', [{
-        expressions: [
-          {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.val
-          }
-        ]
-      }])
-    }, ...options
+    selector: '[expr0]',
+    type: bindingTypes.EACH,
+    itemName: 'val',
+    evaluate: scope => scope.items,
+    template: template('<!---->', [{
+      expressions: [
+        {
+          type: expressionTypes.TEXT,
+          childNodeIndex: 0,
+          evaluate: scope => scope.val
+        }
+      ]
+    }]),
+    ...options
   }])
 }
 
@@ -250,6 +249,77 @@ function runCoreTests(options) {
     expect(afterLis).to.have.length(8)
     expect(beforeLis[0].textContent).to.be.equal('first')
     expect(beforeLis[beforeLis.length - 1].textContent).to.be.equal('last')
+
+    el.unmount()
+  })
+
+  it('Each bindings supports any iterable list type', () => {
+    const itemsAsString = 'string'
+    const itemsAsSet = new Set([1,2,3])
+
+    const target = document.createElement('div')
+    const el = createDummyListTemplate(options).mount(target, { items: itemsAsString })
+
+    compareNodesContents(target, 'li', itemsAsString)
+
+    el.update({items: itemsAsSet })
+
+    compareNodesContents(target, 'li', itemsAsSet)
+
+    el.unmount()
+  })
+
+  it('Each bindings supports plain objects as a list', () => {
+    const items = { en: 'English', it: 'Italian', fr: 'French' }
+    const target = document.createElement('div')
+
+    const tmpl = template('<ul><li expr0></li></ul>', [{
+      selector: '[expr0]',
+      type: bindingTypes.EACH,
+      itemName: 'val',
+      indexName: 'name',
+      evaluate: scope => scope.items,
+      template: template('<!---->', [{
+        expressions: [
+          {
+            type: expressionTypes.ATTRIBUTE,
+            name: 'value',
+            evaluate: scope => scope.val
+          },
+          {
+            type: expressionTypes.ATTRIBUTE,
+            name: 'name',
+            evaluate: scope => scope.name
+          }
+        ]
+      }]),
+      ...options
+    }])
+
+    const compareNodes = () => {
+      const domNodes = target.querySelectorAll('li')
+
+      Object.entries(items).forEach(([name, value], index) => {
+        const targetNode = domNodes[index]
+
+        if (targetNode.hasAttribute('value')) {
+          expect(targetNode.getAttribute('value')).to.be.equal(`${value}`)
+        }
+
+        if (targetNode.hasAttribute('name')) {
+          expect(targetNode.getAttribute('name')).to.be.equal(`${name}`)
+        }
+      })
+    }
+
+    const el = tmpl.mount(target, { items })
+
+    compareNodes(target, 'li')
+
+    items.ru = 'Russian'
+    el.update({ items: items })
+
+    compareNodes(target, 'li')
 
     el.unmount()
   })
