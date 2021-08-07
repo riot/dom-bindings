@@ -31,6 +31,7 @@ export default function create(root, binding, templateTagOffset) {
   // remove eventually additional attributes created only to select this node
   if (redundantAttribute) node.removeAttribute(redundantAttribute)
   const bindingExpressions = expressions || []
+
   // init the binding
   return (bindings[type] || bindings[SIMPLE])(
     node,

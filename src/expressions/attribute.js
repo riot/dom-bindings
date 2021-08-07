@@ -1,4 +1,4 @@
-import {isBoolean, isFunction, isNil, isObject} from '@riotjs/util/checks'
+import {isBoolean, isFunction, isObject} from '@riotjs/util/checks'
 import {memoize} from '@riotjs/util/misc'
 
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
@@ -47,7 +47,7 @@ function canRenderAttribute(value) {
  * @returns {boolean} boolean - true if the attribute can be removed}
  */
 function shouldRemoveAttribute(value) {
-  return isNil(value) || value === false || value === ''
+  return !value && value !== 0
 }
 
 /**
@@ -101,7 +101,5 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  */
 function normalizeValue(name, value) {
   // be sure that expressions like selected={ true } will be always rendered as selected='selected'
-  if (value === true) return name
-
-  return value
+  return (value === true) ? name : value
 }
