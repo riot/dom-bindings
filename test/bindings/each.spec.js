@@ -505,4 +505,84 @@ describe('each bindings', () => {
     expect(getNextSiblingChild(target.querySelectorAll('h1')[1]).innerHTML).to.be.equal('c1')
     expect(target.querySelectorAll('p')).to.have.length(6)
   })
+
+  it('Looped and nested <template> + <div> tags should work as expected (issue https://github.com/riot/riot/issues/2947)', () => {
+    const target = document.createElement('div')
+    const el = template('<template expr1="expr1"></template>',
+      [
+        {
+          type: bindingTypes.EACH,
+          template: template(
+            '<div expr2="expr2"></div>',
+            [
+              {
+                type: bindingTypes.EACH,
+                template: template(
+                  ' ',
+                  [
+                    {
+                      expressions: [
+                        {
+                          type: expressionTypes.TEXT,
+                          childNodeIndex: 0,
+                          evaluate: scope => [
+                            scope.i,
+                            ' - ',
+                            scope.j
+                          ].join(
+                            ''
+                          )
+                        }
+                      ]
+                    }
+                  ]
+                ),
+                redundantAttribute: 'expr2',
+                selector: '[expr2]',
+                itemName: 'j',
+                evaluate: scope => scope.state.j
+              }
+            ]
+          ),
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
+          itemName: 'i',
+          evaluate: scope => scope.state.i
+        }
+      ]).mount(target, {
+      state: {
+        i: ['i1', 'i2'],
+        j: ['j1', 'j2', 'j3']
+      }
+    })
+
+    expect(target.querySelectorAll('div')).to.have.length(6)
+    expect(domNodesToTextArray(target, 'div')).to.be.deep.equal(
+      ['i1 - j1', 'i1 - j2', 'i1 - j3', 'i2 - j1', 'i2 - j2', 'i2 - j3'
+      ])
+
+    el.update({
+      state: {
+        i: ['i1', 'i2'],
+        j: ['j1', 'j2']
+      }
+    })
+
+    expect(target.querySelectorAll('div')).to.have.length(4)
+    expect(domNodesToTextArray(target, 'div')).to.be.deep.equal(
+      ['i1 - j1', 'i1 - j2', 'i2 - j1', 'i2 - j2'
+      ])
+
+    el.update({
+      state: {
+        i: ['i1', 'i2'],
+        j: ['j1', 'j2']
+      }
+    })
+
+    expect(target.querySelectorAll('div')).to.have.length(4)
+    expect(domNodesToTextArray(target, 'div')).to.be.deep.equal(
+      ['i1 - j1', 'i1 - j2', 'i2 - j1', 'i2 - j2'
+      ])
+  })
 })
