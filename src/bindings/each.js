@@ -1,8 +1,6 @@
-import {HEAD_SYMBOL, TAIL_SYMBOL} from '../constants'
 import {insertBefore, removeChild} from '@riotjs/util/dom'
 import createTemplateMeta from '../util/create-template-meta'
 import {defineProperty} from '@riotjs/util/objects'
-import getFragmentChildren from '../util/get-fragment-children'
 import {isTemplate} from '@riotjs/util/checks'
 import udomdiff from '../util/udomdiff'
 
@@ -57,9 +55,6 @@ export const EachBinding = {
     // update the children map
     this.childrenMap = newChildrenMap
     this.nodes = futureNodes
-
-    // make sure that the loop edge nodes are marked
-    markEdgeNodes(this.nodes)
 
     return this
   },
@@ -130,19 +125,6 @@ function extendScope(scope, {itemName, indexName, index, item}) {
 }
 
 /**
- * Mark the first and last nodes in order to ignore them in case we need to retrieve the <template> fragment nodes
- * @param {Array[]} nodes - each binding nodes list
- * @returns {undefined} void function
- */
-function markEdgeNodes(nodes) {
-  const first = nodes[0]
-  const last = nodes[nodes.length - 1]
-
-  if (first) first[HEAD_SYMBOL] = true
-  if (last) last[TAIL_SYMBOL] = true
-}
-
-/**
  * Loop the current template items
  * @param   {Array} items - expression collection value
  * @param   {*} scope - template scope
@@ -183,7 +165,7 @@ function createPatch(items, scope, parentScope, binding) {
     // create the collection of nodes to update or to add
     // in case of template tags we need to add all its children nodes
     if (isTemplateTag) {
-      nodes.push(...(mustMount ? meta.children : getFragmentChildren(meta)))
+      nodes.push(...meta.children)
     } else {
       nodes.push(el)
     }
