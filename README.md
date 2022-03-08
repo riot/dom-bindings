@@ -147,7 +147,7 @@ const pGreetingBinding = {
   }]
 }
 
-template('<article><p><!----></p></article>', [pGreeting])
+template('<article><p><!----></p></article>', [pGreetingBinding])
 ```
 
 In this case we have created a binding to update only the content of a `p` tag.<br/>
