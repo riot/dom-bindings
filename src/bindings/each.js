@@ -28,8 +28,9 @@ export const EachBinding = {
   },
   update(scope, parentScope) {
     const {placeholder, nodes, childrenMap} = this
-    const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
-    const items = collection ? Array.from(collection) : []
+    const collection = (scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)) || []
+    const isIterable = Array.isArray(collection) || Object.getPrototypeOf(collection) === Object.prototype || Object.getPrototypeOf(collection) === null
+    const items = isIterable ? collection : Array.from(collection)
 
     // prepare the diffing
     const {
@@ -110,7 +111,7 @@ function mustFilterItem(condition, context) {
 /**
  * Extend the scope of the looped template
  * @param   {Object} scope - current template scope
- * @param   {Object} options - options
+ * @param   {Object} options - Options object
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
  * @param   {number} options.index - current index
@@ -141,14 +142,20 @@ function createPatch(items, scope, parentScope, binding) {
   const batches = []
   const futureNodes = []
 
-  items.forEach((item, index) => {
+  // eslint-disable-next-line fp/no-loops
+  for (const index in items) {
+    if (!Object.prototype.hasOwnProperty.call(items, index)) {
+      continue
+    }
+
+    const item = items[index]
     const context = extendScope(Object.create(scope), {itemName, indexName, index, item})
     const key = getKey ? getKey(context) : index
     const oldItem = childrenMap.get(key)
     const nodes = []
 
     if (mustFilterItem(condition, context)) {
-      return
+      continue
     }
 
     const mustMount = !oldItem
@@ -181,7 +188,7 @@ function createPatch(items, scope, parentScope, binding) {
       context,
       index
     })
-  })
+  }
 
   return {
     newChildrenMap,
