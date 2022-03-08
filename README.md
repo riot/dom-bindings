@@ -141,7 +141,7 @@ For example, let's consider the following binding:
 const pGreetingBinding = {
   selector: 'p',
   expressions: [{
-    type: expressionTypes.Text,
+    type: expressionTypes.TEXT,
     childNodeIndex: 0,
     evaluate: scope => scope.greeting,
   }]
