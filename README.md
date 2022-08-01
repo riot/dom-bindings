@@ -1,6 +1,6 @@
 # dom-bindings
 
-[![Build Status][travis-image]][travis-url]
+[![Build Status][ci-image]][ci-url]
 [![Code Quality][codeclimate-image]][codeclimate-url]
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
@@ -32,8 +32,8 @@ const app = tmpl.mount(target, {
 })
 ```
 
-[travis-image]:https://img.shields.io/travis/riot/dom-bindings.svg?style=flat-square
-[travis-url]:https://travis-ci.org/riot/dom-bindings
+[ci-image]:https://img.shields.io/github/workflow/status/riot/dom-bindings/test?style=flat-square
+[ci-url]:https://github.com/riot/dom-bindings/actions
 
 [license-image]:http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
 [license-url]:LICENSE
