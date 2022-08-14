@@ -1,9 +1,10 @@
-import {cleanNode, clearChildren, removeChild} from '@riotjs/util/dom'
+import {clearChildren, removeChild} from '@riotjs/util/dom'
 import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
 import injectDOM from './util/inject-DOM'
 import {isTemplate} from '@riotjs/util/checks'
+import {panic} from '@riotjs/util/misc'
 
 /**
  * Create the Template DOM skeleton
@@ -38,7 +39,7 @@ function getTemplateTagOffset(parentNode, el, meta) {
  * Template Chunk model
  * @type {Object}
  */
-export const TemplateChunk = Object.freeze({
+export const TemplateChunk = {
   // Static props
   // bindings: null,
   // bindingsData: null,
@@ -71,7 +72,7 @@ export const TemplateChunk = Object.freeze({
    * @returns {TemplateChunk} self
    */
   mount(el, scope, parentScope, meta = {}) {
-    if (!el) throw new Error('Please provide DOM node to mount properly your template')
+    if (!el) panic('Please provide DOM node to mount properly your template')
 
     if (this.el) this.unmount(scope)
 
@@ -158,7 +159,7 @@ export const TemplateChunk = Object.freeze({
 
     // clean the node children only
     case !mustRemoveRoot:
-      cleanNode(el)
+      el.innerHTML = ''
       break
 
     // remove the root node only if the mustRemoveRoot is truly
@@ -183,7 +184,7 @@ export const TemplateChunk = Object.freeze({
       el: null
     }
   }
-})
+}
 
 
 /**
