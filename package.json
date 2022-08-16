@@ -3,8 +3,8 @@
   "version": "6.0.4",
   "description": "Riot.js DOM bindings",
   "main": "dist/umd.dom-bindings.js",
-  "jsnext:main": "src/index.js",
-  "module": "src/index.js",
+  "jsnext:main": "dist/esm.dom-bindings.js",
+  "module": "dist/esm.dom-bindings.js",
   "types": "./dom-bindings.d.ts",
   "scripts": {
     "lint": "eslint src/ test/ rollup.config.js",
