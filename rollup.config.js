@@ -1,5 +1,5 @@
-import alias from 'rollup-plugin-alias'
-import resolve from 'rollup-plugin-node-resolve'
+import alias from '@rollup/plugin-alias'
+import resolve from '@rollup/plugin-node-resolve'
 
 const base  = {
   input: 'src/index.js',
@@ -30,6 +30,7 @@ export default [
   },
   {
     ...base,
+    external: id => /@riotjs\/util/.test(id),
     output: [{
       file: 'dist/esm.dom-bindings.js',
       format: 'esm'
