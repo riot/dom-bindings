@@ -8,7 +8,7 @@
   "types": "./dom-bindings.d.ts",
   "scripts": {
     "lint": "eslint src/ test/ rollup.config.js",
-    "cov": "nyc report --reporter=text-lcov | coveralls",
+    "cov": "nyc report --reporter=lcov",
     "cov-html": "nyc report --reporter=html",
     "build": "rollup -c",
     "pretest": "npm run build",
