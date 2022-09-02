@@ -48,19 +48,19 @@
     "benchmark": "^2.1.4",
     "chai": "^4.3.6",
     "coveralls": "^3.1.1",
-    "eslint": "^8.22.0",
+    "eslint": "^8.23.0",
     "eslint-config-riot": "^3.0.0",
     "esm": "^3.2.25",
     "jsdom": "^20.0.0",
     "jsdom-global": "3.0.2",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
-    "rollup": "^2.78.1",
+    "rollup": "^2.79.0",
     "sinon": "^14.0.0",
     "sinon-chai": "^3.7.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.2"
   },
   "dependencies": {
-    "@riotjs/util": "^2.1.1"
+    "@riotjs/util": "^2.1.2"
   }
 }

@@ -1,4 +1,4 @@
-import {clearChildren, removeChild} from '@riotjs/util/dom'
+import {cleanNode, clearChildren, removeChild} from '@riotjs/util/dom'
 import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
 import createBinding from './binding'
 import createDOMTree from './util/create-DOM-tree'
@@ -159,7 +159,7 @@ export const TemplateChunk = {
 
     // clean the node children only
     case !mustRemoveRoot:
-      el.innerHTML = ''
+      cleanNode(el)
       break
 
     // remove the root node only if the mustRemoveRoot is truly

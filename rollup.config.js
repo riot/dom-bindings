@@ -25,7 +25,8 @@ export default [
     output: [{
       name: 'riotDOMBindings',
       file: 'dist/umd.dom-bindings.js',
-      format: 'umd'
+      format: 'umd',
+      preferConst: true
     }]
   },
   {
@@ -33,7 +34,8 @@ export default [
     external: id => /@riotjs\/util/.test(id),
     output: [{
       file: 'dist/esm.dom-bindings.js',
-      format: 'esm'
+      format: 'esm',
+      preferConst: true
     }]
   }
 ]
