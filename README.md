@@ -32,7 +32,7 @@ const app = tmpl.mount(target, {
 })
 ```
 
-[ci-image]:https://img.shields.io/github/workflow/status/riot/dom-bindings/test?style=flat-square
+[ci-image]:https://img.shields.io/github/actions/workflow/status/riot/dom-bindings/test.yml?style=flat-square
 [ci-url]:https://github.com/riot/dom-bindings/actions
 
 [license-image]:http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
