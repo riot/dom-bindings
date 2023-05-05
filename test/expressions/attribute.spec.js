@@ -23,7 +23,7 @@ describe('attribute specs', () => {
     expect(p.getAttribute('class')).to.be.equal('hello')
   })
 
-  it('set boolean attributes', () => {
+  it('set boolean attributes (isBoolean=true)', () => {
     const target = document.createElement('div')
     template('<p expr0></p>', [
       {
@@ -32,6 +32,7 @@ describe('attribute specs', () => {
           {
             type: expressionTypes.ATTRIBUTE,
             name: 'selected',
+            isBoolean: true,
             evaluate: (scope) => scope.attr,
           },
         ],
@@ -42,6 +43,33 @@ describe('attribute specs', () => {
 
     expect(p.getAttribute('selected')).to.be.equal('selected')
     expect(p.selected).to.be.ok
+  })
+
+  it('set boolean attributes (isBoolean=false)', () => {
+    const target = document.createElement('div')
+    const el = template('<p expr0></p>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          {
+            type: expressionTypes.ATTRIBUTE,
+            name: 'is-active',
+            isBoolean: false,
+            evaluate: (scope) => scope.attr,
+          },
+        ],
+      },
+    ]).mount(target, { attr: true })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('is-active')).to.be.equal('true')
+    expect(p['is-active']).to.be.equal(true)
+
+    el.update({ attr: false })
+
+    expect(p.getAttribute('is-active')).to.be.equal('false')
+    expect(p['is-active']).to.be.equal(false)
   })
 
   it('number attributes will be rendered', () => {
@@ -64,7 +92,7 @@ describe('attribute specs', () => {
     expect(p.getAttribute('class')).to.be.equal('1')
   })
 
-  it("remove attribute if it's falsy", () => {
+  it("remove attribute if it's undefined or null", () => {
     const createExpression = (attr, name, key) => ({
       selector: `[${attr}]`,
       expressions: [
@@ -78,26 +106,17 @@ describe('attribute specs', () => {
 
     const target = document.createElement('div')
     template('<p class="hello" expr0 expr1 expr2 expr3 expr4></p>', [
-      createExpression('expr0', 'as-string', 'asString'),
-      createExpression('expr1', 'as-false', 'asFalse'),
-      createExpression('expr2', 'as-nan', 'asNaN'),
       createExpression('expr3', 'as-null', 'asNull'),
-      createExpression('expr4', 'as-void', 'asVoid'),
+      createExpression('expr4', 'as-undefined', 'asUndefined'),
     ]).mount(target, {
-      asString: '',
-      asFalse: false,
-      asNaN: NaN,
       asNull: null,
       asVoid: undefined,
     })
 
     const p = target.querySelector('p')
 
-    expect(p.hasAttribute('as-string')).to.be.not.ok
-    expect(p.hasAttribute('as-false')).to.be.not.ok
-    expect(p.hasAttribute('as-nan')).to.be.not.ok
     expect(p.hasAttribute('as-null')).to.be.not.ok
-    expect(p.hasAttribute('as-void')).to.be.not.ok
+    expect(p.hasAttribute('as-undefined')).to.be.not.ok
   })
 
   it('do not remove remove number attributes', () => {

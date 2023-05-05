@@ -1,4 +1,8 @@
-import { isBoolean, isFunction, isObject } from '@riotjs/util/checks.js'
+import {
+  isBoolean as checkIfBoolean,
+  isFunction,
+  isObject,
+} from '@riotjs/util/checks.js'
 import { memoize } from '@riotjs/util/misc.js'
 
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
@@ -48,7 +52,7 @@ function canRenderAttribute(value) {
  * @returns {boolean} boolean - true if the attribute can be removed}
  */
 function shouldRemoveAttribute(value) {
-  return !value && value !== 0
+  return typeof value === 'undefined' || value === null
 }
 
 /**
@@ -56,11 +60,17 @@ function shouldRemoveAttribute(value) {
  * @param   {HTMLElement} node - target node
  * @param   {Object} expression - expression object
  * @param   {string} expression.name - attribute name
+ * @param   {boolean} expression.isBoolean - flag to handle boolean attributes
  * @param   {*} value - new expression value
  * @param   {*} oldValue - the old expression cached value
  * @returns {undefined}
  */
-export default function attributeExpression(node, { name }, value, oldValue) {
+export default function attributeExpression(
+  node,
+  { name, isBoolean },
+  value,
+  oldValue,
+) {
   // is it a spread operator? {...attributes}
   if (!name) {
     if (oldValue) {
@@ -76,10 +86,10 @@ export default function attributeExpression(node, { name }, value, oldValue) {
     return
   }
 
-  // handle boolean attributes
+  // store the attribute on the node to make it compatible with native custom elements
   if (
     !isNativeHtmlProperty(name) &&
-    (isBoolean(value) || isObject(value) || isFunction(value))
+    (checkIfBoolean(value) || isObject(value) || isFunction(value))
   ) {
     node[name] = value
   }
@@ -87,7 +97,7 @@ export default function attributeExpression(node, { name }, value, oldValue) {
   if (shouldRemoveAttribute(value)) {
     node.removeAttribute(name)
   } else if (canRenderAttribute(value)) {
-    node.setAttribute(name, normalizeValue(name, value))
+    node.setAttribute(name, normalizeValue(name, value, isBoolean))
   }
 }
 
@@ -95,9 +105,11 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  * Get the value as string
  * @param   {string} name - attribute name
  * @param   {*} value - user input value
+ * @param   {boolean} isBoolean - boolean attributes flag
  * @returns {string} input value as string
  */
-function normalizeValue(name, value) {
-  // be sure that expressions like selected={ true } will be always rendered as selected='selected'
-  return value === true ? name : value
+function normalizeValue(name, value, isBoolean) {
+  // be sure that expressions like selected={ true } will always be rendered as selected='selected'
+  // fix https://github.com/riot/riot/issues/2975
+  return value === true && isBoolean ? name : value
 }
