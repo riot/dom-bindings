@@ -1,5 +1,5 @@
-import {isSvg, isTemplate} from '@riotjs/util/checks'
-import {moveChildren} from '@riotjs/util/dom'
+import { isSvg, isTemplate } from '@riotjs/util/checks.js'
+import { moveChildren } from '@riotjs/util/dom.js'
 
 /**
  * Inject the DOM tree into a target node
@@ -9,13 +9,13 @@ import {moveChildren} from '@riotjs/util/dom'
  */
 export default function injectDOM(el, dom) {
   switch (true) {
-  case isSvg(el):
-    moveChildren(dom, el)
-    break
-  case isTemplate(el):
-    el.parentNode.replaceChild(dom, el)
-    break
-  default:
-    el.appendChild(dom)
+    case isSvg(el):
+      moveChildren(dom, el)
+      break
+    case isTemplate(el):
+      el.parentNode.replaceChild(dom, el)
+      break
+    default:
+      el.appendChild(dom)
   }
 }

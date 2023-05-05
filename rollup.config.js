@@ -1,42 +1,39 @@
-import alias from '@rollup/plugin-alias'
 import resolve from '@rollup/plugin-node-resolve'
 
-const base  = {
+const base = {
   input: 'src/index.js',
   onwarn(message) {
     if (/Circular/.test(message)) return
     console.error(message) // eslint-disable-line
   },
-  plugins: [
-    alias({
-      entries: [{
-        find: '@ungap/essential-map', replacement: 'src/map.js'
-      }]
-    }),
-    resolve({
-      jsnext: true
-    })
-  ]
+  plugins: [resolve()],
 }
 
 export default [
   {
     ...base,
-    output: [{
-      name: 'riotDOMBindings',
-      file: 'dist/umd.dom-bindings.js',
-      format: 'umd',
-      preferConst: true
-    }]
+    output: [
+      {
+        name: 'riotDOMBindings',
+        file: 'dist/dom-bindings.cjs',
+        format: 'umd',
+        generatedCode: {
+          constBindings: true,
+        },
+      },
+    ],
   },
   {
     ...base,
-    external: id => /@riotjs\/util/.test(id),
-    output: [{
-      file: 'dist/esm.dom-bindings.js',
-      format: 'esm',
-      preferConst: true
-    }]
-  }
+    external: (id) => /@riotjs\/util/.test(id),
+    output: [
+      {
+        file: 'dist/dom-bindings.js',
+        format: 'esm',
+        generatedCode: {
+          constBindings: true,
+        },
+      },
+    ],
+  },
 ]
-

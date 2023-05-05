@@ -2,21 +2,27 @@
   "name": "@riotjs/dom-bindings",
   "version": "6.0.7",
   "description": "Riot.js DOM bindings",
-  "main": "dist/umd.dom-bindings.js",
-  "jsnext:main": "dist/esm.dom-bindings.js",
-  "module": "dist/esm.dom-bindings.js",
+  "main": "dist/dom-bindings.cjs",
+  "jsnext:main": "dist/dom-bindings.js",
+  "module": "dist/dom-bindings.js",
   "types": "./dom-bindings.d.ts",
+  "type": "module",
+  "exports": {
+    "types": "./dom-bindings.d.ts",
+    "import": "./dist/dom-bindings.js",
+    "require": "./dist/dom-bindings.cjs"
+  },
   "scripts": {
-    "lint": "eslint src/ test/ rollup.config.js",
-    "cov": "nyc report --reporter=lcov",
-    "cov-html": "nyc report --reporter=html",
+    "lint": "eslint src/ test/ rollup.config.js && prettier --check ./",
+    "cov": "c8 report --reporter=lcov",
+    "cov-html": "c8 report --reporter=html",
     "build": "rollup -c",
     "pretest": "npm run build",
     "postest": "npm run cov-html",
-    "bench": "node benchmarks",
-    "test": "npm run lint && nyc mocha -r esm test/index.js && npm run test-typing",
+    "bench": "node benchmarks/index.cjs",
+    "test": "npm run lint && c8 mocha -r test/index.js test/**/*.spec.js && npm run test-typing",
     "test-typing": "tsc -p test",
-    "test-debug": "mocha -r esm --inspect --inspect-brk test/index.js",
+    "test-debug": "mocha --inspect --inspect-brk -r test/index.js test/**/*.spec.js",
     "prepublishOnly": "npm test"
   },
   "files": [
@@ -36,31 +42,30 @@
     "include": "src",
     "exclude": "src/util/udomdiff.js"
   },
-  "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (http://gianlucaguarini.com)",
+  "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (https://gianlucaguarini.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/GianlucaGuarini/dom-bindings/issues"
   },
   "homepage": "https://github.com/GianlucaGuarini/dom-bindings#readme",
   "devDependencies": {
-    "@rollup/plugin-alias": "^3.1.9",
-    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@riotjs/prettier-config": "^1.0.1",
+    "@rollup/plugin-node-resolve": "^15.0.2",
     "benchmark": "^2.1.4",
-    "chai": "^4.3.6",
+    "c8": "^7.13.0",
+    "chai": "^4.3.7",
     "coveralls": "^3.1.1",
-    "eslint": "^8.23.0",
-    "eslint-config-riot": "^3.0.0",
-    "esm": "^3.2.25",
-    "jsdom": "^20.0.0",
+    "eslint": "^8.39.0",
+    "eslint-config-riot": "^4.0.0",
+    "jsdom": "^22.0.0",
     "jsdom-global": "3.0.2",
-    "mocha": "^8.4.0",
-    "nyc": "^15.1.0",
-    "rollup": "^2.79.0",
-    "sinon": "^14.0.0",
+    "mocha": "^10.2.0",
+    "rollup": "^3.21.5",
+    "sinon": "^15.0.4",
     "sinon-chai": "^3.7.0",
-    "typescript": "^4.8.2"
+    "typescript": "^5.0.4"
   },
   "dependencies": {
-    "@riotjs/util": "^2.1.2"
+    "@riotjs/util": "^2.2.1"
   }
 }

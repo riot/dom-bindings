@@ -1,31 +1,39 @@
-import {bindingTypes, expressionTypes, template} from '../../src'
+import { bindingTypes, expressionTypes, template } from '../../src/index.js'
+import { expect } from 'chai'
+import sinon from 'sinon'
 
 describe('tag bindings', () => {
   it('tags not registered will fallback to default templates', () => {
     const target = document.createElement('div')
 
-    const el = template('<section><div expr0></div></section>', [{
-      selector: '[expr0]',
-      type: bindingTypes.TAG,
-      evaluate: () => 'my-tag',
-      getComponent() {
-        return null
+    const el = template('<section><div expr0></div></section>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent() {
+          return null
+        },
+        slots: [
+          {
+            id: 'default',
+            bindings: [
+              {
+                selector: '[expr1]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: (scope) => scope.text,
+                  },
+                ],
+              },
+            ],
+            html: '<p expr1><!----></p>',
+          },
+        ],
       },
-      slots: [
-        {
-          id: 'default',
-          bindings: [{
-            selector: '[expr1]',
-            expressions: [{
-              type: expressionTypes.TEXT,
-              childNodeIndex: 0,
-              evaluate: scope => scope.text
-            }]
-          }],
-          html: '<p expr1><!----></p>'
-        }
-      ]
-    }]).mount(target, {text: 'hello'})
+    ]).mount(target, { text: 'hello' })
 
     const p = target.querySelector('p')
 
@@ -38,28 +46,34 @@ describe('tag bindings', () => {
   it('undefined tags will fall back to default templates', () => {
     const target = document.createElement('div')
 
-    const el = template('<section><div expr0></div></section>', [{
-      selector: '[expr0]',
-      type: bindingTypes.TAG,
-      evaluate: () => undefined,
-      getComponent() {
-        return null
+    const el = template('<section><div expr0></div></section>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.TAG,
+        evaluate: () => undefined,
+        getComponent() {
+          return null
+        },
+        slots: [
+          {
+            id: 'default',
+            bindings: [
+              {
+                selector: '[expr1]',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: (scope) => scope.text,
+                  },
+                ],
+              },
+            ],
+            html: '<p expr1><!----></p>',
+          },
+        ],
       },
-      slots: [
-        {
-          id: 'default',
-          bindings: [{
-            selector: '[expr1]',
-            expressions: [{
-              type: expressionTypes.TEXT,
-              childNodeIndex: 0,
-              evaluate: scope => scope.text
-            }]
-          }],
-          html: '<p expr1><!----></p>'
-        }
-      ]
-    }]).mount(target, {text: 'hello'})
+    ]).mount(target, { text: 'hello' })
 
     const p = target.querySelector('p')
 
@@ -72,36 +86,50 @@ describe('tag bindings', () => {
   it('attributes for tags not registered will be converted into expressions', () => {
     const target = document.createElement('div')
 
-    const el = template('<section><b expr0></b><slot name="main" expr1></slot></section>', [{
-      selector: '[expr0]',
-      type: bindingTypes.TAG,
-      evaluate: () => 'my-tag',
-      getComponent() {
-        return null
-      },
-      slots: [{
-        'id': 'main',
-        'html': '<p expr2> </p>',
-        'bindings': [{
-          selector: '[expr2]',
-          expressions: [{
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.text
-          }]
-        }]
-      }],
-      attributes: [{
-        evaluate: scope => scope.class,
-        name: 'class'
-      }]
-    }, {
-      'type': bindingTypes.SLOT,
-      'attributes': [],
-      'name': 'main',
-      'redundantAttribute': 'expr1',
-      'selector': '[expr1]'
-    }]).mount(target, {class: 'hello', text: 'hello'})
+    const el = template(
+      '<section><b expr0></b><slot name="main" expr1></slot></section>',
+      [
+        {
+          selector: '[expr0]',
+          type: bindingTypes.TAG,
+          evaluate: () => 'my-tag',
+          getComponent() {
+            return null
+          },
+          slots: [
+            {
+              id: 'main',
+              html: '<p expr2> </p>',
+              bindings: [
+                {
+                  selector: '[expr2]',
+                  expressions: [
+                    {
+                      type: expressionTypes.TEXT,
+                      childNodeIndex: 0,
+                      evaluate: (scope) => scope.text,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          attributes: [
+            {
+              evaluate: (scope) => scope.class,
+              name: 'class',
+            },
+          ],
+        },
+        {
+          type: bindingTypes.SLOT,
+          attributes: [],
+          name: 'main',
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
+        },
+      ],
+    ).mount(target, { class: 'hello', text: 'hello' })
 
     const b = target.querySelector('b')
     const p = target.querySelector('p')
@@ -121,7 +149,7 @@ describe('tag bindings', () => {
     const spyUnmount = sinon.spy()
 
     const components = {
-      'my-tag-1': function({slots, attributes}) {
+      'my-tag-1': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -131,15 +159,14 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spyMount()
           },
-          update() {
-          },
+          update() {},
           unmount(keepRoot) {
             expect(keepRoot).to.be.equal(true)
             spyUnmount()
-          }
+          },
         }
       },
-      'my-tag-2': function({slots, attributes}) {
+      'my-tag-2': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -149,37 +176,40 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spyMount()
           },
-          update() {
-          },
+          update() {},
           unmount() {
             spyUnmount()
-          }
+          },
         }
-      }
+      },
     }
 
-    const el = template('<section><b expr0></b></section>', [{
-      selector: '[expr0]',
-      type: bindingTypes.TAG,
-      evaluate: scope => scope.tagName,
-      getComponent(name) {
-        return components[name]
+    const el = template('<section><b expr0></b></section>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.TAG,
+        evaluate: (scope) => scope.tagName,
+        getComponent(name) {
+          return components[name]
+        },
+        attributes: [
+          {
+            evaluate: (scope) => scope.class,
+            name: 'class',
+          },
+        ],
       },
-      attributes: [{
-        evaluate: scope => scope.class,
-        name: 'class'
-      }]
-    }]).mount(target, {tagName: 'my-tag-1'})
+    ]).mount(target, { tagName: 'my-tag-1' })
 
     expect(spyMount).to.have.been.calledOnce
     expect(spyUnmount).to.not.have.been.called
 
-    el.update({tagName: 'my-tag-2'})
+    el.update({ tagName: 'my-tag-2' })
 
     expect(spyMount).to.have.been.calledTwice
     expect(spyUnmount).to.have.been.calledOnce
 
-    el.update({tagName: 'my-tag-2'})
+    el.update({ tagName: 'my-tag-2' })
 
     expect(spyMount).to.have.been.calledTwice
     expect(spyUnmount).to.have.been.calledOnce
@@ -191,7 +221,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({slots, attributes}) {
+      'my-tag': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -201,25 +231,28 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spy()
           },
-          unmount() {
-          }
+          unmount() {},
         }
-      }
+      },
     }
 
     // create a template with a fake custom riot tag in it
-    const el = template('<section><b expr0></b></section>', [{
-      selector: '[expr0]',
-      type: bindingTypes.TAG,
-      evaluate: () => 'my-tag',
-      getComponent(name) {
-        return components[name]
+    const el = template('<section><b expr0></b></section>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent(name) {
+          return components[name]
+        },
+        attributes: [
+          {
+            evaluate: (scope) => scope.class,
+            name: 'class',
+          },
+        ],
       },
-      attributes: [{
-        evaluate: scope => scope.class,
-        name: 'class'
-      }]
-    }]).mount(target, {class: 'hello'})
+    ]).mount(target, { class: 'hello' })
 
     el.unmount()
     expect(spy).to.have.been.calledOnce
@@ -229,7 +262,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({slots, attributes}) {
+      'my-tag': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -240,25 +273,28 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spy()
           },
-          unmount() {
-          }
+          unmount() {},
         }
-      }
+      },
     }
 
-    const el = template('<ul><li expr0></li></ul>', [{
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      selector: '[expr0]',
-      evaluate: scope => scope.items,
-      template: template(null, [{
-        type: bindingTypes.TAG,
-        evaluate: () => 'my-tag',
-        getComponent(name) {
-          return components[name]
-        }
-      }])
-    }]).mount(target, {items: [1, 2]})
+    const el = template('<ul><li expr0></li></ul>', [
+      {
+        type: bindingTypes.EACH,
+        itemName: 'val',
+        selector: '[expr0]',
+        evaluate: (scope) => scope.items,
+        template: template(null, [
+          {
+            type: bindingTypes.TAG,
+            evaluate: () => 'my-tag',
+            getComponent(name) {
+              return components[name]
+            },
+          },
+        ]),
+      },
+    ]).mount(target, { items: [1, 2] })
 
     el.unmount()
     expect(spy).to.have.been.calledTwice
@@ -267,38 +303,40 @@ describe('tag bindings', () => {
   it('shouldRemoveRoot should always be null for each directives', () => {
     const target = document.createElement('div')
     const components = {
-      'my-tag': function({slots, attributes}) {
+      'my-tag': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
         return {
-          mount() {
-          },
-          update() {
-          },
+          mount() {},
+          update() {},
           unmount(shouldRemoveRoot) {
             expect(shouldRemoveRoot).to.be.equal(null)
-          }
+          },
         }
-      }
+      },
     }
 
-    const el = template('<ul><li expr0></li></ul>', [{
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      selector: '[expr0]',
-      evaluate: scope => scope.items,
-      template: template(null, [{
-        type: bindingTypes.TAG,
-        evaluate: () => 'my-tag',
-        getComponent(name) {
-          return components[name]
-        }
-      }])
-    }]).mount(target, {items: [1, 2]})
+    const el = template('<ul><li expr0></li></ul>', [
+      {
+        type: bindingTypes.EACH,
+        itemName: 'val',
+        selector: '[expr0]',
+        evaluate: (scope) => scope.items,
+        template: template(null, [
+          {
+            type: bindingTypes.TAG,
+            evaluate: () => 'my-tag',
+            getComponent(name) {
+              return components[name]
+            },
+          },
+        ]),
+      },
+    ]).mount(target, { items: [1, 2] })
 
     el.update({
-      items: [1]
+      items: [1],
     })
 
     components.isInactive = true
@@ -310,7 +348,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({slots, attributes}) {
+      'my-tag': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -318,31 +356,34 @@ describe('tag bindings', () => {
           mount(el) {
             this.el = el
           },
-          update() {
-          },
+          update() {},
           unmount() {
             expect(this.el.parentNode).to.be.ok
             spy()
-          }
+          },
         }
-      }
+      },
     }
 
-    const el = template('<ul><li expr0></li></ul>', [{
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      selector: '[expr0]',
-      evaluate: scope => scope.items,
-      template: template('<span></span>', [{
-        type: bindingTypes.TAG,
-        evaluate: () => 'my-tag',
-        getComponent(name) {
-          return components[name]
-        }
-      }])
-    }]).mount(target, {items: [1, 2]})
+    const el = template('<ul><li expr0></li></ul>', [
+      {
+        type: bindingTypes.EACH,
+        itemName: 'val',
+        selector: '[expr0]',
+        evaluate: (scope) => scope.items,
+        template: template('<span></span>', [
+          {
+            type: bindingTypes.TAG,
+            evaluate: () => 'my-tag',
+            getComponent(name) {
+              return components[name]
+            },
+          },
+        ]),
+      },
+    ]).mount(target, { items: [1, 2] })
 
-    el.update({items: [1]})
+    el.update({ items: [1] })
     expect(spy).to.have.been.calledOnce
 
     el.unmount()
@@ -352,7 +393,7 @@ describe('tag bindings', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()
     const components = {
-      'my-tag': function({slots, attributes}) {
+      'my-tag': function ({ slots, attributes }) {
         expect(slots).to.be.ok
         expect(attributes).to.be.ok
 
@@ -363,24 +404,27 @@ describe('tag bindings', () => {
             expect(scope).to.be.ok
             spy()
           },
-          unmount() {
-          }
+          unmount() {},
         }
-      }
+      },
     }
 
-    const el = template('<ul><li expr0></li></ul>', [{
-      type: bindingTypes.IF,
-      selector: '[expr0]',
-      evaluate: scope => scope.isVisible,
-      template: template(null, [{
-        type: bindingTypes.TAG,
-        evaluate: () => 'my-tag',
-        getComponent(name) {
-          return components[name]
-        }
-      }])
-    }]).mount(target, {isVisible: true})
+    const el = template('<ul><li expr0></li></ul>', [
+      {
+        type: bindingTypes.IF,
+        selector: '[expr0]',
+        evaluate: (scope) => scope.isVisible,
+        template: template(null, [
+          {
+            type: bindingTypes.TAG,
+            evaluate: () => 'my-tag',
+            getComponent(name) {
+              return components[name]
+            },
+          },
+        ]),
+      },
+    ]).mount(target, { isVisible: true })
 
     el.unmount()
     expect(spy).to.have.been.calledOnce

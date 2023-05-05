@@ -1,8 +1,10 @@
-import {isBoolean, isFunction, isObject} from '@riotjs/util/checks'
-import {memoize} from '@riotjs/util/misc'
+import { isBoolean, isFunction, isObject } from '@riotjs/util/checks.js'
+import { memoize } from '@riotjs/util/misc.js'
 
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
-const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name) ) // eslint-disable-line
+const isNativeHtmlProperty = memoize(
+  (name) => ElementProto.hasOwnProperty(name), // eslint-disable-line
+)
 
 /**
  * Add all the attributes provided
@@ -11,9 +13,9 @@ const isNativeHtmlProperty = memoize(name => ElementProto.hasOwnProperty(name) )
  * @returns {undefined} sorry it's a void function :(
  */
 function setAllAttributes(node, attributes) {
-  Object
-    .entries(attributes)
-    .forEach(([name, value]) => attributeExpression(node, { name }, value))
+  Object.entries(attributes).forEach(([name, value]) =>
+    attributeExpression(node, { name }, value),
+  )
 }
 
 /**
@@ -26,10 +28,9 @@ function setAllAttributes(node, attributes) {
 function removeAllAttributes(node, newAttributes, oldAttributes) {
   const newKeys = newAttributes ? Object.keys(newAttributes) : []
 
-  Object
-    .keys(oldAttributes)
-    .filter(name => !newKeys.includes(name))
-    .forEach(attribute => node.removeAttribute(attribute))
+  Object.keys(oldAttributes)
+    .filter((name) => !newKeys.includes(name))
+    .forEach((attribute) => node.removeAttribute(attribute))
 }
 
 /**
@@ -77,11 +78,8 @@ export default function attributeExpression(node, { name }, value, oldValue) {
 
   // handle boolean attributes
   if (
-    !isNativeHtmlProperty(name) && (
-      isBoolean(value) ||
-      isObject(value) ||
-      isFunction(value)
-    )
+    !isNativeHtmlProperty(name) &&
+    (isBoolean(value) || isObject(value) || isFunction(value))
   ) {
     node[name] = value
   }
@@ -101,5 +99,5 @@ export default function attributeExpression(node, { name }, value, oldValue) {
  */
 function normalizeValue(name, value) {
   // be sure that expressions like selected={ true } will be always rendered as selected='selected'
-  return (value === true) ? name : value
+  return value === true ? name : value
 }

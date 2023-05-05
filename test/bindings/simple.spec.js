@@ -1,20 +1,34 @@
-import { expressionTypes, template } from '../../src'
+import { expressionTypes, template } from '../../src/index.js'
+import { expect } from 'chai'
 
 function createDummyTemplate() {
-  return template('<p expr0><!----></p>', [{
-    selector: '[expr0]',
-    expressions: [
-      { type: expressionTypes.TEXT, childNodeIndex: 0, evaluate: scope => scope.text },
-      { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate: scope => scope.class }
-    ]
-  }])
+  return template('<p expr0><!----></p>', [
+    {
+      selector: '[expr0]',
+      expressions: [
+        {
+          type: expressionTypes.TEXT,
+          childNodeIndex: 0,
+          evaluate: (scope) => scope.text,
+        },
+        {
+          type: expressionTypes.ATTRIBUTE,
+          name: 'class',
+          evaluate: (scope) => scope.class,
+        },
+      ],
+    },
+  ])
 }
 
 describe('simple bindings', () => {
   it('A simple binding will only evaluate the expressions without modifying the DOM structure', () => {
     const target = document.createElement('div')
 
-    const el = createDummyTemplate().mount(target, { text: 'hello', class: 'foo' })
+    const el = createDummyTemplate().mount(target, {
+      text: 'hello',
+      class: 'foo',
+    })
 
     const p = target.querySelector('p')
 
@@ -27,7 +41,10 @@ describe('simple bindings', () => {
 
   it('A simple bindings can be updated', () => {
     const target = document.createElement('div')
-    const el = createDummyTemplate().mount(target, { text: 'hello', class: 'foo' })
+    const el = createDummyTemplate().mount(target, {
+      text: 'hello',
+      class: 'foo',
+    })
 
     const p = target.querySelector('p')
 

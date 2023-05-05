@@ -1,25 +1,26 @@
-import {cleanNode, insertBefore, removeChild} from '@riotjs/util/dom'
-import {PARENT_KEY_SYMBOL} from '@riotjs/util/constants'
-import {evaluateAttributeExpressions} from '@riotjs/util/misc'
-import template from '../template'
+import { cleanNode, insertBefore, removeChild } from '@riotjs/util/dom.js'
+import { PARENT_KEY_SYMBOL } from '@riotjs/util/constants.js'
+import { evaluateAttributeExpressions } from '@riotjs/util/misc.js'
+import template from '../template.js'
 
 function extendParentScope(attributes, scope, parentScope) {
   if (!attributes || !attributes.length) return parentScope
 
-  const expressions = attributes.map(attr => ({
+  const expressions = attributes.map((attr) => ({
     ...attr,
-    value: attr.evaluate(scope)
+    value: attr.evaluate(scope),
   }))
 
   return Object.assign(
     Object.create(parentScope || null),
-    evaluateAttributeExpressions(expressions)
+    evaluateAttributeExpressions(expressions),
   )
 }
 
 // this function is only meant to fix an edge case
 // https://github.com/riot/riot/issues/2842
-const getRealParent = (scope, parentScope) => scope[PARENT_KEY_SYMBOL] || parentScope
+const getRealParent = (scope, parentScope) =>
+  scope[PARENT_KEY_SYMBOL] || parentScope
 
 export const SlotBinding = {
   // dynamic binding properties
@@ -34,18 +35,23 @@ export const SlotBinding = {
 
   // API methods
   mount(scope, parentScope) {
-    const templateData = scope.slots ? scope.slots.find(({id}) => id === this.name) : false
-    const {parentNode} = this.node
+    const templateData = scope.slots
+      ? scope.slots.find(({ id }) => id === this.name)
+      : false
+    const { parentNode } = this.node
     const realParent = getRealParent(scope, parentScope)
 
-    this.template = templateData && template(
-      templateData.html,
-      templateData.bindings
-    ).createDOM(parentNode)
+    this.template =
+      templateData &&
+      template(templateData.html, templateData.bindings).createDOM(parentNode)
 
     if (this.template) {
       cleanNode(this.node)
-      this.template.mount(this.node, this.getTemplateScope(scope, realParent), realParent)
+      this.template.mount(
+        this.node,
+        this.getTemplateScope(scope, realParent),
+        realParent,
+      )
       this.template.children = Array.from(this.node.childNodes)
     }
 
@@ -64,11 +70,15 @@ export const SlotBinding = {
   },
   unmount(scope, parentScope, mustRemoveRoot) {
     if (this.template) {
-      this.template.unmount(this.getTemplateScope(scope, parentScope), null, mustRemoveRoot)
+      this.template.unmount(
+        this.getTemplateScope(scope, parentScope),
+        null,
+        mustRemoveRoot,
+      )
     }
 
     return this
-  }
+  },
 }
 
 /**
@@ -97,6 +107,6 @@ export default function createSlot(node, { name, attributes }) {
     ...SlotBinding,
     attributes,
     node,
-    name
+    name,
   }
 }

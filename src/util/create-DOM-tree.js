@@ -1,4 +1,4 @@
-import {isSvg, isTemplate} from '@riotjs/util/checks'
+import { isSvg, isTemplate } from '@riotjs/util/checks.js'
 
 // in this case a simple innerHTML is enough
 function createHTMLTree(html, root) {
@@ -8,20 +8,20 @@ function createHTMLTree(html, root) {
 }
 
 // for svg nodes we need a bit more work
+/* c8 ignore start */
 function createSVGTree(html, container) {
   // create the SVGNode
   const svgNode = container.ownerDocument.importNode(
-    new window.DOMParser()
-      .parseFromString(
-        `<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>`,
-        'application/xml'
-      )
-      .documentElement,
-    true
+    new window.DOMParser().parseFromString(
+      `<svg xmlns="http://www.w3.org/2000/svg">${html}</svg>`,
+      'application/xml',
+    ).documentElement,
+    true,
   )
 
   return svgNode
 }
+/* c8 ignore end */
 
 /**
  * Create the DOM that will be injected
@@ -30,8 +30,8 @@ function createSVGTree(html, container) {
  * @returns {HTMLDocumentFragment|HTMLElement} a new html fragment
  */
 export default function createDOMTree(root, html) {
+  /* c8 ignore next */
   if (isSvg(root)) return createSVGTree(html, root)
 
   return createHTMLTree(html, root)
 }
-

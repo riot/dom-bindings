@@ -1,10 +1,10 @@
-import {cleanNode, clearChildren, removeChild} from '@riotjs/util/dom'
-import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
-import createBinding from './binding'
-import createDOMTree from './util/create-DOM-tree'
-import injectDOM from './util/inject-DOM'
-import {isTemplate} from '@riotjs/util/checks'
-import {panic} from '@riotjs/util/misc'
+import { cleanNode, clearChildren, removeChild } from '@riotjs/util/dom.js'
+import { IS_PURE_SYMBOL } from '@riotjs/util/constants.js'
+import createBinding from './binding.js'
+import createDOMTree from './util/create-DOM-tree.js'
+import injectDOM from './util/inject-DOM.js'
+import { isTemplate } from '@riotjs/util/checks.js'
+import { panic } from '@riotjs/util/misc.js'
 
 /**
  * Create the Template DOM skeleton
@@ -13,9 +13,7 @@ import {panic} from '@riotjs/util/misc'
  * @returns {?DocumentFragment} fragment that will be injected into the root node
  */
 function createTemplateDOM(el, html) {
-  return html && (typeof html === 'string' ?
-    createDOMTree(el, html) :
-    html)
+  return html && (typeof html === 'string' ? createDOMTree(el, html) : html)
 }
 
 /**
@@ -28,11 +26,7 @@ function createTemplateDOM(el, html) {
 function getTemplateTagOffset(parentNode, el, meta) {
   const siblings = Array.from(parentNode.childNodes)
 
-  return Math.max(
-    siblings.indexOf(el),
-    siblings.indexOf(meta.head) + 1,
-    0
-  )
+  return Math.max(siblings.indexOf(el), siblings.indexOf(meta.head) + 1, 0)
 }
 
 /**
@@ -57,7 +51,10 @@ export const TemplateChunk = {
    */
   createDOM(el) {
     // make sure that the DOM gets created before cloning the template
-    this.dom = this.dom || createTemplateDOM(el, this.html) || document.createDocumentFragment()
+    this.dom =
+      this.dom ||
+      createTemplateDOM(el, this.html) ||
+      document.createDocumentFragment()
 
     return this
   },
@@ -78,12 +75,14 @@ export const TemplateChunk = {
 
     // <template> tags require a bit more work
     // the template fragment might be already created via meta outside of this call
-    const {fragment, children, avoidDOMInjection} = meta
+    const { fragment, children, avoidDOMInjection } = meta
     // <template> bindings of course can not have a root element
     // so we check the parent node to set the query selector bindings
-    const {parentNode} = children ? children[0] : el
+    const { parentNode } = children ? children[0] : el
     const isTemplateTag = isTemplate(el)
-    const templateTagOffset = isTemplateTag ? getTemplateTagOffset(parentNode, el, meta) : null
+    const templateTagOffset = isTemplateTag
+      ? getTemplateTagOffset(parentNode, el, meta)
+      : null
 
     // create the DOM if it wasn't created before
     this.createDOM(el)
@@ -97,18 +96,18 @@ export const TemplateChunk = {
     this.el = isTemplateTag ? parentNode : el
 
     // create the children array only for the <template> fragments
-    this.children = isTemplateTag ? children || Array.from(cloneNode.childNodes) : null
+    this.children = isTemplateTag
+      ? children || Array.from(cloneNode.childNodes)
+      : null
 
     // inject the DOM into the el only if a fragment is available
     if (!avoidDOMInjection && cloneNode) injectDOM(el, cloneNode)
 
     // create the bindings
-    this.bindings = this.bindingsData.map(binding => createBinding(
-      this.el,
-      binding,
-      templateTagOffset
-    ))
-    this.bindings.forEach(b => b.mount(scope, parentScope))
+    this.bindings = this.bindingsData.map((binding) =>
+      createBinding(this.el, binding, templateTagOffset),
+    )
+    this.bindings.forEach((b) => b.mount(scope, parentScope))
 
     // store the template meta properties
     this.meta = meta
@@ -123,7 +122,7 @@ export const TemplateChunk = {
    * @returns {TemplateChunk} self
    */
   update(scope, parentScope) {
-    this.bindings.forEach(b => b.update(scope, parentScope))
+    this.bindings.forEach((b) => b.update(scope, parentScope))
 
     return this
   },
@@ -143,29 +142,29 @@ export const TemplateChunk = {
       return this
     }
 
-    this.bindings.forEach(b => b.unmount(scope, parentScope, mustRemoveRoot))
+    this.bindings.forEach((b) => b.unmount(scope, parentScope, mustRemoveRoot))
 
     switch (true) {
-    // pure components should handle the DOM unmount updates by themselves
-    // for mustRemoveRoot === null don't touch the DOM
-    case (el[IS_PURE_SYMBOL] || mustRemoveRoot === null):
-      break
+      // pure components should handle the DOM unmount updates by themselves
+      // for mustRemoveRoot === null don't touch the DOM
+      case el[IS_PURE_SYMBOL] || mustRemoveRoot === null:
+        break
 
-    // if children are declared, clear them
-    // applicable for <template> and <slot/> bindings
-    case Array.isArray(this.children):
-      clearChildren(this.children)
-      break
+      // if children are declared, clear them
+      // applicable for <template> and <slot/> bindings
+      case Array.isArray(this.children):
+        clearChildren(this.children)
+        break
 
-    // clean the node children only
-    case !mustRemoveRoot:
-      cleanNode(el)
-      break
+      // clean the node children only
+      case !mustRemoveRoot:
+        cleanNode(el)
+        break
 
-    // remove the root node only if the mustRemoveRoot is truly
-    case !!mustRemoveRoot:
-      removeChild(el)
-      break
+      // remove the root node only if the mustRemoveRoot is truly
+      case !!mustRemoveRoot:
+        removeChild(el)
+        break
     }
 
     this.el = null
@@ -181,11 +180,10 @@ export const TemplateChunk = {
     return {
       ...this,
       meta: {},
-      el: null
+      el: null,
     }
-  }
+  },
 }
-
 
 /**
  * Create a template chunk wiring also the bindings
@@ -197,6 +195,6 @@ export default function create(html, bindings = []) {
   return {
     ...TemplateChunk,
     html,
-    bindingsData: bindings
+    bindingsData: bindings,
   }
 }

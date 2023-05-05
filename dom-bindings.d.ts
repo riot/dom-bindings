@@ -12,23 +12,26 @@ export interface BaseExpressionData<Scope = any> {
   evaluate(scope: Scope): any
 }
 
-export interface AttributeExpressionData<Scope = any> extends BaseExpressionData<Scope> {
+export interface AttributeExpressionData<Scope = any>
+  extends BaseExpressionData<Scope> {
   name: string
 }
 
-export interface EventExpressionData<Scope = any> extends BaseExpressionData<Scope> {
+export interface EventExpressionData<Scope = any>
+  extends BaseExpressionData<Scope> {
   name: string
 }
 
-export interface TextExpressionData<Scope = any> extends BaseExpressionData<Scope> {
+export interface TextExpressionData<Scope = any>
+  extends BaseExpressionData<Scope> {
   childNodeIndex: number
 }
 
-export interface ValueExpressionData<Scope = any> extends BaseExpressionData<Scope> {
-}
+export interface ValueExpressionData<Scope = any>
+  extends BaseExpressionData<Scope> {}
 
 export type ExpressionData<Scope = any> =
-  AttributeExpressionData<Scope>
+  | AttributeExpressionData<Scope>
   | EventExpressionData<Scope>
   | TextExpressionData<Scope>
   | ValueExpressionData<Scope>
@@ -58,17 +61,21 @@ export interface BaseBindingData<Scope = any> {
   evaluate?(scope: Scope): any
 }
 
-export interface EachBindingData<Scope = any,
+export interface EachBindingData<
+  Scope = any,
   ItemName extends string = string,
   IndexName extends string = string,
   ItemValue extends any = any,
-  ExtendedScope = Scope & { [Property in ItemName]: ItemValue } & { [Property in IndexName]: number }> {
+  ExtendedScope = Scope & { [Property in ItemName]: ItemValue } & {
+    [Property in IndexName]: number
+  },
+> {
   itemName: ItemName
   indexName?: IndexName | null
-  template: TemplateChunk<ExtendedScope>,
+  template: TemplateChunk<ExtendedScope>
   getKey?: ((scope: ExtendedScope) => any) | null
-  condition?: ((scope: ExtendedScope) => any) | null,
-  evaluate(scope: Scope): ItemValue[],
+  condition?: ((scope: ExtendedScope) => any) | null
+  evaluate(scope: Scope): ItemValue[]
   selector?: string
   redundantAttribute?: string
 }
@@ -94,16 +101,25 @@ export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
 }
 
 export type BindingData<Scope = any> =
-  EachBindingData<Scope>
+  | EachBindingData<Scope>
   | IfBindingData<Scope>
   | SimpleBindingData<Scope>
   | SlotBindingData<Scope>
   | TagBindingData<Scope>
 
 export interface Binding<Scope = any, ParentScope = any> {
-  mount(el: HTMLElement, scope: Scope, parentScope?: ParentScope, meta?: TemplateChunkMeta): Binding<Scope, ParentScope>
+  mount(
+    el: HTMLElement,
+    scope: Scope,
+    parentScope?: ParentScope,
+    meta?: TemplateChunkMeta,
+  ): Binding<Scope, ParentScope>
   update(scope: Scope, parentScope?: ParentScope): Binding<Scope, ParentScope>
-  unmount(scope: Scope, parentScope?: ParentScope, mustRemoveRoot?: boolean): Binding<Scope, ParentScope>
+  unmount(
+    scope: Scope,
+    parentScope?: ParentScope,
+    mustRemoveRoot?: boolean,
+  ): Binding<Scope, ParentScope>
 }
 
 // Template Object
@@ -115,9 +131,18 @@ export interface TemplateChunkMeta {
 }
 
 export interface TemplateChunk<Scope = any, ParentScope = any> {
-  mount(el: HTMLElement, scope: Scope, parentScope?: ParentScope, meta?: TemplateChunkMeta): TemplateChunk
+  mount(
+    el: HTMLElement,
+    scope: Scope,
+    parentScope?: ParentScope,
+    meta?: TemplateChunkMeta,
+  ): TemplateChunk
   update(scope: Scope, parentScope?: ParentScope): TemplateChunk
-  unmount(scope: Scope, parentScope?: ParentScope, mustRemoveRoot?: boolean): TemplateChunk
+  unmount(
+    scope: Scope,
+    parentScope?: ParentScope,
+    mustRemoveRoot?: boolean,
+  ): TemplateChunk
   clone(): TemplateChunk
   createDOM(el: HTMLElement): TemplateChunk
 
@@ -132,10 +157,19 @@ export interface TemplateChunk<Scope = any, ParentScope = any> {
 }
 
 // API
-export function template<Scope = any, ParentScope = any>(template: string, bindings?: BindingData<Scope>[]): TemplateChunk<Scope, ParentScope>
-export function createBinding<Scope = any>(root: HTMLElement, binding: BindingData<Scope>, templateTagOffset?: number | null): Binding<Scope>
-export function createExpression<Scope = any>(node: HTMLElement, expression: ExpressionData<Scope>): Expression<Scope>
+export function template<Scope = any, ParentScope = any>(
+  template: string,
+  bindings?: BindingData<Scope>[],
+): TemplateChunk<Scope, ParentScope>
+export function createBinding<Scope = any>(
+  root: HTMLElement,
+  binding: BindingData<Scope>,
+  templateTagOffset?: number | null,
+): Binding<Scope>
+export function createExpression<Scope = any>(
+  node: HTMLElement,
+  expression: ExpressionData<Scope>,
+): Expression<Scope>
 
 export const bindingTypes: BindingType
 export const expressionTypes: ExpressionType
-

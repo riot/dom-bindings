@@ -1,7 +1,6 @@
-
-import {EVENT, TEXT} from '@riotjs/util/expression-types'
-import expressions from './expressions'
-import {getTextNode} from './expressions/text'
+import { EVENT, TEXT } from '@riotjs/util/expression-types.js'
+import expressions from './expressions/index.js'
+import { getTextNode } from './expressions/text.js'
 
 export const Expression = {
   // Static props
@@ -49,7 +48,7 @@ export const Expression = {
     if (this.type === EVENT) apply(this, null)
 
     return this
-  }
+  },
 }
 
 /**
@@ -59,15 +58,18 @@ export const Expression = {
  * @returns {undefined}
  */
 function apply(expression, value) {
-  return expressions[expression.type](expression.node, expression, value, expression.value)
+  return expressions[expression.type](
+    expression.node,
+    expression,
+    value,
+    expression.value,
+  )
 }
 
 export default function create(node, data) {
   return {
     ...Expression,
     ...data,
-    node: data.type === TEXT ?
-      getTextNode(node, data.childNodeIndex) :
-      node
+    node: data.type === TEXT ? getTextNode(node, data.childNodeIndex) : node,
   }
 }

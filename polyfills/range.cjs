@@ -1,4 +1,4 @@
-// HACK: Polyfil
+// HACK: Polyfill needed only for the benchmark
 global.window.document.createRange = function createRange() {
   let parent, start, end // eslint-disable-line
   return {
@@ -14,9 +14,9 @@ global.window.document.createRange = function createRange() {
       const offset = children.indexOf(start)
       const endOffset = children.indexOf(end)
 
-      children.slice(offset, endOffset).forEach(node => {
+      children.slice(offset, endOffset).forEach((node) => {
         parent.removeChild(node)
       })
-    }
+    },
   }
 }

@@ -1,4 +1,4 @@
-import createHeadTailPlaceholders from './create-head-tail-placeholders'
+import createHeadTailPlaceholders from './create-head-tail-placeholders.js'
 
 /**
  * Create the template meta object in case of <template> fragments
@@ -7,13 +7,13 @@ import createHeadTailPlaceholders from './create-head-tail-placeholders'
  */
 export default function createTemplateMeta(componentTemplate) {
   const fragment = componentTemplate.dom.cloneNode(true)
-  const {head, tail} = createHeadTailPlaceholders()
+  const { head, tail } = createHeadTailPlaceholders()
 
   return {
     avoidDOMInjection: true,
     fragment,
     head,
     tail,
-    children: [head, ...Array.from(fragment.childNodes), tail]
+    children: [head, ...Array.from(fragment.childNodes), tail],
   }
 }

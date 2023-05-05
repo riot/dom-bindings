@@ -55,7 +55,7 @@
  *   ]
  * )
  */
-export { default as template } from './template'
+export { default as template } from './template.js'
 
 /**
  * Bind a new expression object to a single DOM node
@@ -63,7 +63,7 @@ export { default as template } from './template'
  * @param   {Object} binding - binding data
  * @returns {Binding} Binding object
  */
-export { default as createBinding } from './binding'
+export { default as createBinding } from './binding.js'
 
 /**
  * Create a single template expression
@@ -71,16 +71,16 @@ export { default as createBinding } from './binding'
  * @param   {Object} expression - expression data
  * @returns {Expression} Expression object
  */
-export { default as createExpression } from './expression'
+export { default as createExpression } from './expression.js'
 
 /**
  * Object containing all the binding types
  * @type {Object}
  */
-export { default as bindingTypes } from '@riotjs/util/binding-types'
+export { default as bindingTypes } from '@riotjs/util/binding-types.js'
 
 /**
  * Object containing all the expression types
  * @type {Object}
  */
-export { default as expressionTypes } from '@riotjs/util/expression-types'
+export { default as expressionTypes } from '@riotjs/util/expression-types.js'

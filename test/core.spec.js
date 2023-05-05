@@ -1,5 +1,6 @@
-import {bindingTypes, expressionTypes, template} from '../src'
-import {IS_PURE_SYMBOL} from '@riotjs/util/constants'
+import { bindingTypes, expressionTypes, template } from '../src/index'
+import { IS_PURE_SYMBOL } from '@riotjs/util/constants'
+import { expect } from 'chai'
 
 describe('core specs', () => {
   it('The riot DOM bindings public methods get properly exported', () => {
@@ -7,8 +8,12 @@ describe('core specs', () => {
   })
 
   it('The template method creates a valid DOM element', () => {
-    const stringTemplate = template('<div></div>').mount(document.createElement('div'))
-    const DOMTemplate = template(document.createElement('div')).mount(document.createElement('div'))
+    const stringTemplate = template('<div></div>').mount(
+      document.createElement('div'),
+    )
+    const DOMTemplate = template(document.createElement('div')).mount(
+      document.createElement('div'),
+    )
 
     expect(stringTemplate.dom).to.be.ok
     expect(DOMTemplate.dom).to.be.ok
@@ -79,13 +84,17 @@ describe('core specs', () => {
 
   it('A template can be easily cloned', () => {
     const message = 'hello world'
-    const el = template('<!---->', [{
-      expressions: [{
-        type: expressionTypes.TEXT,
-        childNodeIndex: 0,
-        evaluate: () => message
-      }]
-    }])
+    const el = template('<!---->', [
+      {
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: () => message,
+          },
+        ],
+      },
+    ])
 
     const target = document.createElement('div')
     el.clone(target).mount(target)
@@ -95,17 +104,19 @@ describe('core specs', () => {
   it('The bindings are properly linked to the DOM nodes', () => {
     const target = document.createElement('div')
 
-    template('<div></div><p expr0><!----></p>', [{
-      selector: '[expr0]',
-      redundantAttribute: 'expr0',
-      expressions: [
-        {
-          type: expressionTypes.TEXT,
-          childNodeIndex: 0,
-          evaluate: scope => scope.text
-        }
-      ]
-    }]).mount(target, {text: 'hello'})
+    template('<div></div><p expr0><!----></p>', [
+      {
+        selector: '[expr0]',
+        redundantAttribute: 'expr0',
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: (scope) => scope.text,
+          },
+        ],
+      },
+    ]).mount(target, { text: 'hello' })
 
     const p = target.querySelector('p')
 
@@ -116,13 +127,17 @@ describe('core specs', () => {
   it('Svg fragments could be created properly', () => {
     const target = document.createElement('div')
 
-    template('<div><svg expr0></svg></div>', [{
-      selector: '[expr0]',
-      type: bindingTypes.IF,
-      redundantAttribute: 'expr0',
-      evaluate: () => true,
-      template: template('<image href="some/path.jpg" x="0" y="0" height="100" width="100"/>')
-    }]).mount(target)
+    template('<div><svg expr0></svg></div>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.IF,
+        redundantAttribute: 'expr0',
+        evaluate: () => true,
+        template: template(
+          '<image href="some/path.jpg" x="0" y="0" height="100" width="100"/>',
+        ),
+      },
+    ]).mount(target)
 
     const svg = target.querySelector('svg')
 
@@ -133,25 +148,29 @@ describe('core specs', () => {
   it('Template fragments could be created properly with if directives', () => {
     const target = document.createElement('div')
 
-    const el = template('<h1>Title</h1><template expr0/>', [{
-      selector: '[expr0]',
-      type: bindingTypes.IF,
-      redundantAttribute: 'expr0',
-      evaluate: (scope) => scope.isVisible,
-      template: template('<div><p expr0><!----></p></div>', [{
+    const el = template('<h1>Title</h1><template expr0/>', [
+      {
         selector: '[expr0]',
+        type: bindingTypes.IF,
         redundantAttribute: 'expr0',
-        expressions: [
+        evaluate: (scope) => scope.isVisible,
+        template: template('<div><p expr0><!----></p></div>', [
           {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.text
-          }
-        ]
-      }])
-    }]).mount(target, {
+            selector: '[expr0]',
+            redundantAttribute: 'expr0',
+            expressions: [
+              {
+                type: expressionTypes.TEXT,
+                childNodeIndex: 0,
+                evaluate: (scope) => scope.text,
+              },
+            ],
+          },
+        ]),
+      },
+    ]).mount(target, {
       text: 'hello',
-      isVisible: true
+      isVisible: true,
     })
 
     const p = target.querySelector('p')
@@ -162,7 +181,7 @@ describe('core specs', () => {
     expect(p.textContent).to.be.equal('hello')
 
     el.update({
-      isVisible: false
+      isVisible: false,
     })
 
     expect(target.querySelector('p')).to.be.not.ok
@@ -175,7 +194,10 @@ describe('core specs', () => {
   it('Template fragments without bindings must stay in the DOM', () => {
     const target = document.createElement('div')
 
-    const el = template('<h1>Title</h1><template>Hello</template>', []).mount(target, {})
+    const el = template('<h1>Title</h1><template>Hello</template>', []).mount(
+      target,
+      {},
+    )
 
     expect(target.querySelector('template')).to.be.ok
     expect(target.querySelector('template').innerHTML).to.be.equal('Hello')
@@ -194,14 +216,11 @@ describe('core specs', () => {
           evaluate: (scope) => scope.isVisible,
           redundantAttribute: 'expr1',
           selector: '[expr1]',
-          template: template(
-            null,
-            []
-          )
-        }
-      ]
+          template: template(null, []),
+        },
+      ],
     ).mount(target, {
-      isVisible: true
+      isVisible: true,
     })
 
     expect(target.querySelector('header')).to.be.ok
@@ -214,23 +233,27 @@ describe('core specs', () => {
   it('Template fragments work also with text nodes', () => {
     const target = document.createElement('div')
 
-    const el = template('<h1>Title</h1><template expr0/>', [{
-      selector: '[expr0]',
-      type: bindingTypes.IF,
-      redundantAttribute: 'expr0',
-      evaluate: (scope) => scope.isVisible,
-      template: template(' ', [{
-        expressions: [
+    const el = template('<h1>Title</h1><template expr0/>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.IF,
+        redundantAttribute: 'expr0',
+        evaluate: (scope) => scope.isVisible,
+        template: template(' ', [
           {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.text
-          }
-        ]
-      }])
-    }]).mount(target, {
+            expressions: [
+              {
+                type: expressionTypes.TEXT,
+                childNodeIndex: 0,
+                evaluate: (scope) => scope.text,
+              },
+            ],
+          },
+        ]),
+      },
+    ]).mount(target, {
       text: 'hello',
-      isVisible: true
+      isVisible: true,
     })
 
     expect(target.childNodes).to.have.length(3)
@@ -239,7 +262,7 @@ describe('core specs', () => {
     expect(target.textContent).to.be.equal('Titlehello')
 
     el.update({
-      isVisible: false
+      isVisible: false,
     })
 
     expect(target.childNodes).to.have.length(2)
@@ -252,25 +275,29 @@ describe('core specs', () => {
   it('Template fragments could be created properly with each directives', () => {
     const target = document.createElement('div')
 
-    const el = template('<h1>Title</h1><template expr0/>', [{
-      selector: '[expr0]',
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      evaluate: scope => scope.items,
-      template: template('<div><p expr0><!----></p></div>', [{
+    const el = template('<h1>Title</h1><template expr0/>', [
+      {
         selector: '[expr0]',
-        redundantAttribute: 'expr0',
-        expressions: [
+        type: bindingTypes.EACH,
+        itemName: 'val',
+        evaluate: (scope) => scope.items,
+        template: template('<div><p expr0><!----></p></div>', [
           {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.text
-          }
-        ]
-      }])
-    }]).mount(target, {
+            selector: '[expr0]',
+            redundantAttribute: 'expr0',
+            expressions: [
+              {
+                type: expressionTypes.TEXT,
+                childNodeIndex: 0,
+                evaluate: (scope) => scope.text,
+              },
+            ],
+          },
+        ]),
+      },
+    ]).mount(target, {
       items: [1, 2],
-      text: 'hello'
+      text: 'hello',
     })
 
     expect(target.querySelectorAll('p')).to.have.length(2)
@@ -278,7 +305,7 @@ describe('core specs', () => {
 
     el.update({
       items: [1],
-      text: 'goodbye'
+      text: 'goodbye',
     })
 
     expect(target.querySelectorAll('p')).to.have.length(1)
@@ -291,50 +318,64 @@ describe('core specs', () => {
   it('Nested template fragments could be created properly with each directives', () => {
     const target = document.createElement('div')
 
-    const el = template('<h1>Title</h1><template expr0/>', [{
-      selector: '[expr0]',
-      type: bindingTypes.EACH,
-      itemName: 'val',
-      evaluate: scope => scope.items,
-      template: template('<h2 expr0><!----></h2><template expr1>', [{
+    const el = template('<h1>Title</h1><template expr0/>', [
+      {
         selector: '[expr0]',
-        redundantAttribute: 'expr0',
-        expressions: [
-          {
-            type: expressionTypes.TEXT,
-            childNodeIndex: 0,
-            evaluate: scope => scope.val.text
-          }
-        ]
-      }, {
-        selector: '[expr1]',
         type: bindingTypes.EACH,
         itemName: 'val',
-        evaluate: scope => scope.val.children,
-        template: template('<h3 expr2><!----></h3>', [{
-          selector: '[expr2]',
-          redundantAttribute: 'expr2',
-          expressions: [
+        evaluate: (scope) => scope.items,
+        template: template('<h2 expr0><!----></h2><template expr1>', [
+          {
+            selector: '[expr0]',
+            redundantAttribute: 'expr0',
+            expressions: [
+              {
+                type: expressionTypes.TEXT,
+                childNodeIndex: 0,
+                evaluate: (scope) => scope.val.text,
+              },
+            ],
+          },
+          {
+            selector: '[expr1]',
+            type: bindingTypes.EACH,
+            itemName: 'val',
+            evaluate: (scope) => scope.val.children,
+            template: template('<h3 expr2><!----></h3>', [
+              {
+                selector: '[expr2]',
+                redundantAttribute: 'expr2',
+                expressions: [
+                  {
+                    type: expressionTypes.TEXT,
+                    childNodeIndex: 0,
+                    evaluate: (scope) => scope.val.text,
+                  },
+                ],
+              },
+            ]),
+          },
+        ]),
+      },
+    ]).mount(target, {
+      items: [
+        {
+          text: 'foo',
+          children: [
             {
-              type: expressionTypes.TEXT,
-              childNodeIndex: 0,
-              evaluate: scope => scope.val.text
-            }
-          ]
-        }])
-      }])
-    }]).mount(target, {
-      items: [{
-        text: 'foo',
-        children: [{
-          text: 'bar'
-        }]
-      }, {
-        text: 'buz',
-        children: [{
-          text: 'baz'
-        }]
-      }]
+              text: 'bar',
+            },
+          ],
+        },
+        {
+          text: 'buz',
+          children: [
+            {
+              text: 'baz',
+            },
+          ],
+        },
+      ],
     })
 
     expect(target.querySelectorAll('h2')).to.have.length(2)
@@ -342,14 +383,19 @@ describe('core specs', () => {
     expect(target.querySelector('template')).to.be.not.ok
 
     el.update({
-      items: [{
-        text: 'foo'
-      }, {
-        text: 'buz',
-        children: [{
-          text: 'baz'
-        }]
-      }]
+      items: [
+        {
+          text: 'foo',
+        },
+        {
+          text: 'buz',
+          children: [
+            {
+              text: 'baz',
+            },
+          ],
+        },
+      ],
     })
 
     expect(target.querySelectorAll('h2')).to.have.length(2)
@@ -359,14 +405,12 @@ describe('core specs', () => {
     el.unmount()
   })
 
-  it('The content attribute doesn\'t break the rendering (issue https://github.com/riot/riot/issues/2913)', () => {
+  it("The content attribute doesn't break the rendering (issue https://github.com/riot/riot/issues/2913)", () => {
     const target = document.createElement('div')
 
     target.content = true
 
-    const el = template(
-      'Hello'
-    ).mount(target, {})
+    const el = template('Hello').mount(target, {})
 
     expect(target.innerHTML).to.be.equal('Hello')
 

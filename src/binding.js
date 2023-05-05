@@ -1,6 +1,6 @@
-import {SIMPLE} from '@riotjs/util/binding-types'
-import {TEXT} from '@riotjs/util/expression-types'
-import bindings from './bindings'
+import { SIMPLE } from '@riotjs/util/binding-types.js'
+import { TEXT } from '@riotjs/util/expression-types.js'
+import bindings from './bindings/index.js'
 
 /**
  * Text expressions in a template tag will get childNodeIndex value normalized
@@ -10,10 +10,14 @@ import bindings from './bindings'
  * @returns {Expression[]} expressions containing the text expressions normalized
  */
 function fixTextExpressionsOffset(expressions, textExpressionsOffset) {
-  return expressions.map(e => e.type === TEXT ? {
-    ...e,
-    childNodeIndex: e.childNodeIndex + textExpressionsOffset
-  } : e)
+  return expressions.map((e) =>
+    e.type === TEXT
+      ? {
+          ...e,
+          childNodeIndex: e.childNodeIndex + textExpressionsOffset,
+        }
+      : e,
+  )
 }
 
 /**
@@ -33,13 +37,11 @@ export default function create(root, binding, templateTagOffset) {
   const bindingExpressions = expressions || []
 
   // init the binding
-  return (bindings[type] || bindings[SIMPLE])(
-    node,
-    {
-      ...binding,
-      expressions: templateTagOffset && !selector ?
-        fixTextExpressionsOffset(bindingExpressions, templateTagOffset) :
-        bindingExpressions
-    }
-  )
+  return (bindings[type] || bindings[SIMPLE])(node, {
+    ...binding,
+    expressions:
+      templateTagOffset && !selector
+        ? fixTextExpressionsOffset(bindingExpressions, templateTagOffset)
+        : bindingExpressions,
+  })
 }
