@@ -1,5 +1,5 @@
-import {ATTRIBUTE} from '@riotjs/util/expression-types'
-import template from '../template'
+import { ATTRIBUTE } from '@riotjs/util/expression-types.js'
+import template from '../template.js'
 
 /**
  * Create a new tag object if it was registered before, otherwise fallback to the simple
@@ -12,24 +12,24 @@ import template from '../template'
 function getTag(component, slots = [], attributes = []) {
   // if this tag was registered before we will return its implementation
   if (component) {
-    return component({slots, attributes})
+    return component({ slots, attributes })
   }
 
   // otherwise we return a template chunk
   return template(slotsToMarkup(slots), [
-    ...slotBindings(slots), {
+    ...slotBindings(slots),
+    {
       // the attributes should be registered as binding
       // if we fallback to a normal template chunk
-      expressions: attributes.map(attr => {
+      expressions: attributes.map((attr) => {
         return {
           type: ATTRIBUTE,
-          ...attr
+          ...attr,
         }
-      })
-    }
+      }),
+    },
   ])
 }
-
 
 /**
  * Merge all the slots bindings into a single array
@@ -37,7 +37,7 @@ function getTag(component, slots = [], attributes = []) {
  * @returns {Array<Bindings>} flatten bindings array
  */
 function slotBindings(slots) {
-  return slots.reduce((acc, {bindings}) => acc.concat(bindings), [])
+  return slots.reduce((acc, { bindings }) => acc.concat(bindings), [])
 }
 
 /**
@@ -50,7 +50,6 @@ function slotsToMarkup(slots) {
     return acc + slot.html
   }, '')
 }
-
 
 export const TagBinding = {
   // dynamic binding properties
@@ -90,16 +89,19 @@ export const TagBinding = {
     }
 
     return this
-  }
+  },
 }
 
-export default function create(node, {evaluate, getComponent, slots, attributes}) {
+export default function create(
+  node,
+  { evaluate, getComponent, slots, attributes },
+) {
   return {
     ...TagBinding,
     node,
     evaluate,
     slots,
     attributes,
-    getComponent
+    getComponent,
   }
 }

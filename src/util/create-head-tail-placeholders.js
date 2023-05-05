@@ -1,5 +1,4 @@
-import {HEAD_SYMBOL, TAIL_SYMBOL} from '../constants'
-
+import { HEAD_SYMBOL, TAIL_SYMBOL } from '../constants.js'
 
 /**
  * Create the <template> fragments text nodes
@@ -12,5 +11,5 @@ export default function createHeadTailPlaceholders() {
   head[HEAD_SYMBOL] = true
   tail[TAIL_SYMBOL] = true
 
-  return {head, tail}
+  return { head, tail }
 }

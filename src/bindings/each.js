@@ -1,8 +1,8 @@
-import {insertBefore, removeChild} from '@riotjs/util/dom'
-import createTemplateMeta from '../util/create-template-meta'
-import {defineProperty} from '@riotjs/util/objects'
-import {isTemplate} from '@riotjs/util/checks'
-import udomdiff from '../util/udomdiff'
+import { insertBefore, removeChild } from '@riotjs/util/dom.js'
+import { defineProperty } from '@riotjs/util/objects.js'
+import { isTemplate } from '@riotjs/util/checks.js'
+import createTemplateMeta from '../util/create-template-meta.js'
+import udomdiff from '../util/udomdiff.js'
 
 const UNMOUNT_SCOPE = Symbol('unmount')
 
@@ -27,30 +27,28 @@ export const EachBinding = {
     return this.update(scope, parentScope)
   },
   update(scope, parentScope) {
-    const {placeholder, nodes, childrenMap} = this
+    const { placeholder, nodes, childrenMap } = this
     const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
 
     // prepare the diffing
-    const {
-      newChildrenMap,
-      batches,
-      futureNodes
-    } = createPatch(items, scope, parentScope, this)
+    const { newChildrenMap, batches, futureNodes } = createPatch(
+      items,
+      scope,
+      parentScope,
+      this,
+    )
 
     // patch the DOM only if there are new nodes
     udomdiff(
       nodes,
       futureNodes,
-      patch(
-        Array.from(childrenMap.values()),
-        parentScope
-      ),
-      placeholder
+      patch(Array.from(childrenMap.values()), parentScope),
+      placeholder,
     )
 
     // trigger the mounts and the updates
-    batches.forEach(fn => fn())
+    batches.forEach((fn) => fn())
 
     // update the children map
     this.childrenMap = newChildrenMap
@@ -62,7 +60,7 @@ export const EachBinding = {
     this.update(UNMOUNT_SCOPE, parentScope)
 
     return this
-  }
+  },
 }
 
 /**
@@ -79,7 +77,7 @@ function patch(redundant, parentScope) {
 
       if (element) {
         // get the nodes and the template in stored in the last child of the childrenMap
-        const {template, nodes, context} = element
+        const { template, nodes, context } = element
         // remove the last node (notice <template> tags might have more children nodes)
         nodes.pop()
 
@@ -117,7 +115,7 @@ function mustFilterItem(condition, context) {
  * @param   {*} options.item - collection item looped
  * @returns {Object} enhanced scope object
  */
-function extendScope(scope, {itemName, indexName, index, item}) {
+function extendScope(scope, { itemName, indexName, index, item }) {
   defineProperty(scope, itemName, item)
   if (indexName) defineProperty(scope, indexName, index)
 
@@ -136,13 +134,27 @@ function extendScope(scope, {itemName, indexName, index, item}) {
  * @returns {Array} data.futureNodes - array containing the nodes we need to diff
  */
 function createPatch(items, scope, parentScope, binding) {
-  const {condition, template, childrenMap, itemName, getKey, indexName, root, isTemplateTag} = binding
+  const {
+    condition,
+    template,
+    childrenMap,
+    itemName,
+    getKey,
+    indexName,
+    root,
+    isTemplateTag,
+  } = binding
   const newChildrenMap = new Map()
   const batches = []
   const futureNodes = []
 
   items.forEach((item, index) => {
-    const context = extendScope(Object.create(scope), {itemName, indexName, index, item})
+    const context = extendScope(Object.create(scope), {
+      itemName,
+      indexName,
+      index,
+      item,
+    })
     const key = getKey ? getKey(context) : index
     const oldItem = childrenMap.get(key)
     const nodes = []
@@ -154,10 +166,15 @@ function createPatch(items, scope, parentScope, binding) {
     const mustMount = !oldItem
     const componentTemplate = oldItem ? oldItem.template : template.clone()
     const el = componentTemplate.el || root.cloneNode()
-    const meta = isTemplateTag && mustMount ? createTemplateMeta(componentTemplate) : componentTemplate.meta
+    const meta =
+      isTemplateTag && mustMount
+        ? createTemplateMeta(componentTemplate)
+        : componentTemplate.meta
 
     if (mustMount) {
-      batches.push(() => componentTemplate.mount(el, context, parentScope, meta))
+      batches.push(() =>
+        componentTemplate.mount(el, context, parentScope, meta),
+      )
     } else {
       batches.push(() => componentTemplate.update(context, parentScope))
     }
@@ -179,22 +196,25 @@ function createPatch(items, scope, parentScope, binding) {
       nodes,
       template: componentTemplate,
       context,
-      index
+      index,
     })
   })
 
   return {
     newChildrenMap,
     batches,
-    futureNodes
+    futureNodes,
   }
 }
 
-export default function create(node, {evaluate, condition, itemName, indexName, getKey, template}) {
+export default function create(
+  node,
+  { evaluate, condition, itemName, indexName, getKey, template },
+) {
   const placeholder = document.createTextNode('')
   const root = node.cloneNode()
 
-  insertBefore(placeholder,  node)
+  insertBefore(placeholder, node)
   removeChild(node)
 
   return {
@@ -209,6 +229,6 @@ export default function create(node, {evaluate, condition, itemName, indexName, 
     getKey,
     indexName,
     itemName,
-    placeholder
+    placeholder,
   }
 }

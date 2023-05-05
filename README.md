@@ -13,40 +13,38 @@
 import { template, expressionTypes } from '@riotjs/dom-bindings'
 
 // Create the app template
-const tmpl = template('<p><!----></p>', [{
-  selector: 'p',
-  expressions: [
-    {
-      type: expressionTypes.TEXT,
-      childNodeIndex: 0,
-      evaluate: scope => scope.greeting,
-    },
-  ],
-}])
+const tmpl = template('<p><!----></p>', [
+  {
+    selector: 'p',
+    expressions: [
+      {
+        type: expressionTypes.TEXT,
+        childNodeIndex: 0,
+        evaluate: (scope) => scope.greeting,
+      },
+    ],
+  },
+])
 
 // Mount the template to any DOM node
 const target = document.getElementById('app')
 
 const app = tmpl.mount(target, {
-  greeting: 'Hello World'
+  greeting: 'Hello World',
 })
 ```
 
-[ci-image]:https://img.shields.io/github/actions/workflow/status/riot/dom-bindings/test.yml?style=flat-square
-[ci-url]:https://github.com/riot/dom-bindings/actions
-
-[license-image]:http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
-[license-url]:LICENSE
-
-[npm-version-image]:http://img.shields.io/npm/v/@riotjs/dom-bindings.svg?style=flat-square
-[npm-downloads-image]:http://img.shields.io/npm/dm/@riotjs/dom-bindings.svg?style=flat-square
-[npm-url]:https://npmjs.org/package/@riotjs/dom-bindings
-
-[coverage-image]:https://img.shields.io/coveralls/riot/dom-bindings/master.svg?style=flat-square
-[coverage-url]:https://coveralls.io/r/riot/dom-bindings/?branch=master
-
-[codeclimate-image]:https://api.codeclimate.com/v1/badges/d0b7c555a1673354d66f/maintainability
-[codeclimate-url]:https://codeclimate.com/github/riot/dom-bindings/maintainability
+[ci-image]: https://img.shields.io/github/actions/workflow/status/riot/dom-bindings/test.yml?style=flat-square
+[ci-url]: https://github.com/riot/dom-bindings/actions
+[license-image]: http://img.shields.io/badge/license-MIT-000000.svg?style=flat-square
+[license-url]: LICENSE
+[npm-version-image]: http://img.shields.io/npm/v/@riotjs/dom-bindings.svg?style=flat-square
+[npm-downloads-image]: http://img.shields.io/npm/dm/@riotjs/dom-bindings.svg?style=flat-square
+[npm-url]: https://npmjs.org/package/@riotjs/dom-bindings
+[coverage-image]: https://img.shields.io/coveralls/riot/dom-bindings/master.svg?style=flat-square
+[coverage-url]: https://coveralls.io/r/riot/dom-bindings/?branch=master
+[codeclimate-image]: https://api.codeclimate.com/v1/badges/d0b7c555a1673354d66f/maintainability
+[codeclimate-url]: https://codeclimate.com/github/riot/dom-bindings/maintainability
 
 ## API
 
@@ -62,16 +60,18 @@ A template will always need a string as first argument and a list of `Bindings` 
 Consider the following example:
 
 ```js
-const tmpl = template('<p><!----></p>', [{
-  selector: 'p',
-  expressions: [
-    {
-      type: expressionTypes.TEXT,
-      childNodeIndex: 0,
-      evaluate: scope => scope.greeting
-    }
-  ],
-}])
+const tmpl = template('<p><!----></p>', [
+  {
+    selector: 'p',
+    expressions: [
+      {
+        type: expressionTypes.TEXT,
+        childNodeIndex: 0,
+        evaluate: (scope) => scope.greeting,
+      },
+    ],
+  },
+])
 ```
 
 The template object above will bind a [simple binding](#simple-binding) to the `<p>` tag.
@@ -140,18 +140,20 @@ For example, let's consider the following binding:
 ```js
 const pGreetingBinding = {
   selector: 'p',
-  expressions: [{
-    type: expressionTypes.TEXT,
-    childNodeIndex: 0,
-    evaluate: scope => scope.greeting,
-  }]
+  expressions: [
+    {
+      type: expressionTypes.TEXT,
+      childNodeIndex: 0,
+      evaluate: (scope) => scope.greeting,
+    },
+  ],
 }
 
 template('<article><p><!----></p></article>', [pGreetingBinding])
 ```
 
 In this case we have created a binding to update only the content of a `p` tag.<br/>
-*Notice that the `p` tag has an empty comment that will be replaced with the value of the binding expression whenever the template will be mounted*
+_Notice that the `p` tag has an empty comment that will be replaced with the value of the binding expression whenever the template will be mounted_
 
 </details>
 
@@ -180,19 +182,20 @@ The attribute expression allows to update all the DOM node attributes.
   <summary>Details</summary>
   This expression might contain the optional `name` key to update a single attribute for example:
 
-  ```js
-  // update only the class attribute
-  { type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
-  ```
+```js
+// update only the class attribute
+{ type: expressionTypes.ATTRIBUTE, name: 'class', evaluate(scope) { return scope.attr }}
+```
 
-  If the `name` key will not be defined and the return of the `evaluate` function will be an object, this expression will set all the pairs `key, value` as DOM attributes. <br/>
-  Given the current scope `{ attr: { class: 'hello', 'name': 'world' }}`, the following expression will allow to set all the object attributes:
+If the `name` key will not be defined and the return of the `evaluate` function will be an object, this expression will set all the pairs `key, value` as DOM attributes. <br/>
+Given the current scope `{ attr: { class: 'hello', 'name': 'world' }}`, the following expression will allow to set all the object attributes:
 
-  ```js
-  { type: expressionTypes.ATTRIBUTE, evaluate(scope) { return scope.attr }}
-  ```
+```js
+{ type: expressionTypes.ATTRIBUTE, evaluate(scope) { return scope.attr }}
+```
 
-  If the return value of the evaluate function will be a `Boolean` the attribute will be considered a boolean attribute like `checked` or `selected`...
+If the return value of the evaluate function will be a `Boolean` the attribute will be considered a boolean attribute like `checked` or `selected`...
+
 </details>
 
 ##### Event Expression
@@ -226,7 +229,10 @@ The text expression must contain the `childNodeIndex` that will be used to ident
 Given for example the following template:
 
 ```html
-<p><b>Your name is:</b><i>user_icon</i><!----></p>
+<p>
+  <b>Your name is:</b><i>user_icon</i
+  ><!---->
+</p>
 ```
 
 we could use the following text expression to replace the CommentNode with a TextNode
@@ -234,6 +240,7 @@ we could use the following text expression to replace the CommentNode with a Tex
 ```js
 { type: expressionTypes.TEXT, childNodeIndex: 2, evaluate(scope) { return 'Gianluca' } }}
 ```
+
 </details>
 
 ##### Value Expression
@@ -303,6 +310,7 @@ const eachBinding = {
 
 template('<p></p>', [eachBinding])
 ```
+
 </details>
 
 ### If Binding
@@ -344,6 +352,7 @@ const ifBinding = {
 
 template('<p>Hello there <b></b></p>', [ifBinding])
 ```
+
 </details>
 
 ### Tag Binding
@@ -383,25 +392,31 @@ import moment from 'moment'
 export default function HumanReadableTime({ attributes }) {
   const dateTimeAttr = attributes.find(({ name }) => name === 'datetime')
 
-  return template('<!---->', [{
-    expressions: [{
-      type: expressionTypes.TEXT,
-      childNodeIndex: 0,
-      evaluate(scope) {
-        const dateTimeValue = dateTimeAttr.evaluate(scope)
-        return moment(new Date(dateTimeValue)).fromNow()
-      }
-    }, ...attributes.map(attr => {
-      return {
-        ...attr,
-        type: expressionTypes.ATTRIBUTE
-      }
-    })]
-  }])
+  return template('<!---->', [
+    {
+      expressions: [
+        {
+          type: expressionTypes.TEXT,
+          childNodeIndex: 0,
+          evaluate(scope) {
+            const dateTimeValue = dateTimeAttr.evaluate(scope)
+            return moment(new Date(dateTimeValue)).fromNow()
+          },
+        },
+        ...attributes.map((attr) => {
+          return {
+            ...attr,
+            type: expressionTypes.ATTRIBUTE,
+          }
+        }),
+      ],
+    },
+  ])
 }
 ```
 
 Here it's how the previous tag might be used in a `tag` binding
+
 ```js
 import HumanReadableTime from './human-readable-time'
 
@@ -410,18 +425,24 @@ const tagBinding = {
   evaluate: () => 'human-readable-time',
   getComponent: () => HumanReadableTime,
   selector: 'time',
-  attributes: [{
-    evaluate: scope => scope.time,
-    name: 'datetime'
-  }]
+  attributes: [
+    {
+      evaluate: (scope) => scope.time,
+      name: 'datetime',
+    },
+  ],
 }
 
-template('<p>Your last commit was: <time></time></p>', [tagBinding]).mount(app, {
-  time: '2017-02-14'
-})
+template('<p>Your last commit was: <time></time></p>', [tagBinding]).mount(
+  app,
+  {
+    time: '2017-02-14',
+  },
+)
 ```
 
 The `tag` bindings have always a lower priority compared to the `if` and `each` bindings
+
 </details>
 
 #### Slot Binding
@@ -442,29 +463,40 @@ An expression object must have always at least the following properties:
   - type: `String`
   - description: the name to identify the binding html we need to mount in this node
 
-
 ```js
 // slots array that will be mounted receiving the scope of the parent template
-const slots = [{
-  id: 'foo',
-  bindings: [{
-    selector: '[expr1]',
-    expressions: [{
-      type: expressionTypes.TEXT,
-      childNodeIndex: 0,
-      evaluate: scope => scope.text
-    }]
-  }],
-  html: '<p expr1><!----></p>'
-}]
+const slots = [
+  {
+    id: 'foo',
+    bindings: [
+      {
+        selector: '[expr1]',
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: (scope) => scope.text,
+          },
+        ],
+      },
+    ],
+    html: '<p expr1><!----></p>',
+  },
+]
 
-const el = template('<article><slot expr0/></article>', [{
-  type: bindingTypes.SLOT,
-  selector: '[expr0]',
-  name: 'foo'
-}]).mount(app, {
-  slots
-}, { text: 'hello' })
+const el = template('<article><slot expr0/></article>', [
+  {
+    type: bindingTypes.SLOT,
+    selector: '[expr0]',
+    name: 'foo',
+  },
+]).mount(
+  app,
+  {
+    slots,
+  },
+  { text: 'hello' },
+)
 ```
 
 </details>
@@ -483,64 +515,74 @@ If the same DOM node has multiple bindings bound to it, they should be created f
 Let's see some cases where we might combine multiple bindings on the same DOM node and how to handle them properly.
 
 ### Each and If Bindings
+
 Let's consider for example a DOM node that sould handle in parallel the Each and If bindings.
 In that case we could skip the `If Binding` and just use the `condition` function provided by the [`Each Binding`](#each-binding)
 Each bindings will handle conditional rendering internally without the need of extra logic.
 
 ### Each and Tag Bindings
+
 A custom tag having an Each Binding bound to it should be handled giving the priority to the Eeach Binding. For example:
 
 ```js
 const components = {
-  'my-tag': function({ slots, attributes }) {
+  'my-tag': function ({ slots, attributes }) {
     return {
       mount(el, scope) {
         // do stuff on the mount
       },
       unmount() {
         // do stuff on the unmount
-      }
+      },
     }
-  }
+  },
 }
-const el = template('<ul><li expr0></li></ul>', [{
-  type: bindingTypes.EACH,
-  itemName: 'val',
-  selector: '[expr0]',
-  evaluate: scope => scope.items,
-  template: template(null, [{
-    type: bindingTypes.TAG,
-    name: 'my-tag',
-    getComponent(name) {
-      // name here will be 'my-tag'
-      return components[name]
-    }
-  }])
-}]).mount(target, { items: [1, 2] })
+const el = template('<ul><li expr0></li></ul>', [
+  {
+    type: bindingTypes.EACH,
+    itemName: 'val',
+    selector: '[expr0]',
+    evaluate: (scope) => scope.items,
+    template: template(null, [
+      {
+        type: bindingTypes.TAG,
+        name: 'my-tag',
+        getComponent(name) {
+          // name here will be 'my-tag'
+          return components[name]
+        },
+      },
+    ]),
+  },
+]).mount(target, { items: [1, 2] })
 ```
 
 The template for the Each Binding above will be created receiving `null` as first argument because we suppose that the custom tag template was already stored and registered somewhere else.
 
 ### If and Tag Bindings
+
 Similar to the previous example, If Bindings have always the priority on the Tag Bindings. For example:
 
 ```js
-const el = template('<ul><li expr0></li></ul>', [{
-  type: bindingTypes.IF,
-  selector: '[expr0]',
-  evaluate: scope => scope.isVisible,
-  template: template(null, [{
-    type: bindingTypes.TAG,
-    evaluate: () => 'my-tag',
-    getComponent(name) {
-      // name here will be 'my-tag'
-      return components[name]
-    }
-  }])
-}]).mount(target, { isVisible: true })
+const el = template('<ul><li expr0></li></ul>', [
+  {
+    type: bindingTypes.IF,
+    selector: '[expr0]',
+    evaluate: (scope) => scope.isVisible,
+    template: template(null, [
+      {
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent(name) {
+          // name here will be 'my-tag'
+          return components[name]
+        },
+      },
+    ]),
+  },
+]).mount(target, { isVisible: true })
 ```
 
 The template for the IF Binding will mount/unmount the Tag Binding on its own DOM node.
 
 </details>
-

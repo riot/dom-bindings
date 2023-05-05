@@ -11,8 +11,8 @@ export default function flattenCollectionMethods(collection, methods, context) {
     return {
       ...acc,
       [method]: (scope) => {
-        return collection.map(item => item[method](scope)) && context
-      }
+        return collection.map((item) => item[method](scope)) && context
+      },
     }
   }, {})
 }

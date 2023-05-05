@@ -1,16 +1,17 @@
 const RE_EVENTS_PREFIX = /^on/
 
-const getCallbackAndOptions = value => Array.isArray(value) ? value : [value, false]
+const getCallbackAndOptions = (value) =>
+  Array.isArray(value) ? value : [value, false]
 
 // see also https://medium.com/@WebReflection/dom-handleevent-a-cross-platform-standard-since-year-2000-5bf17287fd38
 const EventListener = {
   handleEvent(event) {
     this[event.type](event)
-  }
+  },
 }
 const ListenersWeakMap = new WeakMap()
 
-const createListener = node => {
+const createListener = (node) => {
   const listener = Object.create(EventListener)
   ListenersWeakMap.set(node, listener)
   return listener

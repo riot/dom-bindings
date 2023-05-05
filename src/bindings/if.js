@@ -1,4 +1,4 @@
-import {insertBefore, removeChild} from '@riotjs/util/dom'
+import { insertBefore, removeChild } from '@riotjs/util/dom.js'
 
 /**
  * Binding responsible for the `if` directive
@@ -28,14 +28,14 @@ export const IfBinding = {
     }
 
     switch (true) {
-    case mustMount:
-      mount()
-      break
-    case mustUnmount:
-      this.unmount(scope)
-      break
-    default:
-      if (value) this.template.update(scope, parentScope)
+      case mustMount:
+        mount()
+        break
+      case mustUnmount:
+        this.unmount(scope)
+        break
+      default:
+        if (value) this.template.update(scope, parentScope)
     }
 
     this.value = value
@@ -46,7 +46,7 @@ export const IfBinding = {
     this.template.unmount(scope, parentScope, true)
 
     return this
-  }
+  },
 }
 
 export default function create(node, { evaluate, template }) {
@@ -60,6 +60,6 @@ export default function create(node, { evaluate, template }) {
     node,
     evaluate,
     placeholder,
-    template: template.createDOM(node)
+    template: template.createDOM(node),
   }
 }

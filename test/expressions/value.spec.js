@@ -1,14 +1,17 @@
-import { expressionTypes, template } from '../../src'
+import { expressionTypes, template } from '../../src/index.js'
+import { expect } from 'chai'
 
 describe('value specs', () => {
   it('set the value properly', () => {
     const target = document.createElement('div')
-    template('<input expr0/>', [{
-      selector: '[expr0]',
-      expressions: [
-        { type: expressionTypes.VALUE, evaluate: scope => scope.val }
-      ]
-    }]).mount(target, { val: 'hello' })
+    template('<input expr0/>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.VALUE, evaluate: (scope) => scope.val },
+        ],
+      },
+    ]).mount(target, { val: 'hello' })
 
     const input = target.querySelector('input')
 
@@ -18,12 +21,14 @@ describe('value specs', () => {
 
   it('update the value properly', () => {
     const target = document.createElement('div')
-    const el = template('<textarea expr0/>Baz</textarea>', [{
-      selector: '[expr0]',
-      expressions: [
-        { type: expressionTypes.VALUE, evaluate: scope => scope.val }
-      ]
-    }]).mount(target, { val: 'hello' })
+    const el = template('<textarea expr0/>Baz</textarea>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.VALUE, evaluate: (scope) => scope.val },
+        ],
+      },
+    ]).mount(target, { val: 'hello' })
 
     const textarea = target.querySelector('textarea')
 
@@ -38,12 +43,14 @@ describe('value specs', () => {
 
   it('undefined values should render clean strings', () => {
     const target = document.createElement('div')
-    template('<input expr0/>', [{
-      selector: '[expr0]',
-      expressions: [
-        { type: expressionTypes.VALUE, evaluate: scope => scope.val }
-      ]
-    }]).mount(target, { val: undefined })
+    template('<input expr0/>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.VALUE, evaluate: (scope) => scope.val },
+        ],
+      },
+    ]).mount(target, { val: undefined })
 
     const input = target.querySelector('input')
 
