@@ -25,7 +25,7 @@ describe('attribute specs', () => {
 
   it('set boolean attributes (isBoolean=true)', () => {
     const target = document.createElement('div')
-    template('<p expr0></p>', [
+    const el = template('<p expr0></p>', [
       {
         selector: '[expr0]',
         expressions: [
@@ -43,6 +43,13 @@ describe('attribute specs', () => {
 
     expect(p.getAttribute('selected')).to.be.equal('selected')
     expect(p.selected).to.be.ok
+
+    el.update({
+      attr: false,
+    })
+
+    expect(p.hasAttribute('selected')).to.be.not.ok
+    expect(p.selected).to.be.not.ok
   })
 
   it('set boolean attributes (isBoolean=false)', () => {

@@ -49,9 +49,13 @@ function canRenderAttribute(value) {
 /**
  * Check whether the attribute should be removed
  * @param {*} value - expression value
+ * @param   {boolean} isBoolean - flag to handle boolean attributes
  * @returns {boolean} boolean - true if the attribute can be removed}
  */
-function shouldRemoveAttribute(value) {
+function shouldRemoveAttribute(value, isBoolean) {
+  // boolean attributes should be removed if the value is falsy
+  if (isBoolean) return !value && value !== 0
+  // otherwise we can try to render it
   return typeof value === 'undefined' || value === null
 }
 
@@ -94,7 +98,7 @@ export default function attributeExpression(
     node[name] = value
   }
 
-  if (shouldRemoveAttribute(value)) {
+  if (shouldRemoveAttribute(value, isBoolean)) {
     node.removeAttribute(name)
   } else if (canRenderAttribute(value)) {
     node.setAttribute(name, normalizeValue(name, value, isBoolean))
