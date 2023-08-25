@@ -1,5 +1,5 @@
-import { SIMPLE } from '@riotjs/util/binding-types.js'
-import { TEXT } from '@riotjs/util/expression-types.js'
+import { SIMPLE } from '@riotjs/util/binding-types'
+import { TEXT } from '@riotjs/util/expression-types'
 import bindings from './bindings/index.js'
 
 /**

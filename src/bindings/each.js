@@ -1,6 +1,6 @@
-import { insertBefore, removeChild } from '@riotjs/util/dom.js'
-import { defineProperty } from '@riotjs/util/objects.js'
-import { isTemplate } from '@riotjs/util/checks.js'
+import { insertBefore, removeChild } from '@riotjs/util/dom'
+import { defineProperty } from '@riotjs/util/objects'
+import { isTemplate } from '@riotjs/util/checks'
 import createTemplateMeta from '../util/create-template-meta.js'
 import udomdiff from '../util/udomdiff.js'
 

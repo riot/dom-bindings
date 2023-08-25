@@ -1,4 +1,4 @@
-import { isNil } from '@riotjs/util/checks.js'
+import { isNil } from '@riotjs/util/checks'
 
 /**
  * Normalize the user value in order to render a empty string in case of falsy values

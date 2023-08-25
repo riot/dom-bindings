@@ -1,4 +1,4 @@
-import { insertBefore, removeChild, replaceChild } from '@riotjs/util/dom.js'
+import { insertBefore, removeChild, replaceChild } from '@riotjs/util/dom'
 /* c8 ignore start */
 /**
  * ISC License

@@ -2,8 +2,8 @@ import {
   isBoolean as checkIfBoolean,
   isFunction,
   isObject,
-} from '@riotjs/util/checks.js'
-import { memoize } from '@riotjs/util/misc.js'
+} from '@riotjs/util/checks'
+import { memoize } from '@riotjs/util/misc'
 
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
 const isNativeHtmlProperty = memoize(

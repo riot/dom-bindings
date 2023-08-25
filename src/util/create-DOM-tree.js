@@ -1,4 +1,4 @@
-import { isSvg, isTemplate } from '@riotjs/util/checks.js'
+import { isSvg, isTemplate } from '@riotjs/util/checks'
 
 // in this case a simple innerHTML is enough
 function createHTMLTree(html, root) {

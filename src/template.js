@@ -1,10 +1,10 @@
-import { cleanNode, clearChildren, removeChild } from '@riotjs/util/dom.js'
-import { IS_PURE_SYMBOL } from '@riotjs/util/constants.js'
+import { cleanNode, clearChildren, removeChild } from '@riotjs/util/dom'
+import { IS_PURE_SYMBOL } from '@riotjs/util/constants'
 import createBinding from './binding.js'
 import createDOMTree from './util/create-DOM-tree.js'
 import injectDOM from './util/inject-DOM.js'
-import { isTemplate } from '@riotjs/util/checks.js'
-import { panic } from '@riotjs/util/misc.js'
+import { isTemplate } from '@riotjs/util/checks'
+import { panic } from '@riotjs/util/misc'
 
 /**
  * Create the Template DOM skeleton

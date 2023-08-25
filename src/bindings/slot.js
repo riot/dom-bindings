@@ -1,6 +1,6 @@
-import { cleanNode, insertBefore, removeChild } from '@riotjs/util/dom.js'
-import { PARENT_KEY_SYMBOL } from '@riotjs/util/constants.js'
-import { evaluateAttributeExpressions } from '@riotjs/util/misc.js'
+import { cleanNode, insertBefore, removeChild } from '@riotjs/util/dom'
+import { PARENT_KEY_SYMBOL } from '@riotjs/util/constants'
+import { evaluateAttributeExpressions } from '@riotjs/util/misc'
 import template from '../template.js'
 
 function extendParentScope(attributes, scope, parentScope) {

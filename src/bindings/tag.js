@@ -1,4 +1,4 @@
-import { ATTRIBUTE } from '@riotjs/util/expression-types.js'
+import { ATTRIBUTE } from '@riotjs/util/expression-types'
 import template from '../template.js'
 
 /**

@@ -1,4 +1,4 @@
-import { EACH, IF, SIMPLE, SLOT, TAG } from '@riotjs/util/binding-types.js'
+import { EACH, IF, SIMPLE, SLOT, TAG } from '@riotjs/util/binding-types'
 import EachBinding from './each.js'
 import IfBinding from './if.js'
 import SimpleBinding from './simple.js'

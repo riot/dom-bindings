@@ -1,4 +1,4 @@
-import { bindingTypes, expressionTypes, template } from '../src/index'
+import { bindingTypes, expressionTypes, template } from '../src/index.js'
 import { IS_PURE_SYMBOL } from '@riotjs/util/constants'
 import { expect } from 'chai'
 

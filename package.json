@@ -20,9 +20,9 @@
     "pretest": "npm run build",
     "postest": "npm run cov-html",
     "bench": "node benchmarks/index.cjs",
-    "test": "npm run lint && c8 mocha -r test/index.js test/**/*.spec.js && npm run test-typing",
+    "test": "npm run lint && c8 mocha -r test/index.js 'test/**/*.spec.js' && npm run test-typing",
     "test-typing": "tsc -p test",
-    "test-debug": "mocha --inspect --inspect-brk -r test/index.js test/**/*.spec.js",
+    "test-debug": "mocha --inspect --inspect-brk -r test/index.js 'test/**/*.spec.js'",
     "prepublishOnly": "npm test"
   },
   "files": [
@@ -50,23 +50,23 @@
   "homepage": "https://github.com/GianlucaGuarini/dom-bindings#readme",
   "devDependencies": {
     "@riotjs/prettier-config": "^1.1.0",
-    "@rollup/plugin-node-resolve": "^15.1.0",
+    "@rollup/plugin-node-resolve": "^15.2.1",
     "benchmark": "^2.1.4",
     "c8": "^8.0.1",
-    "chai": "^4.3.7",
+    "chai": "^4.3.8",
     "coveralls": "^3.1.1",
-    "eslint": "^8.46.0",
-    "eslint-config-riot": "^4.1.0",
+    "eslint": "^8.48.0",
+    "eslint-config-riot": "^4.1.1",
     "jsdom": "^22.1.0",
     "jsdom-global": "3.0.2",
     "mocha": "^10.2.0",
-    "prettier": "^3.0.0",
-    "rollup": "^3.27.0",
+    "prettier": "^3.0.2",
+    "rollup": "^3.28.1",
     "sinon": "^15.2.0",
     "sinon-chai": "^3.7.0",
-    "typescript": "^5.1.6"
+    "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@riotjs/util": "^2.2.1"
+    "@riotjs/util": "^2.2.2"
   }
 }
