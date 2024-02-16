@@ -1,6 +1,6 @@
 {
   "name": "@riotjs/dom-bindings",
-  "version": "9.0.3",
+  "version": "9.0.4",
   "description": "Riot.js DOM bindings",
   "main": "dist/dom-bindings.cjs",
   "jsnext:main": "dist/dom-bindings.js",
