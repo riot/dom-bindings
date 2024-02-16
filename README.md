@@ -229,10 +229,7 @@ The text expression must contain the `childNodeIndex` that will be used to ident
 Given for example the following template:
 
 ```html
-<p>
-  <b>Your name is:</b><i>user_icon</i
-  > 
-</p>
+<p><b>Your name is:</b><i>user_icon</i></p>
 ```
 
 we could use the following text expression to replace the CommentNode with a TextNode
