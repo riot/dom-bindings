@@ -5,6 +5,7 @@ import {
 } from '@riotjs/util/checks'
 import { memoize } from '@riotjs/util/misc'
 
+/* c8 ignore next */
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
 const isNativeHtmlProperty = memoize(
   (name) => ElementProto.hasOwnProperty(name), // eslint-disable-line
