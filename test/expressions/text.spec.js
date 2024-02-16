@@ -64,7 +64,7 @@ describe('text specs', () => {
 
   it('render non null values', () => {
     const target = document.createElement('div')
-    template('<p expr0><!----></p>', [
+    template('<p expr0> </p>', [
       {
         selector: '[expr0]',
         expressions: [

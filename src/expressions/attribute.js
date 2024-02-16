@@ -17,8 +17,8 @@ const isNativeHtmlProperty = memoize(
  * @returns {undefined} sorry it's a void function :(
  */
 function setAllAttributes(node, attributes) {
-  Object.entries(attributes).forEach(([name, value]) =>
-    attributeExpression(node, { name }, value),
+  Object.keys(attributes).forEach((name) =>
+    attributeExpression(node, { name }, attributes[name]),
   )
 }
 

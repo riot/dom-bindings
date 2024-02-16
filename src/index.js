@@ -8,7 +8,7 @@
  *
  * riotDOMBindings
  *  .template(
- *   `<div expr0><!----></div><div><p expr1><!----><section expr2></section></p>`,
+ *   `<div expr0> </div><div><p expr1> <section expr2></section></p>`,
  *   [
  *     {
  *       selector: '[expr0]',

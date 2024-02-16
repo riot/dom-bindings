@@ -13,7 +13,7 @@
 import { template, expressionTypes } from '@riotjs/dom-bindings'
 
 // Create the app template
-const tmpl = template('<p><!----></p>', [
+const tmpl = template('<p> </p>', [
   {
     selector: 'p',
     expressions: [
@@ -60,7 +60,7 @@ A template will always need a string as first argument and a list of `Bindings` 
 Consider the following example:
 
 ```js
-const tmpl = template('<p><!----></p>', [
+const tmpl = template('<p> </p>', [
   {
     selector: 'p',
     expressions: [
@@ -149,11 +149,11 @@ const pGreetingBinding = {
   ],
 }
 
-template('<article><p><!----></p></article>', [pGreetingBinding])
+template('<article><p> </p></article>', [pGreetingBinding])
 ```
 
 In this case we have created a binding to update only the content of a `p` tag.<br/>
-_Notice that the `p` tag has an empty comment that will be replaced with the value of the binding expression whenever the template will be mounted_
+_Notice that the `p` tag has an empty text node that will be replaced with the value of the binding expression whenever the template will be mounted_
 
 </details>
 
@@ -231,7 +231,7 @@ Given for example the following template:
 ```html
 <p>
   <b>Your name is:</b><i>user_icon</i
-  ><!---->
+  > 
 </p>
 ```
 
@@ -297,7 +297,7 @@ const eachBinding = {
   itemName: 'val',
   indexName: 'index'
   evaluate: scope => scope.items,
-  template: template('<!---->', [{
+  template: template(' ', [{
     expressions: [
       {
         type: expressionTypes.TEXT,
@@ -339,7 +339,7 @@ const ifBinding = {
   type: bindingTypes.IF,
   evaluate: scope => scope.isVisible,
   selector: 'b'
-  template: template('<!---->', [{
+  template: template(' ', [{
     expressions: [
       {
         type: expressionTypes.TEXT,
@@ -392,7 +392,7 @@ import moment from 'moment'
 export default function HumanReadableTime({ attributes }) {
   const dateTimeAttr = attributes.find(({ name }) => name === 'datetime')
 
-  return template('<!---->', [
+  return template(' ', [
     {
       expressions: [
         {
@@ -480,7 +480,7 @@ const slots = [
         ],
       },
     ],
-    html: '<p expr1><!----></p>',
+    html: '<p expr1> </p>',
   },
 ]
 

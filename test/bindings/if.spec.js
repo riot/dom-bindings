@@ -7,7 +7,7 @@ function createDummyIfTemplate(options = {}) {
       selector: '[expr0]',
       type: bindingTypes.IF,
       evaluate: (scope) => scope.isVisible,
-      template: template('<b expr0><!----></b>', [
+      template: template('<b expr0> </b>', [
         {
           selector: '[expr0]',
           expressions: [

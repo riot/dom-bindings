@@ -19,7 +19,7 @@ function createDummyListTemplate(options = {}) {
       type: bindingTypes.EACH,
       itemName,
       evaluate: (scope) => scope.items,
-      template: template('<!---->', [
+      template: template(' ', [
         {
           expressions: [
             {
@@ -44,7 +44,7 @@ function createDummyListWithSiblingsTemplate(options = {}) {
       type: bindingTypes.EACH,
       itemName,
       evaluate: (scope) => scope.items,
-      template: template('<!---->', [
+      template: template(' ', [
         {
           expressions: [
             {
@@ -306,7 +306,7 @@ describe('each bindings', () => {
         indexName: 'index',
         itemName: 'val',
         evaluate: (scope) => scope.items,
-        template: template('<!---->', [
+        template: template(' ', [
           {
             expressions: [
               {

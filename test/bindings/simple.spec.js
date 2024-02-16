@@ -2,7 +2,7 @@ import { expressionTypes, template } from '../../src/index.js'
 import { expect } from 'chai'
 
 function createDummyTemplate() {
-  return template('<p expr0><!----></p>', [
+  return template('<p expr0> </p>', [
     {
       selector: '[expr0]',
       expressions: [

@@ -7,16 +7,7 @@ import normalizeStringValue from '../util/normalize-string-value.js'
  * @returns {Text} the text node to update
  */
 export const getTextNode = (node, childNodeIndex) => {
-  const target = node.childNodes[childNodeIndex]
-
-  if (target.nodeType === Node.COMMENT_NODE) {
-    const textNode = document.createTextNode('')
-    node.replaceChild(textNode, target)
-
-    return textNode
-  }
-
-  return target
+  return node.childNodes[childNodeIndex]
 }
 
 /**

@@ -84,7 +84,7 @@ describe('core specs', () => {
 
   it('A template can be easily cloned', () => {
     const message = 'hello world'
-    const el = template('<!---->', [
+    const el = template(' ', [
       {
         expressions: [
           {
@@ -104,7 +104,7 @@ describe('core specs', () => {
   it('The bindings are properly linked to the DOM nodes', () => {
     const target = document.createElement('div')
 
-    template('<div></div><p expr0><!----></p>', [
+    template('<div></div><p expr0> </p>', [
       {
         selector: '[expr0]',
         redundantAttribute: 'expr0',
@@ -154,7 +154,7 @@ describe('core specs', () => {
         type: bindingTypes.IF,
         redundantAttribute: 'expr0',
         evaluate: (scope) => scope.isVisible,
-        template: template('<div><p expr0><!----></p></div>', [
+        template: template('<div><p expr0> </p></div>', [
           {
             selector: '[expr0]',
             redundantAttribute: 'expr0',
@@ -281,7 +281,7 @@ describe('core specs', () => {
         type: bindingTypes.EACH,
         itemName: 'val',
         evaluate: (scope) => scope.items,
-        template: template('<div><p expr0><!----></p></div>', [
+        template: template('<div><p expr0> </p></div>', [
           {
             selector: '[expr0]',
             redundantAttribute: 'expr0',
@@ -324,7 +324,7 @@ describe('core specs', () => {
         type: bindingTypes.EACH,
         itemName: 'val',
         evaluate: (scope) => scope.items,
-        template: template('<h2 expr0><!----></h2><template expr1>', [
+        template: template('<h2 expr0> </h2><template expr1>', [
           {
             selector: '[expr0]',
             redundantAttribute: 'expr0',
@@ -341,7 +341,7 @@ describe('core specs', () => {
             type: bindingTypes.EACH,
             itemName: 'val',
             evaluate: (scope) => scope.val.children,
-            template: template('<h3 expr2><!----></h3>', [
+            template: template('<h3 expr2> </h3>', [
               {
                 selector: '[expr2]',
                 redundantAttribute: 'expr2',
