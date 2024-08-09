@@ -23,11 +23,7 @@ export const EachBinding = {
   // placeholder: null,
 
   // API methods
-  mount(scope, parentScope) {
-    return this.update(scope, parentScope)
-  },
-  update(scope, parentScope) {
-    const { placeholder, nodes, childrenMap } = this
+  updateDom(scope, parentScope, domUpdateFn) {
     const collection = scope === UNMOUNT_SCOPE ? null : this.evaluate(scope)
     const items = collection ? Array.from(collection) : []
 
@@ -40,12 +36,7 @@ export const EachBinding = {
     )
 
     // patch the DOM only if there are new nodes
-    udomdiff(
-      nodes,
-      futureNodes,
-      patch(Array.from(childrenMap.values()), parentScope),
-      placeholder,
-    )
+    domUpdateFn(futureNodes)
 
     // trigger the mounts and the updates
     batches.forEach((fn) => fn())
@@ -56,10 +47,33 @@ export const EachBinding = {
 
     return this
   },
-  unmount(scope, parentScope) {
-    this.update(UNMOUNT_SCOPE, parentScope)
+  mount(scope, parentScope) {
+    const frag = document.createDocumentFragment()
 
-    return this
+    // add the new nodes all at once
+    return this.updateDom(scope, parentScope, (nodes) => {
+      nodes.forEach(frag.appendChild.bind(frag))
+      insertBefore(frag, this.placeholder)
+    })
+  },
+  update(scope, parentScope) {
+    const { placeholder, nodes, childrenMap } = this
+
+    // rely on udomdiff to patch the DOM only if there are new nodes
+    return this.updateDom(scope, parentScope, (futureNodes) =>
+      udomdiff(
+        nodes,
+        futureNodes,
+        patch(Array.from(childrenMap.values()), parentScope),
+        placeholder,
+      ),
+    )
+  },
+  unmount(scope, parentScope) {
+    // just remove all the nodes rendered
+    return this.updateDom(UNMOUNT_SCOPE, parentScope, () =>
+      this.nodes.forEach((node) => node.remove()),
+    )
   },
 }
 
