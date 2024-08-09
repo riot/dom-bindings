@@ -1,4 +1,4 @@
-/* eslint-disable no-var, no-console */
+/* eslint-disable no-console */
 require('jsdom-global')()
 require('../polyfills/range.cjs')
 
@@ -23,10 +23,11 @@ Object.entries(benchmarks).forEach(([key, bench]) => {
 
 suite
   .on('cycle', function (event) {
-    var mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)
+    const mem = (process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)
     console.log(String(event.target), `Memory usage: ${mem} MiB`)
+    global.gc()
   })
   .on('error', function (e) {
     console.log(e.target.error)
   })
-  .run({ async: false })
+  .run()

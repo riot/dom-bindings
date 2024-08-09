@@ -19,7 +19,7 @@
     "build": "rollup -c",
     "pretest": "npm run build",
     "postest": "npm run cov-html",
-    "bench": "node benchmarks/index.cjs",
+    "bench": "node --expose-gc benchmarks/index.cjs",
     "test": "npm run lint && c8 mocha -r test/index.js 'test/**/*.spec.js' && npm run test-typing",
     "test-typing": "tsc -p test",
     "test-debug": "mocha --inspect --inspect-brk -r test/index.js 'test/**/*.spec.js'",
