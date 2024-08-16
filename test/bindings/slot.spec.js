@@ -388,7 +388,7 @@ describe('slot bindings', () => {
     el.unmount()
   })
 
-  it('Nested if condition work in slots', () => {
+  it('Nested if condition works in slots', () => {
     const target = document.createElement('div')
     const el = template('<div><slot expr0/></div>', [
       {
@@ -439,11 +439,12 @@ describe('slot bindings', () => {
   it('Slot with default content', () => {
     const target = document.createElement('div')
 
-    const el = template('<div><slot expr0><p>Default</p></slot></div>', [
+    const el = template('<div><slot expr0/></div>', [
       {
         type: bindingTypes.SLOT,
         selector: '[expr0]',
         name: 'default',
+        fallback: template('<p>Default</p>'),
       },
     ])
 
