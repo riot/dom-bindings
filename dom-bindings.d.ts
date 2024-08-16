@@ -72,6 +72,7 @@ export interface EachBindingData<
 > {
   itemName: ItemName
   indexName?: IndexName | null
+  type: BindingType.EACH
   template: TemplateChunk<ExtendedScope>
   getKey?: ((scope: ExtendedScope) => any) | null
   condition?: ((scope: ExtendedScope) => any) | null
@@ -82,6 +83,7 @@ export interface EachBindingData<
 
 export interface IfBindingData<Scope = any> extends BaseBindingData<Scope> {
   template: TemplateChunk<Scope>
+  type: BindingType.IF
 }
 
 export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
@@ -89,15 +91,19 @@ export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
 }
 
 export interface SlotBindingData<Scope = any> extends BaseBindingData<Scope> {
-  id: string
-  html: string
-  bindings: BindingData<Scope>[]
+  template: TemplateChunk<Scope>
+  type: BindingType.SLOT
 }
 
 export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
   getComponent(name: string): TemplateChunk<Scope>
   attributes: AttributeExpressionData<Scope>[]
-  slots: SlotBindingData<Scope>[]
+  type: BindingType.TAG
+  slots: {
+    id: string
+    html: string
+    bindings: BindingData<Scope>[]
+  }[]
 }
 
 export type BindingData<Scope = any> =
