@@ -72,7 +72,6 @@ export interface EachBindingData<
 > {
   itemName: ItemName
   indexName?: IndexName | null
-  type: BindingType.EACH
   template: TemplateChunk<ExtendedScope>
   getKey?: ((scope: ExtendedScope) => any) | null
   condition?: ((scope: ExtendedScope) => any) | null
@@ -83,7 +82,6 @@ export interface EachBindingData<
 
 export interface IfBindingData<Scope = any> extends BaseBindingData<Scope> {
   template: TemplateChunk<Scope>
-  type: BindingType.IF
 }
 
 export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
@@ -91,14 +89,12 @@ export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
 }
 
 export interface SlotBindingData<Scope = any> extends BaseBindingData<Scope> {
-  template: TemplateChunk<Scope>
-  type: BindingType.SLOT
+  fallback?: TemplateChunk<Scope>
 }
 
 export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
   getComponent(name: string): TemplateChunk<Scope>
   attributes: AttributeExpressionData<Scope>[]
-  type: BindingType.TAG
   slots: {
     id: string
     html: string
@@ -177,5 +173,7 @@ export function createExpression<Scope = any>(
   expression: ExpressionData<Scope>,
 ): Expression<Scope>
 
-export const bindingTypes: BindingType
-export const expressionTypes: ExpressionType
+export const bindingTypes: { [key in keyof typeof BindingType]: BindingType }
+export const expressionTypes: {
+  [key in keyof typeof ExpressionType]: ExpressionType
+}
