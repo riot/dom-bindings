@@ -89,7 +89,7 @@ export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
 }
 
 export interface SlotBindingData<Scope = any> extends BaseBindingData<Scope> {
-  fallback?: TemplateChunk<Scope>
+  template?: TemplateChunk<Scope>
 }
 
 export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {

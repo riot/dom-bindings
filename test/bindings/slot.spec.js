@@ -444,7 +444,7 @@ describe('slot bindings', () => {
         type: bindingTypes.SLOT,
         selector: '[expr0]',
         name: 'default',
-        fallback: template('<p>Default</p>'),
+        template: template('<p>Default</p>'),
       },
     ])
 
