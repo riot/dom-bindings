@@ -28,7 +28,6 @@ export const SlotBinding = {
   // name: null,
   attributes: [],
   // template: null,
-  // fallback: null
 
   getTemplateScope(scope, parentScope) {
     return extendParentScope(this.attributes, scope, parentScope)
@@ -42,13 +41,14 @@ export const SlotBinding = {
     const { parentNode } = this.node
     const realParent = getRealParent(scope, parentScope)
 
+    // override the template property if the slot needs to be replaced
     this.template =
       (templateData &&
         template(templateData.html, templateData.bindings).createDOM(
           parentNode,
         )) ||
-      // use the optional template fallback if provided by the compiler see also https://github.com/riot/riot/issues/3014
-      this.fallback
+      // otherwise use the optional template fallback if provided by the compiler see also https://github.com/riot/riot/issues/3014
+      this.template
 
     if (this.template) {
       cleanNode(this.node)
@@ -107,11 +107,11 @@ function moveSlotInnerContent(slot) {
  * @param   {AttributeExpressionData[]} attributes - slot attributes
  * @returns {Object} Slot binding object
  */
-export default function createSlot(node, { name, attributes, fallback }) {
+export default function createSlot(node, { name, attributes, template }) {
   return {
     ...SlotBinding,
     attributes,
-    fallback,
+    template,
     node,
     name,
   }
