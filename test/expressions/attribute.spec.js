@@ -382,4 +382,31 @@ describe('attribute specs', () => {
 
     expect(removeSpy).to.have.been.not.called
   })
+
+  it('ref attributes register/unregister a dom node', () => {
+    const target = document.createElement('div')
+    const ref = spy()
+    const el = template('<p expr0></p>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          {
+            type: expressionTypes.ATTRIBUTE,
+            name: 'ref',
+            evaluate: (scope) => scope.ref,
+          },
+        ],
+      },
+    ]).mount(target, { ref })
+
+    expect(ref).to.have.been.calledWith(target.querySelector('p'))
+
+    el.update({ ref })
+
+    expect(ref).to.have.been.calledOnce
+
+    el.unmount()
+
+    expect(ref).to.have.been.calledWith(null)
+  })
 })

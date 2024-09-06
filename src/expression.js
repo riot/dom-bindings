@@ -1,6 +1,7 @@
-import { EVENT, TEXT } from '@riotjs/util/expression-types'
+import { ATTRIBUTE, EVENT, TEXT } from '@riotjs/util/expression-types'
 import expressions from './expressions/index.js'
 import { getTextNode } from './expressions/text.js'
+import { REF_ATTRIBUTE } from './constants.js'
 
 export const Expression = {
   // Static props
@@ -46,6 +47,9 @@ export const Expression = {
   unmount() {
     // unmount only the event handling expressions
     if (this.type === EVENT) apply(this, null)
+    // ref attributes need to be unmounted as well
+    if (this.name === REF_ATTRIBUTE)
+      expressions[ATTRIBUTE](null, this, this.value)
 
     return this
   },
