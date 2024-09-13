@@ -1,4 +1,4 @@
-module.exports = function (suite, testName, domBindings) {
+export default function (suite, testName, domBindings, rootNode) {
   const tag = domBindings.template('<div></div><p expr0></p>', [
     {
       selector: '[expr0]',
@@ -6,7 +6,7 @@ module.exports = function (suite, testName, domBindings) {
       evaluate(scope) {
         return scope.isVisible
       },
-      template: domBindings.template('<b expr0><!----></b>', [
+      template: domBindings.template('<b expr0> </b>', [
         {
           selector: '[expr0]',
           expressions: [
@@ -23,17 +23,23 @@ module.exports = function (suite, testName, domBindings) {
     },
   ])
 
-  suite
-    .on('start', function () {
-      // setup
-      const ifTag = document.createElement('div')
-      tag.mount(ifTag, { isVisible: true, text: 'Hello' })
-    })
-    .on('complete', function () {
-      tag.unmount()
-    })
-    .add(testName, () => {
+  suite.add(
+    testName,
+    () => {
       tag.update({ isVisible: false, text: 'Hello' })
       tag.update({ isVisible: true, text: 'Hello' })
-    })
+    },
+    {
+      onStart: function () {
+        document.body.appendChild(rootNode)
+        tag.mount(rootNode, {
+          isVisible: true,
+          text: 'Hello',
+        })
+      },
+      onComplete: function () {
+        tag.unmount({}, {}, true)
+      },
+    },
+  )
 }

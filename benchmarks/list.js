@@ -1,4 +1,4 @@
-module.exports = function (suite, testName, domBindings) {
+export default function (suite, testName, domBindings, rootNode) {
   function generateItems(amount, hasChildren) {
     const items = []
     while (amount--) {
@@ -19,7 +19,7 @@ module.exports = function (suite, testName, domBindings) {
       evaluate(scope) {
         return scope.items
       },
-      template: domBindings.template('<!----><p expr1></p>', [
+      template: domBindings.template(' <p expr1></p>', [
         {
           expressions: [
             {
@@ -38,7 +38,7 @@ module.exports = function (suite, testName, domBindings) {
           evaluate(scope) {
             return scope.item.props
           },
-          template: domBindings.template('<!---->', [
+          template: domBindings.template(' ', [
             {
               expressions: [
                 {
@@ -56,18 +56,22 @@ module.exports = function (suite, testName, domBindings) {
     },
   ])
 
-  suite
-    .on('start', function () {
-      // setup
-      const loopTag = document.createElement('div')
-      tag.mount(loopTag, { items: [] })
-    })
-    .on('complete', function () {
-      tag.unmount()
-    })
-    .add(testName, () => {
-      const items = generateItems(50, true)
+  suite.add(
+    testName,
+    () => {
+      const items = generateItems(3, true)
       tag.update({ items })
-      tag.update({ items: items.concat(generateItems(30, true)) })
-    })
+      tag.update({ items: items.concat(generateItems(3, true)) })
+      tag.update({ items: [] })
+    },
+    {
+      onStart: function () {
+        document.body.appendChild(rootNode)
+        tag.mount(rootNode, { items: [] })
+      },
+      onComplete: function () {
+        tag.unmount({}, {}, true)
+      },
+    },
+  )
 }

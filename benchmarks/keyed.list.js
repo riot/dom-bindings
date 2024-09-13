@@ -1,11 +1,11 @@
-module.exports = function (suite, testName, domBindings) {
+export default function (suite, testName, domBindings, rootNode) {
   function generateItems(amount, hasChildren) {
     const items = []
     while (amount--) {
       // eslint-disable-line
       items.push({
         name: `foo ${Math.random()}`,
-        props: hasChildren ? generateItems(5, false) : [],
+        props: hasChildren ? generateItems(3, false) : [],
       })
     }
     return items
@@ -22,7 +22,7 @@ module.exports = function (suite, testName, domBindings) {
       evaluate(scope) {
         return scope.items
       },
-      template: domBindings.template('<!----><p expr1></p>', [
+      template: domBindings.template(' <p expr1></p>', [
         {
           expressions: [
             {
@@ -44,7 +44,7 @@ module.exports = function (suite, testName, domBindings) {
           evaluate(scope) {
             return scope.item.props
           },
-          template: domBindings.template('<!---->', [
+          template: domBindings.template(' ', [
             {
               expressions: [
                 {
@@ -62,22 +62,26 @@ module.exports = function (suite, testName, domBindings) {
     },
   ])
 
-  suite
-    .on('start', function () {
-      // setup
-      const loopTag = document.createElement('div')
-      tag.mount(loopTag, { items: [] })
-    })
-    .on('complete', function () {
-      tag.unmount()
-    })
-    .add(testName, () => {
-      const items = generateItems(10, true)
+  suite.add(
+    testName,
+    () => {
+      const items = generateItems(3, true)
       tag.update({ items })
       items.splice(2, 1)
       items.splice(4, 1)
       items.splice(6, 1)
       items.splice(9, 1)
-      tag.update({ items: items.concat(generateItems(5, true)) })
-    })
+      tag.update({ items: items.concat(generateItems(3, true)) })
+      tag.update({ items: [] })
+    },
+    {
+      onStart: function () {
+        document.body.appendChild(rootNode)
+        tag.mount(rootNode, { items: [] })
+      },
+      onComplete: function () {
+        tag.unmount({}, {}, true)
+      },
+    },
+  )
 }
