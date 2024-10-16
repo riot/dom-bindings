@@ -27,6 +27,7 @@ export const SlotBinding = {
   // node: null,
   // name: null,
   attributes: [],
+  // templateData: null,
   // template: null,
 
   getTemplateScope(scope, parentScope) {
@@ -39,7 +40,11 @@ export const SlotBinding = {
       ? scope.slots.find(({ id }) => id === this.name)
       : false
     const { parentNode } = this.node
-    const realParent = getRealParent(scope, parentScope)
+
+    // if the slot did not pass any content, we will use the self slot for optional fallback content (https://github.com/riot/riot/issues/3024)
+    const realParent = templateData ? getRealParent(scope, parentScope) : scope
+
+    this.templateData = templateData
 
     // override the template property if the slot needs to be replaced
     this.template =
@@ -67,7 +72,10 @@ export const SlotBinding = {
   },
   update(scope, parentScope) {
     if (this.template) {
-      const realParent = getRealParent(scope, parentScope)
+      const realParent = this.templateData
+        ? getRealParent(scope, parentScope)
+        : scope
+
       this.template.update(this.getTemplateScope(scope, realParent), realParent)
     }
 
