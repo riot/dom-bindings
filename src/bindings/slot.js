@@ -53,7 +53,7 @@ export const SlotBinding = {
           parentNode,
         )) ||
       // otherwise use the optional template fallback if provided by the compiler see also https://github.com/riot/riot/issues/3014
-      this.template
+      this.template?.clone()
 
     if (this.template) {
       cleanNode(this.node)

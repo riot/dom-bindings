@@ -511,4 +511,52 @@ describe('slot bindings', () => {
 
     el.unmount()
   })
+
+  it('Multiple Slots with the same fallback slot content', () => {
+    const target1 = document.createElement('div')
+    const target2 = document.createElement('div')
+
+    const fallbackSlot = template('<p expr1> </p>', [
+      {
+        selector: '[expr1]',
+        expressions: [
+          {
+            type: expressionTypes.TEXT,
+            childNodeIndex: 0,
+            evaluate: (scope) => scope.text,
+          },
+        ],
+      },
+    ])
+
+    const component1 = template('<div><slot expr0/></div>', [
+      {
+        type: bindingTypes.SLOT,
+        selector: '[expr0]',
+        name: 'default',
+        template: fallbackSlot,
+      },
+    ]).mount(target1, {
+      slots: [],
+      text: 'hello',
+    })
+
+    const component2 = template('<div><slot expr0/></div>', [
+      {
+        type: bindingTypes.SLOT,
+        selector: '[expr0]',
+        name: 'default',
+        template: fallbackSlot,
+      },
+    ]).mount(target2, {
+      slots: [],
+      text: 'there',
+    })
+
+    expect(target1.querySelector('p').textContent).to.be.equal('hello')
+    expect(target2.querySelector('p').textContent).to.be.equal('there')
+
+    component1.unmount()
+    component2.unmount()
+  })
 })
