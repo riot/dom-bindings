@@ -444,7 +444,18 @@ describe('slot bindings', () => {
         type: bindingTypes.SLOT,
         selector: '[expr0]',
         name: 'default',
-        template: template('<p>Default</p>'),
+        template: template('<p expr1> </p>', [
+          {
+            selector: '[expr1]',
+            expressions: [
+              {
+                type: expressionTypes.TEXT,
+                childNodeIndex: 0,
+                evaluate: (scope) => scope.text,
+              },
+            ],
+          },
+        ]),
       },
     ])
 
@@ -472,6 +483,7 @@ describe('slot bindings', () => {
       target,
       {
         slots: [],
+        text: 'Default',
       },
       { isVisible: true },
     )
