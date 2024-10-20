@@ -12,11 +12,11 @@ export const getTextNode = (node, childNodeIndex) => {
 
 /**
  * This methods handles a simple text expression update
- * @param   {HTMLElement} node - target node
- * @param   {Object} data - expression object
+ * @param   {Object} expression - expression object
+ * @param   {HTMLElement} expression.node - target node
  * @param   {*} value - new expression value
  * @returns {undefined}
  */
-export default function textExpression(node, data, value) {
+export default function textExpression({ node }, value) {
   node.data = normalizeStringValue(value)
 }

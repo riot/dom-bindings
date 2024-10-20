@@ -1,4 +1,4 @@
-import { ATTRIBUTE, EVENT, TEXT } from '@riotjs/util/expression-types'
+import { EVENT, TEXT } from '@riotjs/util/expression-types'
 import expressions from './expressions/index.js'
 import { getTextNode } from './expressions/text.js'
 import { REF_ATTRIBUTE } from './constants.js'
@@ -15,16 +15,11 @@ export const Expression = {
    * @returns {Expression} self
    */
   mount(scope) {
-    // hopefully a pure function
-    this.value = this.evaluate(scope)
-
-    // IO() DOM updates
-    apply(this, this.value)
-
-    return this
+    return this.update(scope)
   },
+
   /**
-   * Update the expression if its value changed
+   * Update the expression
    * @param   {*} scope - argument passed to the expression to evaluate its current values
    * @returns {Expression} self
    */
@@ -32,14 +27,20 @@ export const Expression = {
     // pure function
     const value = this.evaluate(scope)
 
-    if (this.value !== value) {
-      // IO() DOM updates
-      apply(this, value)
+    // ref attributes should be called only once during mount
+    if (this.name === REF_ATTRIBUTE && !this.value) {
+      value(this.node)
       this.value = value
+      return this
     }
+
+    // IO() DOM updates
+    apply(this, value)
+    this.value = value
 
     return this
   },
+
   /**
    * Expression teardown method
    * @returns {Expression} self
@@ -47,9 +48,8 @@ export const Expression = {
   unmount() {
     // unmount only the event handling expressions
     if (this.type === EVENT) apply(this, null)
-    // ref attributes need to be unmounted as well
-    if (this.name === REF_ATTRIBUTE)
-      expressions[ATTRIBUTE](null, this, this.value)
+    // ref attributes need to be called with null reference
+    if (this.name === REF_ATTRIBUTE) this.value(null)
 
     return this
   },
@@ -58,16 +58,11 @@ export const Expression = {
 /**
  * IO() function to handle the DOM updates
  * @param {Expression} expression - expression object
- * @param {*} value - current expression value
+ * @param {*} newValue - current expression value
  * @returns {undefined}
  */
-function apply(expression, value) {
-  return expressions[expression.type](
-    expression.node,
-    expression,
-    value,
-    expression.value,
-  )
+function apply(expression, newValue) {
+  return expressions[expression.type](expression, newValue)
 }
 
 export default function create(node, data) {
