@@ -409,4 +409,26 @@ describe('attribute specs', () => {
 
     expect(ref).to.have.been.calledWith(null)
   })
+
+  it('Attributes can check and restore their values upon update (https://github.com/riot/riot/issues/3023)', () => {
+    const target = document.createElement('div')
+    const scope = { attr: { class: 'hello world' } }
+    const el = template('<p expr0></p>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.ATTRIBUTE, evaluate: (scope) => scope.attr },
+        ],
+      },
+    ]).mount(target, scope)
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('class')).to.be.equal('hello world')
+    p.classList.remove('world')
+    expect(p.getAttribute('class')).to.be.equal('hello')
+
+    el.update(scope)
+    expect(p.getAttribute('class')).to.be.equal('hello world')
+  })
 })

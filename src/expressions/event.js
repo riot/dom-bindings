@@ -19,13 +19,18 @@ const createListener = (node) => {
 
 /**
  * Set a new event listener
- * @param   {HTMLElement} node - target node
  * @param   {Object} expression - expression object
+ * @param   {HTMLElement} expression.node - target node
  * @param   {string} expression.name - event name
  * @param   {*} value - new expression value
  * @returns {value} the callback just received
  */
-export default function eventExpression(node, { name }, value) {
+export default function eventExpression(
+  { node, name, value: oldValue },
+  value,
+) {
+  if (oldValue === value) return
+
   const normalizedEventName = name.replace(RE_EVENTS_PREFIX, '')
   const eventListener = ListenersWeakMap.get(node) || createListener(node)
   const [callback, options] = getCallbackAndOptions(value)
