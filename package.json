@@ -17,7 +17,7 @@
     "cov": "c8 report --reporter=lcov",
     "cov-html": "c8 report --reporter=html",
     "build": "rollup -c",
-    "build-bench": "rollup -c benchmarks/rollup.config.js",
+    "build-bench": "npm run build && rollup -c benchmarks/rollup.config.js",
     "pretest": "npm run build",
     "postest": "npm run cov-html",
     "bench": "node --expose-gc benchmarks/index.js",

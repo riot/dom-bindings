@@ -52,7 +52,7 @@ export const EachBinding = {
 
     // add the new nodes all at once
     return this.updateDom(scope, parentScope, (nodes) => {
-      nodes.forEach(frag.appendChild.bind(frag))
+      frag.append(...nodes)
       insertBefore(frag, this.placeholder)
     })
   },

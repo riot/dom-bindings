@@ -45,3 +45,4 @@ coverage
 
 # Generated files
 dist/
+benchmarks/bundle.js
