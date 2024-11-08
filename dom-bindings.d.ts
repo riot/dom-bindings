@@ -90,16 +90,20 @@ export interface SimpleBindingData<Scope = any> extends BaseBindingData<Scope> {
 
 export interface SlotBindingData<Scope = any> extends BaseBindingData<Scope> {
   template?: TemplateChunk<Scope>
+  attributes: AttributeExpressionData<Scope>[]
+  name: string
+}
+
+export interface TagSlotData<Scope = any> {
+  id: string
+  html: string
+  bindings: BindingData<Scope>[]
 }
 
 export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
   getComponent(name: string): TemplateChunk<Scope>
   attributes: AttributeExpressionData<Scope>[]
-  slots: {
-    id: string
-    html: string
-    bindings: BindingData<Scope>[]
-  }[]
+  slots: TagSlotData[]
 }
 
 export type BindingData<Scope = any> =
