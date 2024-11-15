@@ -1,6 +1,6 @@
 import { insertBefore, removeChild } from '@riotjs/util/dom'
-import { defineProperty } from '@riotjs/util/objects'
 import { isTemplate } from '@riotjs/util/checks'
+import extendScope from '../util/extend-scope.js'
 import createTemplateMeta from '../util/create-template-meta.js'
 import udomdiff from '../util/udomdiff.js'
 
@@ -106,23 +106,6 @@ function mustFilterItem(condition, context) {
 }
 
 /**
- * Extend the scope of the looped template
- * @param   {Object} scope - current template scope
- * @param   {Object} options - options
- * @param   {string} options.itemName - key to identify the looped item in the new context
- * @param   {string} options.indexName - key to identify the index of the looped item
- * @param   {number} options.index - current index
- * @param   {*} options.item - collection item looped
- * @returns {Object} enhanced scope object
- */
-function extendScope(scope, { itemName, indexName, index, item }) {
-  defineProperty(scope, itemName, item)
-  if (indexName) defineProperty(scope, indexName, index)
-
-  return scope
-}
-
-/**
  * Loop the current template items
  * @param   {Array} items - expression collection value
  * @param   {*} scope - template scope
@@ -149,11 +132,9 @@ function createPatch(items, scope, parentScope, binding) {
   const futureNodes = []
 
   items.forEach((item, index) => {
-    const context = extendScope(Object.create(scope), {
-      itemName,
-      indexName,
-      index,
-      item,
+    const context = extendScope(scope, {
+      [itemName]: item,
+      [indexName]: index,
     })
     const key = getKey ? getKey(context) : index
     const oldItem = childrenMap.get(key)

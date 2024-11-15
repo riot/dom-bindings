@@ -1,6 +1,7 @@
 import { bindingTypes, expressionTypes, template } from '../../src/index.js'
+import sinon from 'sinon'
 import { expect } from 'chai'
-import { domNodesToTextArray, getNextSiblingChild } from '../util.js'
+import { domNodesToTextArray, fireEvent, getNextSiblingChild } from '../util.js'
 
 function compareNodesContents(target, selector, items) {
   const domNodes = target.querySelectorAll(selector)
@@ -608,5 +609,51 @@ describe('each bindings', () => {
       'i2 - j1',
       'i2 - j2',
     ])
+  })
+
+  it('parent scope is references are preserved', () => {
+    const target = document.createElement('div')
+    const spy = sinon.spy()
+    const scope = {
+      state: { message: 'hello' },
+      getState() {
+        return this.state
+      },
+    }
+    template('<div expr1="expr1"></div>', [
+      {
+        type: bindingTypes.EACH,
+        getKey: null,
+        condition: null,
+        template: template('<button expr2="expr2">Test</button>', [
+          {
+            redundantAttribute: 'expr2',
+            selector: '[expr2]',
+
+            expressions: [
+              {
+                type: expressionTypes.EVENT,
+                name: 'onclick',
+                evaluate: (_scope) => () => {
+                  _scope.state = { message: 'test' }
+                  spy([_scope.state.message, scope.getState().message])
+                },
+              },
+            ],
+          },
+        ]),
+        redundantAttribute: 'expr1',
+        selector: '[expr1]',
+        itemName: 'unused',
+        indexName: null,
+        evaluate: () => [1],
+      },
+    ]).mount(target, scope)
+
+    const button = target.querySelector('button')
+
+    fireEvent(button, 'click')
+
+    expect(spy).to.have.been.calledWith(['test', 'test'])
   })
 })

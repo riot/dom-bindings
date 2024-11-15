@@ -1,5 +1,6 @@
 import { cleanNode, insertBefore, removeChild } from '@riotjs/util/dom'
 import { PARENT_KEY_SYMBOL } from '@riotjs/util/constants'
+import extendScope from '../util/extend-scope.js'
 import { evaluateAttributeExpressions } from '@riotjs/util/misc'
 import template from '../template.js'
 
@@ -11,8 +12,8 @@ function extendParentScope(attributes, scope, parentScope) {
     value: attr.evaluate(scope),
   }))
 
-  return Object.assign(
-    Object.create(parentScope || null),
+  return extendScope(
+    parentScope || {},
     evaluateAttributeExpressions(expressions),
   )
 }
