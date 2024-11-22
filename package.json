@@ -33,7 +33,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/GianlucaGuarini/dom-bindings.git"
+    "url": "git+https://github.com/riot/dom-bindings.git"
   },
   "keywords": [
     "riot",
@@ -46,9 +46,9 @@
   "author": "Gianluca Guarini <gianluca.guarini@gmail.com> (https://gianlucaguarini.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/GianlucaGuarini/dom-bindings/issues"
+    "url": "https://github.com/riot/dom-bindings/issues"
   },
-  "homepage": "https://github.com/GianlucaGuarini/dom-bindings#readme",
+  "homepage": "https://github.com/riot/dom-bindings#readme",
   "devDependencies": {
     "@riotjs/prettier-config": "^1.1.0",
     "@rollup/plugin-node-resolve": "^15.3.0",
