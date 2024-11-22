@@ -101,7 +101,15 @@ export interface TagSlotData<Scope = any> {
 }
 
 export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
-  getComponent(name: string): TemplateChunk<Scope>
+  getComponent(
+    name: string,
+  ): ({
+    slots,
+    attributes,
+  }: {
+    slots: TagSlotData<Scope>[]
+    attributes: AttributeExpressionData<Scope>[]
+  }) => Pick<TemplateChunk<Scope>, 'mount' | 'update' | 'unmount'>
   attributes: AttributeExpressionData<Scope>[]
   slots: TagSlotData[]
 }
