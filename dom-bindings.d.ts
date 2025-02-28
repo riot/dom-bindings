@@ -5,6 +5,7 @@ export enum ExpressionType {
   EVENT,
   TEXT,
   VALUE,
+  REF,
 }
 
 export interface BaseExpressionData<Scope = any> {
@@ -30,11 +31,15 @@ export interface TextExpressionData<Scope = any>
 export interface ValueExpressionData<Scope = any>
   extends BaseExpressionData<Scope> {}
 
+export interface RefExpressionData<Scope = any>
+  extends BaseExpressionData<Scope> {}
+
 export type ExpressionData<Scope = any> =
   | AttributeExpressionData<Scope>
   | EventExpressionData<Scope>
   | TextExpressionData<Scope>
   | ValueExpressionData<Scope>
+  | RefExpressionData<Scope>
 
 export interface Expression<Scope = any> {
   type: ExpressionType
