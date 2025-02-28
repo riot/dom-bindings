@@ -4,7 +4,6 @@ import {
   isObject,
 } from '@riotjs/util/checks'
 import { memoize } from '@riotjs/util/misc'
-import { REF_ATTRIBUTE } from '../constants.js'
 
 /* c8 ignore next */
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
@@ -20,7 +19,7 @@ const isNativeHtmlProperty = memoize(
  */
 function setAllAttributes(node, attributes) {
   Object.keys(attributes).forEach((name) =>
-    attributeExpression(node, { name }, attributes[name]),
+    attributeExpression({ node, name }, attributes[name]),
   )
 }
 
@@ -63,19 +62,16 @@ function shouldRemoveAttribute(value, isBoolean) {
 
 /**
  * This methods handles the DOM attributes updates
- * @param   {HTMLElement} node - target node
- * @param   {Object} expression - expression object
+ * @param   {HTMLElement} expression.node - target node
  * @param   {string} expression.name - attribute name
  * @param   {boolean} expression.isBoolean - flag to handle boolean attributes
+ * @param   {*} expression.value - the old expression cached value
  * @param   {*} value - new expression value
- * @param   {*} oldValue - the old expression cached value
  * @returns {undefined}
  */
 export default function attributeExpression(
-  node,
-  { name, isBoolean },
+  { node, name, isBoolean, value: oldValue },
   value,
-  oldValue,
 ) {
   // is it a spread operator? {...attributes}
   if (!name) {
@@ -89,13 +85,6 @@ export default function attributeExpression(
       setAllAttributes(node, value)
     }
 
-    return
-  }
-
-  // ref attributes are treated differently so we early return in this case
-  if (name === REF_ATTRIBUTE) {
-    node && node.removeAttribute(node, name)
-    value(node)
     return
   }
 

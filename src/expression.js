@@ -1,7 +1,6 @@
-import { ATTRIBUTE, EVENT, TEXT } from '@riotjs/util/expression-types'
+import { EVENT, TEXT, REF } from '@riotjs/util/expression-types'
 import expressions from './expressions/index.js'
 import { getTextNode } from './expressions/text.js'
-import { REF_ATTRIBUTE } from './constants.js'
 
 export const Expression = {
   // Static props
@@ -19,7 +18,7 @@ export const Expression = {
     this.value = this.evaluate(scope)
 
     // IO() DOM updates
-    apply(this, this.value)
+    expressions[this.type](this, this.value)
 
     return this
   },
@@ -34,7 +33,7 @@ export const Expression = {
 
     if (this.value !== value) {
       // IO() DOM updates
-      apply(this, value)
+      expressions[this.type](this, value)
       this.value = value
     }
 
@@ -45,29 +44,11 @@ export const Expression = {
    * @returns {Expression} self
    */
   unmount() {
-    // unmount only the event handling expressions
-    if (this.type === EVENT) apply(this, null)
-    // ref attributes need to be unmounted as well
-    if (this.name === REF_ATTRIBUTE)
-      expressions[ATTRIBUTE](null, this, this.value)
+    // unmount event and ref expressions
+    if ([EVENT, REF].includes(this.type)) expressions[this.type](this, null)
 
     return this
   },
-}
-
-/**
- * IO() function to handle the DOM updates
- * @param {Expression} expression - expression object
- * @param {*} value - current expression value
- * @returns {undefined}
- */
-function apply(expression, value) {
-  return expressions[expression.type](
-    expression.node,
-    expression,
-    value,
-    expression.value,
-  )
 }
 
 export default function create(node, data) {
