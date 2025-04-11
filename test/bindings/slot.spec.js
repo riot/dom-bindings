@@ -1,3 +1,4 @@
+import { PARENT_KEY_SYMBOL } from '@riotjs/util'
 import { bindingTypes, expressionTypes, template } from '../../src/index.js'
 import { expect } from 'chai'
 
@@ -589,7 +590,6 @@ describe('slot bindings', () => {
           slots: [
             {
               id: 'default',
-              isInherited: true,
             },
           ],
           attributes: [],
@@ -605,6 +605,69 @@ describe('slot bindings', () => {
     expect(target1.querySelector('button').textContent).to.be.equal(
       'Default Text',
     )
+
+    childComponent.unmount()
+  })
+
+  it('Nested custom Slots work also in children components (https://github.com/riot/riot/issues/3055)', () => {
+    const target1 = document.createElement('div')
+
+    const parentComponent = template(
+      '<button><slot expr0="expr0" name="default"></slot></button>',
+      [
+        {
+          type: bindingTypes.SLOT,
+          attributes: [],
+          name: 'default',
+          template: template('Default Text', []),
+          redundantAttribute: 'expr0',
+          selector: '[expr0]',
+        },
+      ],
+    )
+
+    const childComponent = template(
+      '<my-button expr1="expr1" style="display: inline-block; border: 5px solid orange"></my-button>',
+      [
+        {
+          type: bindingTypes.TAG,
+          getComponent: () => {
+            return () => parentComponent
+          },
+          evaluate: () => 'my-button',
+          slots: [
+            {
+              id: 'default',
+            },
+          ],
+          attributes: [],
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
+        },
+      ],
+    ).mount(target1, {
+      [PARENT_KEY_SYMBOL]: { message: 'hello' },
+      slots: [
+        {
+          id: 'default',
+          bindings: [
+            {
+              selector: '[expr1]',
+              expressions: [
+                {
+                  type: expressionTypes.TEXT,
+                  childNodeIndex: 0,
+                  evaluate: (scope) => scope.message,
+                },
+              ],
+            },
+          ],
+          html: '<p expr1> </p>',
+        },
+      ],
+    })
+
+    expect(target1.querySelector('p').textContent).to.be.equal('hello')
 
     childComponent.unmount()
   })
