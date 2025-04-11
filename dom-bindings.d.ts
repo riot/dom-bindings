@@ -101,8 +101,9 @@ export interface SlotBindingData<Scope = any> extends BaseBindingData<Scope> {
 
 export interface TagSlotData<Scope = any> {
   id: string
-  html: string
-  bindings: BindingData<Scope>[]
+  // the following null attributes might be set if the slot is inherited from the parent https://github.com/riot/riot/issues/3055
+  html: string | null
+  bindings: BindingData<Scope>[] | null
 }
 
 export interface TagBindingData<Scope = any> extends BaseBindingData<Scope> {
