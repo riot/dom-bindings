@@ -559,4 +559,53 @@ describe('slot bindings', () => {
     component1.unmount()
     component2.unmount()
   })
+
+  it('Nested default Slots work also in children components (https://github.com/riot/riot/issues/3055)', () => {
+    const target1 = document.createElement('div')
+
+    const parentComponent = template(
+      '<button><slot expr0="expr0" name="default"></slot></button>',
+      [
+        {
+          type: bindingTypes.SLOT,
+          attributes: [],
+          name: 'default',
+          template: template('Default Text', []),
+          redundantAttribute: 'expr0',
+          selector: '[expr0]',
+        },
+      ],
+    )
+
+    const childComponent = template(
+      '<my-button expr1="expr1" style="display: inline-block; border: 5px solid orange"></my-button>',
+      [
+        {
+          type: bindingTypes.TAG,
+          getComponent: () => {
+            return () => parentComponent
+          },
+          evaluate: () => 'my-button',
+          slots: [
+            {
+              id: 'default',
+              isInherited: true,
+            },
+          ],
+          attributes: [],
+          redundantAttribute: 'expr1',
+          selector: '[expr1]',
+        },
+      ],
+    ).mount(target1, {
+      slots: [],
+      text: 'hello',
+    })
+
+    expect(target1.querySelector('button').textContent).to.be.equal(
+      'Default Text',
+    )
+
+    childComponent.unmount()
+  })
 })
