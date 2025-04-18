@@ -3,7 +3,7 @@ import { PARENT_KEY_SYMBOL } from '@riotjs/util/constants'
 import { evaluateAttributeExpressions } from '@riotjs/util/misc'
 import template from '../template.js'
 
-function extendParentScope(attributes, scope, parentScope) {
+const extendParentScope = (attributes, scope, parentScope) => {
   if (!attributes || !attributes.length) return parentScope
 
   const expressions = attributes.map((attr) => ({
@@ -16,6 +16,8 @@ function extendParentScope(attributes, scope, parentScope) {
     evaluateAttributeExpressions(expressions),
   )
 }
+
+const findSlotById = (id, slots) => slots?.find((slot) => slot.id === id)
 
 // this function is only meant to fix an edge case
 // https://github.com/riot/riot/issues/2842
@@ -37,19 +39,22 @@ export const SlotBinding = {
   // API methods
   mount(scope, parentScope) {
     const templateData = scope.slots
-      ? scope.slots.find(({ id }) => id === this.name)
+      ? findSlotById(this.name, scope.slots)
       : false
     const { parentNode } = this.node
 
     // if the slot did not pass any content, we will use the self slot for optional fallback content (https://github.com/riot/riot/issues/3024)
     const realParent = templateData ? getRealParent(scope, parentScope) : scope
 
-    this.templateData = templateData
+    // if there is no html for the current slot detected we rely on the parent slots (https://github.com/riot/riot/issues/3055)
+    this.templateData = templateData?.html
+      ? templateData
+      : findSlotById(this.name, realParent.slots)
 
     // override the template property if the slot needs to be replaced
     this.template =
-      (templateData &&
-        template(templateData.html, templateData.bindings).createDOM(
+      (this.templateData &&
+        template(this.templateData.html, this.templateData.bindings).createDOM(
           parentNode,
         )) ||
       // otherwise use the optional template fallback if provided by the compiler see also https://github.com/riot/riot/issues/3014
