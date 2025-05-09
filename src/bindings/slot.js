@@ -1,19 +1,14 @@
 import { cleanNode, insertBefore, removeChild } from '@riotjs/util/dom'
 import { PARENT_KEY_SYMBOL } from '@riotjs/util/constants'
-import { evaluateAttributeExpressions } from '@riotjs/util/misc'
+import { generatePropsFromAttributes } from '@riotjs/util/misc'
 import template from '../template.js'
 
 const extendParentScope = (attributes, scope, parentScope) => {
   if (!attributes || !attributes.length) return parentScope
 
-  const expressions = attributes.map((attr) => ({
-    ...attr,
-    value: attr.evaluate(scope),
-  }))
-
   return Object.assign(
     Object.create(parentScope || null),
-    evaluateAttributeExpressions(expressions),
+    generatePropsFromAttributes(attributes, scope),
   )
 }
 
