@@ -33,22 +33,31 @@ describe('attribute specs', () => {
             type: expressionTypes.ATTRIBUTE,
             name: 'selected',
             isBoolean: true,
-            evaluate: (scope) => scope.attr,
+            evaluate: (scope) => scope.selected,
+          },
+          {
+            type: expressionTypes.ATTRIBUTE,
+            name: 'checked',
+            isBoolean: true,
+            evaluate: (scope) => scope.checked,
           },
         ],
       },
-    ]).mount(target, { attr: true })
+    ]).mount(target, { selected: true, checked: 1 })
 
     const p = target.querySelector('p')
 
     expect(p.getAttribute('selected')).to.be.equal('selected')
+    expect(p.getAttribute('checked')).to.be.equal('checked')
     expect(p.selected).to.be.ok
 
     el.update({
-      attr: false,
+      selected: false,
+      checked: 0,
     })
 
     expect(p.hasAttribute('selected')).to.be.not.ok
+    expect(p.hasAttribute('checked')).to.be.not.ok
     expect(p.selected).to.be.not.ok
   })
 
@@ -62,20 +71,28 @@ describe('attribute specs', () => {
             type: expressionTypes.ATTRIBUTE,
             name: 'is-active',
             isBoolean: false,
-            evaluate: (scope) => scope.attr,
+            evaluate: (scope) => scope.isActive,
+          },
+          {
+            type: expressionTypes.ATTRIBUTE,
+            name: 'is-checked',
+            isBoolean: false,
+            evaluate: (scope) => scope.isChecked,
           },
         ],
       },
-    ]).mount(target, { attr: true })
+    ]).mount(target, { isActive: true, isChecked: 'checked' })
 
     const p = target.querySelector('p')
 
     expect(p.getAttribute('is-active')).to.be.equal('true')
+    expect(p.getAttribute('is-checked')).to.be.equal('checked')
     expect(p['is-active']).to.be.equal(true)
 
-    el.update({ attr: false })
+    el.update({ isActive: false, isChecked: null })
 
     expect(p.getAttribute('is-active')).to.be.equal('false')
+    expect(p.getAttribute('is-checked')).to.be.equal(null)
     expect(p['is-active']).to.be.equal(false)
   })
 
