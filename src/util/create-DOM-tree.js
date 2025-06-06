@@ -25,7 +25,7 @@ function createSVGTree(html, container) {
 
 /**
  * Create the DOM that will be injected
- * @param {Object} root - DOM node to find out the context where the fragment will be created
+ * @param {object} root - DOM node to find out the context where the fragment will be created
  * @param   {string} html - DOM to create as string
  * @returns {HTMLDocumentFragment|HTMLElement} a new html fragment
  */

@@ -15,7 +15,7 @@ const isNativeHtmlProperty = memoize(
 /**
  * Add all the attributes provided
  * @param   {HTMLElement} node - target node
- * @param   {Object} attributes - object containing the attributes names and values
+ * @param   {object} attributes - object containing the attributes names and values
  * @returns {undefined} sorry it's a void function :(
  */
 function setAllAttributes(node, attributes) {
@@ -27,8 +27,8 @@ function setAllAttributes(node, attributes) {
 /**
  * Remove all the attributes provided
  * @param   {HTMLElement} node - target node
- * @param   {Object} newAttributes - object containing all the new attribute names
- * @param   {Object} oldAttributes - object containing all the old attribute names
+ * @param   {object} newAttributes - object containing all the new attribute names
+ * @param   {object} oldAttributes - object containing all the old attribute names
  * @returns {undefined} sorry it's a void function :(
  */
 function removeAllAttributes(node, newAttributes, oldAttributes) {
@@ -64,6 +64,7 @@ function shouldRemoveAttribute(value, isBoolean) {
 
 /**
  * This methods handles the DOM attributes updates
+ * @param   {object} expression - attribute expression data
  * @param   {HTMLElement} expression.node - target node
  * @param   {string} expression.name - attribute name
  * @param   {boolean} expression.isBoolean - flag to handle boolean attributes

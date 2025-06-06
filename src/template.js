@@ -20,7 +20,7 @@ function createTemplateDOM(el, html) {
  * Get the offset of the <template> tag
  * @param {HTMLElement} parentNode - template tag parent node
  * @param {HTMLElement} el - the template tag we want to render
- * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
+ * @param   {object} meta - meta properties needed to handle the <template> tags in loops
  * @returns {number} offset of the <template> tag calculated from its siblings DOM nodes
  */
 function getTemplateTagOffset(parentNode, el, meta) {
@@ -31,7 +31,7 @@ function getTemplateTagOffset(parentNode, el, meta) {
 
 /**
  * Template Chunk model
- * @type {Object}
+ * @type {object}
  */
 export const TemplateChunk = {
   // Static props
@@ -65,7 +65,7 @@ export const TemplateChunk = {
    * @param   {HTMLElement} el - target DOM node
    * @param   {*} scope - template data
    * @param   {*} parentScope - scope of the parent template tag
-   * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
+   * @param   {object} meta - meta properties needed to handle the <template> tags in loops
    * @returns {TemplateChunk} self
    */
   mount(el, scope, parentScope, meta = {}) {

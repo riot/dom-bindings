@@ -4,7 +4,7 @@ const base = {
   input: 'src/index.js',
   onwarn(message) {
     if (/Circular/.test(message)) return
-    console.error(message) // eslint-disable-line
+    console.error(message)
   },
   plugins: [resolve()],
 }

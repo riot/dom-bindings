@@ -2,7 +2,6 @@ export default function (suite, testName, domBindings, rootNode) {
   function generateItems(amount, hasChildren) {
     const items = []
     while (amount--) {
-      // eslint-disable-line
       items.push({
         name: `foo ${Math.random()}`,
         props: hasChildren ? generateItems(3, false) : [],
