@@ -5,7 +5,7 @@ import template from '../template.js'
  * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
  * @param   {Function} component - component factory function
- * @param   {Array<Object>} slots - array containing the slots markup
+ * @param   {Array<object>} slots - array containing the slots markup
  * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
  */
@@ -33,7 +33,7 @@ function getTag(component, slots = [], attributes = []) {
 
 /**
  * Merge all the slots bindings into a single array
- * @param   {Array<Object>} slots - slots collection
+ * @param   {Array<object>} slots - slots collection
  * @returns {Array<Bindings>} flatten bindings array
  */
 function slotBindings(slots) {
@@ -42,7 +42,7 @@ function slotBindings(slots) {
 
 /**
  * Merge all the slots together in a single markup string
- * @param   {Array<Object>} slots - slots collection
+ * @param   {Array<object>} slots - slots collection
  * @returns {string} markup of all the slots in a single string
  */
 function slotsToMarkup(slots) {

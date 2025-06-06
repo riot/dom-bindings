@@ -2,7 +2,7 @@ import { HEAD_SYMBOL, TAIL_SYMBOL } from '../constants.js'
 
 /**
  * Create the <template> fragments text nodes
- * @return {Object} {{head: Text, tail: Text}}
+ * @returns {object} {{head: Text, tail: Text}}
  */
 export default function createHeadTailPlaceholders() {
   const head = document.createTextNode('')

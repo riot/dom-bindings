@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import jsdomGlobal from 'jsdom-global'
 import Benchmark from 'benchmark'
 import * as domBindings from '../dist/dom-bindings.js'

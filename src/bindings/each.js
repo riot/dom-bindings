@@ -98,7 +98,7 @@ function patch(redundant, parentScope) {
 /**
  * Check whether a template must be filtered from a loop
  * @param   {Function} condition - filter function
- * @param   {Object} context - argument passed to the filter function
+ * @param   {object} context - argument passed to the filter function
  * @returns {boolean} true if this item should be skipped
  */
 function mustFilterItem(condition, context) {
@@ -107,13 +107,13 @@ function mustFilterItem(condition, context) {
 
 /**
  * Extend the scope of the looped template
- * @param   {Object} scope - current template scope
- * @param   {Object} options - options
+ * @param   {object} scope - current template scope
+ * @param   {object} options - options
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
  * @param   {number} options.index - current index
  * @param   {*} options.item - collection item looped
- * @returns {Object} enhanced scope object
+ * @returns {object} enhanced scope object
  */
 function extendScope(scope, { itemName, indexName, index, item }) {
   defineProperty(scope, itemName, item)
@@ -128,10 +128,10 @@ function extendScope(scope, { itemName, indexName, index, item }) {
  * @param   {*} scope - template scope
  * @param   {*} parentScope - scope of the parent template
  * @param   {EachBinding} binding - each binding object instance
- * @returns {Object} data
- * @returns {Map} data.newChildrenMap - a Map containing the new children template structure
- * @returns {Array} data.batches - array containing the template lifecycle functions to trigger
- * @returns {Array} data.futureNodes - array containing the nodes we need to diff
+ * @returns {object} data - An object containing:
+ * @property {Map} newChildrenMap - a Map containing the new children template structure
+ * @property {Array} batches - array containing the template lifecycle functions to trigger
+ * @property {Array} futureNodes - array containing the nodes we need to diff
  */
 function createPatch(items, scope, parentScope, binding) {
   const {

@@ -1,5 +1,6 @@
 /**
-   This method handles the REF attribute expressions 
+ * This method handles the REF attribute expressions
+ * @param   {object} expression - expression data
  * @param   {HTMLElement} expression.node - target node
  * @param   {*} expression.value - the old expression cached value
  * @param   {*} value - new expression value

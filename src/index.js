@@ -3,7 +3,6 @@
  * @param   {string|HTMLElement} html - your static template html structure
  * @param   {Array} bindings - list of the expressions to bind to update the markup
  * @returns {TemplateChunk} a new TemplateChunk object having the `update`,`mount`, `unmount` and `clone` methods
- *
  * @example
  *
  * riotDOMBindings
@@ -60,7 +59,7 @@ export { default as template } from './template.js'
 /**
  * Bind a new expression object to a single DOM node
  * @param   {HTMLElement} root - DOM node where to bind the expression
- * @param   {Object} binding - binding data
+ * @param   {object} binding - binding data
  * @returns {Binding} Binding object
  */
 export { default as createBinding } from './binding.js'
@@ -68,19 +67,19 @@ export { default as createBinding } from './binding.js'
 /**
  * Create a single template expression
  * @param   {HTMLElement} root - DOM node bound to the expression
- * @param   {Object} expression - expression data
+ * @param   {object} expression - expression data
  * @returns {Expression} Expression object
  */
 export { default as createExpression } from './expression.js'
 
 /**
  * Object containing all the binding types
- * @type {Object}
+ * @type {object}
  */
 export { default as bindingTypes } from '@riotjs/util/binding-types'
 
 /**
  * Object containing all the expression types
- * @type {Object}
+ * @type {object}
  */
 export { default as expressionTypes } from '@riotjs/util/expression-types'

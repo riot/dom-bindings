@@ -19,10 +19,11 @@ const createListener = (node) => {
 
 /**
  * Set a new event listener
+ * @param   {object}  expression - event expression data
  * @param   {HTMLElement} expression.node - target node
  * @param   {string} expression.name - event name
  * @param   {*} value - new expression value
- * @returns {value} the callback just received
+ * @returns {undefined}
  */
 export default function eventExpression({ node, name }, value) {
   const normalizedEventName = name.replace(RE_EVENTS_PREFIX, '')

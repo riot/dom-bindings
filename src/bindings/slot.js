@@ -111,9 +111,11 @@ function moveSlotInnerContent(slot) {
 /**
  * Create a single slot binding
  * @param   {HTMLElement} node - slot node
- * @param   {string} name - slot id
- * @param   {AttributeExpressionData[]} attributes - slot attributes
- * @returns {Object} Slot binding object
+ * @param   {object} data - slot binding data
+ * @param   {string} data.name - slot id
+ * @param   {AttributeExpressionData[]} data.attributes - slot attributes
+ * @param   {TemplateChunk} data.template - slot fallback template
+ * @returns {object} Slot binding object
  */
 export default function createSlot(node, { name, attributes, template }) {
   return {
