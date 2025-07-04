@@ -1,4 +1,4 @@
-import { EVENT, TEXT, REF } from '@riotjs/util/expression-types'
+import { EVENT, TEXT, REF, ATTRIBUTE } from '@riotjs/util/expression-types'
 import expressions from './expressions/index.js'
 import { getTextNode } from './expressions/text.js'
 
@@ -45,7 +45,12 @@ export const Expression = {
    */
   unmount() {
     // unmount event and ref expressions
-    if ([EVENT, REF].includes(this.type)) expressions[this.type](this, null)
+    if (
+      [EVENT, REF].includes(this.type) ||
+      // spread attributes might contain events or refs that must be unmounted
+      (this.type === ATTRIBUTE && !this.name)
+    )
+      expressions[this.type](this, null)
 
     return this
   },

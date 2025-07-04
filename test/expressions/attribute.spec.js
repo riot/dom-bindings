@@ -1,5 +1,6 @@
 import { expressionTypes, template } from '../../src/index.js'
 import { spy } from 'sinon'
+import { fireEvent } from '../util.js'
 import { expect } from 'chai'
 
 describe('attribute specs', () => {
@@ -229,7 +230,76 @@ describe('attribute specs', () => {
     expect(p.hasAttribute('name')).to.be.not.ok
   })
 
-  it('reset object attributes', () => {
+  it('spread attributes can set events', () => {
+    const target = document.createElement('div')
+    const onClick = spy()
+    const el = template('<p expr0></p>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.ATTRIBUTE, evaluate: (scope) => scope.attr },
+        ],
+      },
+    ]).mount(target, { attr: { onclick: onClick, name: 'world' } })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('name')).to.be.equal('world')
+    fireEvent(p, 'click')
+
+    el.update({ attr: null })
+
+    fireEvent(p, 'click')
+
+    expect(p.hasAttribute('name')).to.be.not.ok
+    expect(onClick).to.have.been.calledOnce
+  })
+
+  it('spread attributes can set values', () => {
+    const target = document.createElement('div')
+    const el = template('<input expr0/>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.ATTRIBUTE, evaluate: (scope) => scope.attr },
+        ],
+      },
+    ]).mount(target, { attr: { value: 'hello', name: 'world' } })
+
+    const input = target.querySelector('input')
+
+    expect(input.getAttribute('name')).to.be.equal('world')
+    expect(input.value).to.be.equal('hello')
+
+    el.update({ attr: null })
+
+    expect(input.hasAttribute('name')).to.be.not.ok
+    expect(input.value).to.be.equal('')
+  })
+
+  it('spread attributes can set refs', () => {
+    const target = document.createElement('div')
+    const ref = spy()
+    const el = template('<p expr0></p>', [
+      {
+        selector: '[expr0]',
+        expressions: [
+          { type: expressionTypes.ATTRIBUTE, evaluate: (scope) => scope.attr },
+        ],
+      },
+    ]).mount(target, { attr: { ref: ref, name: 'world' } })
+
+    const p = target.querySelector('p')
+
+    expect(p.getAttribute('name')).to.be.equal('world')
+    expect(ref).to.have.been.calledWith(p)
+
+    el.unmount()
+
+    expect(ref).to.have.been.calledWith(null)
+  })
+
+  it('reset spread attributes', () => {
     const target = document.createElement('div')
     const el = template('<p expr0></p>', [
       {

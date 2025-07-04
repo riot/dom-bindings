@@ -3,8 +3,13 @@ import {
   isFunction,
   isObject,
   isNil,
+  isEventAttribute,
 } from '@riotjs/util/checks'
 import { memoize } from '@riotjs/util/misc'
+import refExpression from './ref.js'
+import { VALUE_ATTRIBUTE, REF_ATTRIBUTE } from '@riotjs/util'
+import valueExpression from './value.js'
+import eventExpression from './event.js'
 
 /* c8 ignore next */
 const ElementProto = typeof Element === 'undefined' ? {} : Element.prototype
@@ -19,9 +24,18 @@ const isNativeHtmlProperty = memoize(
  * @returns {undefined} sorry it's a void function :(
  */
 function setAllAttributes(node, attributes) {
-  Object.keys(attributes).forEach((name) =>
-    attributeExpression({ node, name }, attributes[name]),
-  )
+  Object.entries(attributes).forEach(([name, value]) => {
+    switch (true) {
+      case name === REF_ATTRIBUTE:
+        return refExpression({ node }, value)
+      case name === VALUE_ATTRIBUTE:
+        return valueExpression({ node }, value)
+      case isEventAttribute(name):
+        return eventExpression({ node, name }, value)
+      default:
+        return attributeExpression({ node, name }, value)
+    }
+  })
 }
 
 /**
@@ -34,9 +48,22 @@ function setAllAttributes(node, attributes) {
 function removeAllAttributes(node, newAttributes, oldAttributes) {
   const newKeys = newAttributes ? Object.keys(newAttributes) : []
 
-  Object.keys(oldAttributes)
-    .filter((name) => !newKeys.includes(name))
-    .forEach((attribute) => node.removeAttribute(attribute))
+  Object.entries(oldAttributes)
+    .filter(([name]) => !newKeys.includes(name))
+    .forEach(([name, value]) => {
+      switch (true) {
+        case name === REF_ATTRIBUTE:
+          return refExpression({ node, value })
+        case name === VALUE_ATTRIBUTE:
+          node.removeAttribute('value')
+          node.value = ''
+          return
+        case isEventAttribute(name):
+          return eventExpression({ node, name }, null)
+        default:
+          return node.removeAttribute(name)
+      }
+    })
 }
 
 /**
