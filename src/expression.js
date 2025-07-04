@@ -15,10 +15,13 @@ export const Expression = {
    */
   mount(scope) {
     // hopefully a pure function
-    this.value = this.evaluate(scope)
+    const value = this.evaluate(scope)
 
     // IO() DOM updates
-    expressions[this.type](this, this.value)
+    expressions[this.type](this, value)
+
+    // store the computed value for the update calls
+    this.value = value
 
     return this
   },

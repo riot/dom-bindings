@@ -294,6 +294,10 @@ describe('attribute specs', () => {
     expect(p.getAttribute('name')).to.be.equal('world')
     expect(ref).to.have.been.calledWith(p)
 
+    el.update({ attr: { ref: ref, name: 'world' } })
+
+    expect(ref).to.have.been.calledOnce
+
     el.unmount()
 
     expect(ref).to.have.been.calledWith(null)

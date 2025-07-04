@@ -21,21 +21,25 @@ const isNativeHtmlProperty = memoize(
  * Add all the attributes provided
  * @param   {HTMLElement} node - target node
  * @param   {object} attributes - object containing the attributes names and values
+ * @param   {*} oldAttributes - the old expression cached value
  * @returns {undefined} sorry it's a void function :(
  */
-function setAllAttributes(node, attributes) {
-  Object.entries(attributes).forEach(([name, value]) => {
-    switch (true) {
-      case name === REF_ATTRIBUTE:
-        return refExpression({ node }, value)
-      case name === VALUE_ATTRIBUTE:
-        return valueExpression({ node }, value)
-      case isEventAttribute(name):
-        return eventExpression({ node, name }, value)
-      default:
-        return attributeExpression({ node, name }, value)
-    }
-  })
+function setAllAttributes(node, attributes, oldAttributes) {
+  Object.entries(attributes)
+    // filter out the attributes that didn't change their value
+    .filter(([name, value]) => value !== oldAttributes?.[name])
+    .forEach(([name, value]) => {
+      switch (true) {
+        case name === REF_ATTRIBUTE:
+          return refExpression({ node }, value)
+        case name === VALUE_ATTRIBUTE:
+          return valueExpression({ node }, value)
+        case isEventAttribute(name):
+          return eventExpression({ node, name }, value)
+        default:
+          return attributeExpression({ node, name }, value)
+      }
+    })
 }
 
 /**
@@ -112,7 +116,7 @@ export default function attributeExpression(
 
     // is the value still truthy?
     if (value) {
-      setAllAttributes(node, value)
+      setAllAttributes(node, value, oldValue)
     }
 
     return
