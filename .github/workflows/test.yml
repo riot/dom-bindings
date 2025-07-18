@@ -29,4 +29,4 @@ jobs:
         if: ${{ success() && github.event_name != 'pull_request' && matrix.node-version == '22.x' }}
         with:
           token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
-          files: ./coverage /lcov.info
+          files: ./coverage/lcov.info
