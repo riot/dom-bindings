@@ -1,7 +1,7 @@
 # dom-bindings
 
 [![Build Status][ci-image]][ci-url]
-[![Code Quality][codeclimate-image]][codeclimate-url]
+[![Code Quality][qlty-image]][qlty-url]
 [![NPM version][npm-version-image]][npm-url]
 [![NPM downloads][npm-downloads-image]][npm-url]
 [![MIT License][license-image]][license-url]
@@ -41,10 +41,10 @@ const app = tmpl.mount(target, {
 [npm-version-image]: http://img.shields.io/npm/v/@riotjs/dom-bindings.svg?style=flat-square
 [npm-downloads-image]: http://img.shields.io/npm/dm/@riotjs/dom-bindings.svg?style=flat-square
 [npm-url]: https://npmjs.org/package/@riotjs/dom-bindings
-[coverage-image]: https://img.shields.io/coveralls/riot/dom-bindings/master.svg?style=flat-square
-[coverage-url]: https://coveralls.io/r/riot/dom-bindings/?branch=master
-[codeclimate-image]: https://api.codeclimate.com/v1/badges/d0b7c555a1673354d66f/maintainability
-[codeclimate-url]: https://codeclimate.com/github/riot/dom-bindings/maintainability
+[coverage-image]: https://qlty.sh/gh/riot/projects/dom-bindings/coverage.svg
+[coverage-url]: https://qlty.sh/gh/riot/projects/dom-bindings
+[qlty-image]: https://qlty.sh/gh/riot/projects/dom-bindings/maintainability.svg
+[qlty-url]: https://qlty.sh/gh/riot/projects/dom-bindings
 
 ## API
 
