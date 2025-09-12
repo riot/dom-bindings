@@ -16,7 +16,7 @@ export interface BaseExpressionData<Scope = any> {
 export interface AttributeExpressionData<Scope = any>
   extends BaseExpressionData<Scope> {
   name: string
-  isBoolean: boolean
+  isBoolean?: boolean
 }
 
 export interface EventExpressionData<Scope = any>
