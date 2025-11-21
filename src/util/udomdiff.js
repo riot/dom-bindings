@@ -1,4 +1,9 @@
-import { insertBefore, removeChild, replaceChild } from '@riotjs/util/dom'
+import {
+  insertBefore,
+  moveBefore,
+  removeChild,
+  replaceChild,
+} from '@riotjs/util/dom'
 /* c8 ignore start */
 /**
  * ISC License
@@ -81,8 +86,8 @@ export default (a, b, get, before) => {
       // [1, 2, 3, 4, 5]
       // [1, 2, 3, 5, 6, 4]
       const node = get(a[--aEnd], -1).nextSibling
-      insertBefore(get(b[bStart++], 1), get(a[aStart++], -1).nextSibling)
-      insertBefore(get(b[--bEnd], 1), node)
+      moveBefore(get(b[bStart++], 1), get(a[aStart++], -1).nextSibling)
+      moveBefore(get(b[--bEnd], 1), node)
       // mark the future index as identical (yeah, it's dirty, but cheap 👍)
       // The main reason to do this, is that when a[aEnd] will be reached,
       // the loop will likely be on the fast path, as identical to b[bEnd].
@@ -126,7 +131,7 @@ export default (a, b, get, before) => {
           // will be processed at zero cost
           if (sequence > index - bStart) {
             const node = get(a[aStart], 0)
-            while (bStart < index) insertBefore(get(b[bStart++], 1), node)
+            while (bStart < index) moveBefore(get(b[bStart++], 1), node)
           }
           // if the effort wasn't good enough, fallback to a replace,
           // moving both source and target indexes forward, hoping that some

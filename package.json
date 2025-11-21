@@ -67,6 +67,6 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "@riotjs/util": "^10.0.0"
+    "@riotjs/util": "^10.1.2"
   }
 }
