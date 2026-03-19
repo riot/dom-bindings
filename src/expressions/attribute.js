@@ -7,7 +7,7 @@ import {
 } from '@riotjs/util/checks'
 import { memoize } from '@riotjs/util/misc'
 import refExpression from './ref.js'
-import { VALUE_ATTRIBUTE, REF_ATTRIBUTE } from '@riotjs/util'
+import { VALUE_ATTRIBUTE, REF_ATTRIBUTE } from '@riotjs/util/constants'
 import valueExpression from './value.js'
 import eventExpression from './event.js'
 

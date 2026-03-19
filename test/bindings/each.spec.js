@@ -218,6 +218,29 @@ function runCoreTests(options) {
     el.unmount()
   })
 
+  it('List filters insertBefore problems issue https://github.com/riot/riot/issues/3075', () => {
+    const items = [false, true, true]
+    const target = document.createElement('div')
+    const el = createDummyListTemplate({
+      condition(scope) {
+        return scope.val
+      },
+      ...options,
+    }).mount(target, { items })
+
+    const beforeLis = target.querySelectorAll('li')
+
+    expect(beforeLis).to.have.length(2)
+
+    el.update({ items: [true, true, true, true] })
+
+    const afterLis = target.querySelectorAll('li')
+
+    expect(afterLis).to.have.length(4)
+
+    el.unmount()
+  })
+
   it('List filters (undefined)', () => {
     const items = [0, 1, 2, 3, 4, 5]
     const target = document.createElement('div')
