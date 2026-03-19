@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0"
+    />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Mocha Tests in browser</title>
+    <link rel="stylesheet" href="../../node_modules/mocha/mocha.css" />
+    <script src="../../node_modules/mocha/mocha.js"></script>
+    <script type="importmap">
+      {
+        "imports": {
+          "chai": "../../node_modules/chai/index.js",
+          "sinon": "../../node_modules/sinon/pkg/sinon-esm.js",
+          "sinon-chai": "../../node_modules/sinon-chai/lib/sinon-chai.js",
+          "@riotjs/util/binding-types": "../../node_modules/@riotjs/util/binding-types.js",
+          "@riotjs/util/expression-types": "../../node_modules/@riotjs/util/expression-types.js",
+          "@riotjs/util/dom": "../../node_modules/@riotjs/util/dom.js",
+          "@riotjs/util/constants": "../../node_modules/@riotjs/util/constants.js",
+          "@riotjs/util/checks": "../../node_modules/@riotjs/util/checks.js",
+          "@riotjs/util/misc": "../../node_modules/@riotjs/util/misc.js",
+          "@riotjs/util/objects": "../../node_modules/@riotjs/util/objects.js"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="mocha"></div>
+    <script>
+      mocha.setup('bdd')
+    </script>
+    <script type="module">
+      import '../test/bindings/each.spec.js'
+      import '../test/bindings/if.spec.js'
+      import '../test/bindings/simple.spec.js'
+      import '../test/bindings/slot.spec.js'
+      import '../test/bindings/tag.spec.js'
+      import { use } from 'chai'
+      import sinonChai from 'sinon-chai'
+
+      use(sinonChai)
+
+      const runner = mocha.run()
+    </script>
+    <script></script>
+  </body>
+</html>
