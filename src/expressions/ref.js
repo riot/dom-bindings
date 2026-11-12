@@ -2,8 +2,8 @@
  * This method handles the REF attribute expressions
  * @param   {object} expression - expression data
  * @param   {HTMLElement} expression.node - target node
- * @param   {*} expression.value - the old expression cached value
- * @param   {*} value - new expression value
+ * @param   {unknown} expression.value - the old expression cached value
+ * @param   {unknown} value - new expression value
  * @returns {undefined}
  */
 export default function refExpression({ node, value: oldValue }, value) {

@@ -21,7 +21,7 @@ const isNativeHtmlProperty = memoize(
  * Add all the attributes provided
  * @param   {HTMLElement} node - target node
  * @param   {object} attributes - object containing the attributes names and values
- * @param   {*} oldAttributes - the old expression cached value
+ * @param   {unknown} oldAttributes - the old expression cached value
  * @returns {undefined} sorry it's a void function :(
  */
 function setAllAttributes(node, attributes, oldAttributes) {
@@ -72,7 +72,7 @@ function removeAllAttributes(node, newAttributes, oldAttributes) {
 
 /**
  * Check whether the attribute value can be rendered
- * @param {*} value - expression value
+ * @param {unknown} value - expression value
  * @returns {boolean} true if we can render this attribute value
  */
 function canRenderAttribute(value) {
@@ -81,7 +81,7 @@ function canRenderAttribute(value) {
 
 /**
  * Check whether the attribute should be removed
- * @param {*} value - expression value
+ * @param {unknown} value - expression value
  * @param   {boolean} isBoolean - flag to handle boolean attributes
  * @returns {boolean} boolean - true if the attribute can be removed
  */
@@ -99,8 +99,8 @@ function shouldRemoveAttribute(value, isBoolean) {
  * @param   {HTMLElement} expression.node - target node
  * @param   {string} expression.name - attribute name
  * @param   {boolean} expression.isBoolean - flag to handle boolean attributes
- * @param   {*} expression.value - the old expression cached value
- * @param   {*} value - new expression value
+ * @param   {unknown} expression.value - the old expression cached value
+ * @param   {unknown} value - new expression value
  * @returns {undefined}
  */
 export default function attributeExpression(
@@ -140,7 +140,7 @@ export default function attributeExpression(
 /**
  * Get the value as string
  * @param   {string} name - attribute name
- * @param   {*} value - user input value
+ * @param   {unknown} value - user input value
  * @param   {boolean} isBoolean - boolean attributes flag
  * @returns {string} input value as string
  */

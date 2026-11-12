@@ -13,27 +13,32 @@ export interface BaseExpressionData<Scope = any> {
   evaluate(scope: Scope): any
 }
 
-export interface AttributeExpressionData<Scope = any>
-  extends BaseExpressionData<Scope> {
+export interface AttributeExpressionData<
+  Scope = any,
+> extends BaseExpressionData<Scope> {
   name: string
   isBoolean?: boolean
 }
 
-export interface EventExpressionData<Scope = any>
-  extends BaseExpressionData<Scope> {
+export interface EventExpressionData<
+  Scope = any,
+> extends BaseExpressionData<Scope> {
   name: string
 }
 
-export interface TextExpressionData<Scope = any>
-  extends BaseExpressionData<Scope> {
+export interface TextExpressionData<
+  Scope = any,
+> extends BaseExpressionData<Scope> {
   childNodeIndex: number
 }
 
-export interface ValueExpressionData<Scope = any>
-  extends BaseExpressionData<Scope> {}
+export interface ValueExpressionData<
+  Scope = any,
+> extends BaseExpressionData<Scope> {}
 
-export interface RefExpressionData<Scope = any>
-  extends BaseExpressionData<Scope> {}
+export interface RefExpressionData<
+  Scope = any,
+> extends BaseExpressionData<Scope> {}
 
 export type ExpressionData<Scope = any> =
   | AttributeExpressionData<Scope>

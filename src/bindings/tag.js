@@ -4,10 +4,10 @@ import template from '../template.js'
 /**
  * Create a new tag object if it was registered before, otherwise fallback to the simple
  * template chunk
- * @param   {Function} component - component factory function
+ * @param   {(data: object) => object} component - component factory function
  * @param   {Array<object>} slots - array containing the slots markup
- * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  * @returns {TagImplementation|TemplateChunk} a tag implementation or a template chunk as fallback
+ * @param   {Array} attributes - dynamic attributes that will be received by the tag element
  */
 function getTag(component, slots = [], attributes = []) {
   // if this tag was registered before we will return its implementation
@@ -60,24 +60,42 @@ export const TagBinding = {
   // tag: null,
   // attributes: null,
   // getComponent: null,
+  // componentFactory: null,
 
   mount(scope) {
     return this.update(scope)
   },
   update(scope, parentScope) {
     const name = this.evaluate(scope)
+    // resolve the latest component factory available for this tag name
+    const componentFactory = name ? this.getComponent(name) : undefined
+    const mountComponent = () => {
+      this.componentFactory = componentFactory
+      this.tag = getTag(componentFactory, this.slots, this.attributes)
+      this.tag.mount(this.node, scope)
+    }
 
     // simple update
     if (name && name === this.name) {
-      this.tag.update(scope)
+      // the component implementation might have been replaced at runtime
+      // (e.g. by the @riotjs/hot-reload package): in that case the tag must
+      // be re-rendered using the latest component factory available
+      if (componentFactory && componentFactory !== this.componentFactory) {
+        // unmount the old tag keeping its root node in the DOM
+        this.unmount(scope, parentScope, true)
+
+        // remount the component using the new component factory
+        mountComponent()
+      } else {
+        this.tag.update(scope)
+      }
     } else {
       // unmount the old tag if it exists
       this.unmount(scope, parentScope, true)
 
       // mount the new tag
       this.name = name
-      this.tag = getTag(this.getComponent(name), this.slots, this.attributes)
-      this.tag.mount(this.node, scope)
+      mountComponent()
     }
 
     return this

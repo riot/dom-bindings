@@ -22,7 +22,7 @@ const createListener = (node) => {
  * @param   {object}  expression - event expression data
  * @param   {HTMLElement} expression.node - target node
  * @param   {string} expression.name - event name
- * @param   {*} value - new expression value
+ * @param   {unknown} value - new expression value
  * @returns {undefined}
  */
 export default function eventExpression({ node, name }, value) {

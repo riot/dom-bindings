@@ -217,6 +217,121 @@ describe('tag bindings', () => {
     el.unmount()
   })
 
+  it('tags will be re-rendered if their component factory gets replaced (hot reload)', () => {
+    const target = document.createElement('div')
+    const spyMountV1 = sinon.spy()
+    const spyMountV2 = sinon.spy()
+    const spyUnmountV1 = sinon.spy()
+
+    const components = {
+      'my-tag': function ({ slots, attributes }) {
+        expect(slots).to.be.ok
+        expect(attributes).to.be.ok
+
+        return {
+          mount(el, scope) {
+            expect(el).to.be.ok
+            expect(scope).to.be.ok
+            spyMountV1()
+          },
+          update() {},
+          unmount(keepRoot) {
+            // the root node must be always preserved
+            expect(keepRoot).to.be.equal(true)
+            spyUnmountV1()
+          },
+        }
+      },
+    }
+
+    const el = template('<section><b expr0></b></section>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent(name) {
+          return components[name]
+        },
+        attributes: [
+          {
+            evaluate: (scope) => scope.class,
+            name: 'class',
+          },
+        ],
+      },
+    ]).mount(target, { class: 'hello' })
+
+    expect(spyMountV1).to.have.been.calledOnce
+    expect(spyUnmountV1).to.not.have.been.called
+
+    // replace the component factory like the @riotjs/hot-reload package does
+    components['my-tag'] = function ({ slots, attributes }) {
+      expect(slots).to.be.ok
+      expect(attributes).to.be.ok
+
+      return {
+        mount(el, scope) {
+          expect(el).to.be.ok
+          expect(scope).to.be.ok
+          spyMountV2()
+        },
+        update() {},
+        unmount() {},
+      }
+    }
+
+    el.update({ class: 'hello' })
+
+    // the old tag was unmounted and the new one mounted in place
+    expect(spyMountV2).to.have.been.calledOnce
+    expect(spyUnmountV1).to.have.been.calledOnce
+    // the root node was not removed from the DOM
+    expect(target.querySelector('b')).to.be.ok
+
+    el.unmount()
+  })
+
+  it('tags will not be re-rendered if their component factory did not change', () => {
+    const target = document.createElement('div')
+    const spyMount = sinon.spy()
+    const spyUnmount = sinon.spy()
+
+    const components = {
+      'my-tag': function () {
+        return {
+          mount() {
+            spyMount()
+          },
+          update() {},
+          unmount() {
+            spyUnmount()
+          },
+        }
+      },
+    }
+
+    const el = template('<section><b expr0></b></section>', [
+      {
+        selector: '[expr0]',
+        type: bindingTypes.TAG,
+        evaluate: () => 'my-tag',
+        getComponent(name) {
+          return components[name]
+        },
+      },
+    ]).mount(target, {})
+
+    expect(spyMount).to.have.been.calledOnce
+
+    el.update({})
+    el.update({})
+
+    expect(spyMount).to.have.been.calledOnce
+    expect(spyUnmount).to.not.have.been.called
+
+    el.unmount()
+  })
+
   it('registered tags will receive bindings slots and attributes', () => {
     const target = document.createElement('div')
     const spy = sinon.spy()

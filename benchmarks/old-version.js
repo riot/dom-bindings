@@ -111,7 +111,7 @@
 
   /**
    * Quick type checking
-   * @param   {*} element - anything
+   * @param   {unknown} element - anything
    * @param   {string} type - type definition
    * @returns {boolean} true if the type corresponds
    */
@@ -141,7 +141,7 @@
 
   /**
    * Check that will be passed if its argument is a function
-   * @param   {*} value - value to check
+   * @param   {unknown} value - value to check
    * @returns {boolean} - true if the value is a function
    */
   function isFunction(value) {
@@ -150,7 +150,7 @@
 
   /**
    * Check if a value is a Boolean
-   * @param   {*}  value - anything
+   * @param   {unknown}  value - anything
    * @returns {boolean} true only for the value is a boolean
    */
   function isBoolean(value) {
@@ -159,7 +159,7 @@
 
   /**
    * Check if a value is an Object
-   * @param   {*}  value - anything
+   * @param   {unknown}  value - anything
    * @returns {boolean} true only for the value is an object
    */
   function isObject(value) {
@@ -168,7 +168,7 @@
 
   /**
    * Check if a value is null or undefined
-   * @param   {*}  value - anything
+   * @param   {unknown}  value - anything
    * @returns {boolean} true only for the 'undefined' and 'null' types
    */
   function isNil(value) {
@@ -179,7 +179,7 @@
    * Helper function to set an immutable property
    * @param   {Object} source - object where the new property will be set
    * @param   {string} key - object key where the new property will be stored
-   * @param   {*} value - value of the new property
+   * @param   {unknown} value - value of the new property
    * @param   {Object} options - set the property overriding the default options
    * @returns {Object} - the original object modified
    */
@@ -442,7 +442,7 @@
   /**
    * Patch the DOM while diffing
    * @param   {any[]} redundant - list of all the children (template, nodes, context) added via each
-   * @param   {*} parentScope - scope of the parent template
+   * @param   {unknown} parentScope - scope of the parent template
    * @returns {Function} patch function used by domdiff
    */
   function patch(redundant, parentScope) {
@@ -488,7 +488,7 @@
    * @param   {string} options.itemName - key to identify the looped item in the new context
    * @param   {string} options.indexName - key to identify the index of the looped item
    * @param   {number} options.index - current index
-   * @param   {*} options.item - collection item looped
+   * @param   {unknown} options.item - collection item looped
    * @returns {Object} enhanced scope object
    */
   function extendScope(scope, { itemName, indexName, index, item }) {
@@ -501,8 +501,8 @@
   /**
    * Loop the current template items
    * @param   {Array} items - expression collection value
-   * @param   {*} scope - template scope
-   * @param   {*} parentScope - scope of the parent template
+   * @param   {unknown} scope - template scope
+   * @param   {unknown} parentScope - scope of the parent template
    * @param   {EachBinding} binding - each binding object instance
    * @returns {Object} data
    * @returns {Map} data.newChildrenMap - a Map containing the new children template structure
@@ -763,7 +763,7 @@
 
   /**
    * Check whether the attribute value can be rendered
-   * @param {*} value - expression value
+   * @param {unknown} value - expression value
    * @returns {boolean} true if we can render this attribute value
    */
   function canRenderAttribute(value) {
@@ -772,7 +772,7 @@
 
   /**
    * Check whether the attribute should be removed
-   * @param {*} value - expression value
+   * @param {unknown} value - expression value
    * @param   {boolean} isBoolean - flag to handle boolean attributes
    * @returns {boolean} boolean - true if the attribute can be removed}
    */
@@ -788,8 +788,8 @@
    * @param   {HTMLElement} expression.node - target node
    * @param   {string} expression.name - attribute name
    * @param   {boolean} expression.isBoolean - flag to handle boolean attributes
-   * @param   {*} expression.value - the old expression cached value
-   * @param   {*} value - new expression value
+   * @param   {unknown} expression.value - the old expression cached value
+   * @param   {unknown} value - new expression value
    * @returns {undefined}
    */
   function attributeExpression(
@@ -829,7 +829,7 @@
   /**
    * Get the value as string
    * @param   {string} name - attribute name
-   * @param   {*} value - user input value
+   * @param   {unknown} value - user input value
    * @param   {boolean} isBoolean - boolean attributes flag
    * @returns {string} input value as string
    */
@@ -862,7 +862,7 @@
    * Set a new event listener
    * @param   {HTMLElement} expression.node - target node
    * @param   {string} expression.name - event name
-   * @param   {*} value - new expression value
+   * @param   {unknown} value - new expression value
    * @returns {value} the callback just received
    */
   function eventExpression({ node, name }, value) {
@@ -886,7 +886,7 @@
 
   /**
    * Normalize the user value in order to render a empty string in case of falsy values
-   * @param   {*} value - user input value
+   * @param   {unknown} value - user input value
    * @returns {string} hopefully a string
    */
   function normalizeStringValue(value) {
@@ -906,7 +906,7 @@
   /**
    * This methods handles a simple text expression update
    * @param   {HTMLElement} expression.node - target node
-   * @param   {*} value - new expression value
+   * @param   {unknown} value - new expression value
    * @returns {undefined}
    */
   function textExpression({ node }, value) {
@@ -916,7 +916,7 @@
   /**
    * This methods handles the input fields value updates
    * @param   {HTMLElement} expression.node - target node
-   * @param   {*} value - new expression value
+   * @param   {unknown} value - new expression value
    * @returns {undefined}
    */
   function valueExpression({ node }, value) {
@@ -926,8 +926,8 @@
   /**
      This method handles the REF attribute expressions 
    * @param   {HTMLElement} expression.node - target node
-   * @param   {*} expression.value - the old expression cached value
-   * @param   {*} value - new expression value
+   * @param   {unknown} expression.value - the old expression cached value
+   * @param   {unknown} value - new expression value
    * @returns {undefined}
    */
   function refExpression({ node, value: oldValue }, value) {
@@ -954,7 +954,7 @@
     // API methods
     /**
      * Mount the expression evaluating its initial value
-     * @param   {*} scope - argument passed to the expression to evaluate its current values
+     * @param   {unknown} scope - argument passed to the expression to evaluate its current values
      * @returns {Expression} self
      */
     mount(scope) {
@@ -968,7 +968,7 @@
     },
     /**
      * Update the expression if its value changed
-     * @param   {*} scope - argument passed to the expression to evaluate its current values
+     * @param   {unknown} scope - argument passed to the expression to evaluate its current values
      * @returns {Expression} self
      */
     update(scope) {
@@ -1008,7 +1008,7 @@
    * on the whole collection
    * @param   {Array} collection - collection to iterate
    * @param   {Array<string>} methods - methods to execute on each item of the collection
-   * @param   {*} context - context returned by the new methods created
+   * @param   {unknown} context - context returned by the new methods created
    * @returns {Object} a new object to simplify the the nested methods dispatching
    */
   function flattenCollectionMethods(collection, methods, context) {
@@ -1425,8 +1425,8 @@
     /**
      * Attach the template to a DOM node
      * @param   {HTMLElement} el - target DOM node
-     * @param   {*} scope - template data
-     * @param   {*} parentScope - scope of the parent template tag
+     * @param   {unknown} scope - template data
+     * @param   {unknown} parentScope - scope of the parent template tag
      * @param   {Object} meta - meta properties needed to handle the <template> tags in loops
      * @returns {TemplateChunk} self
      */
@@ -1479,8 +1479,8 @@
 
     /**
      * Update the template with fresh data
-     * @param   {*} scope - template data
-     * @param   {*} parentScope - scope of the parent template tag
+     * @param   {unknown} scope - template data
+     * @param   {unknown} parentScope - scope of the parent template tag
      * @returns {TemplateChunk} self
      */
     update(scope, parentScope) {
@@ -1491,8 +1491,8 @@
 
     /**
      * Remove the template from the node where it was initially mounted
-     * @param   {*} scope - template data
-     * @param   {*} parentScope - scope of the parent template tag
+     * @param   {unknown} scope - template data
+     * @param   {unknown} parentScope - scope of the parent template tag
      * @param   {boolean|null} mustRemoveRoot - if true remove the root element,
      * if false or undefined clean the root tag content, if null don't touch the DOM
      * @returns {TemplateChunk} self

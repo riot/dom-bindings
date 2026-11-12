@@ -63,8 +63,8 @@ export const TemplateChunk = {
   /**
    * Attach the template to a DOM node
    * @param   {HTMLElement} el - target DOM node
-   * @param   {*} scope - template data
-   * @param   {*} parentScope - scope of the parent template tag
+   * @param   {unknown} scope - template data
+   * @param   {unknown} parentScope - scope of the parent template tag
    * @param   {object} meta - meta properties needed to handle the <template> tags in loops
    * @returns {TemplateChunk} self
    */
@@ -117,8 +117,8 @@ export const TemplateChunk = {
 
   /**
    * Update the template with fresh data
-   * @param   {*} scope - template data
-   * @param   {*} parentScope - scope of the parent template tag
+   * @param   {unknown} scope - template data
+   * @param   {unknown} parentScope - scope of the parent template tag
    * @returns {TemplateChunk} self
    */
   update(scope, parentScope) {
@@ -129,8 +129,8 @@ export const TemplateChunk = {
 
   /**
    * Remove the template from the node where it was initially mounted
-   * @param   {*} scope - template data
-   * @param   {*} parentScope - scope of the parent template tag
+   * @param   {unknown} scope - template data
+   * @param   {unknown} parentScope - scope of the parent template tag
    * @param   {boolean|null} mustRemoveRoot - if true remove the root element,
    * if false or undefined clean the root tag content, if null don't touch the DOM
    * @returns {TemplateChunk} self

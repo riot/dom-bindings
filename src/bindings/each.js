@@ -65,9 +65,9 @@ export const EachBinding = {
 
 /**
  * Patch the DOM while diffing
- * @param   {any[]} redundant - list of all the children (template, nodes, context) added via each
- * @param   {*} parentScope - scope of the parent template
- * @returns {Function} patch function used by domdiff
+ * @param   {{template: TemplateChunk, nodes: HTMLElement[], context: object}[]} redundant - list of all the children (template, nodes, context) added via each
+ * @param   {unknown} parentScope - scope of the parent template
+ * @returns {(iitem: HTMLElement, info: number) => void} patch function used by domdiff
  */
 function patch(redundant, parentScope) {
   return (item, info) => {
@@ -97,7 +97,7 @@ function patch(redundant, parentScope) {
 
 /**
  * Check whether a template must be filtered from a loop
- * @param   {Function} condition - filter function
+ * @param   {(context: object) => boolean} condition - filter function
  * @param   {object} context - argument passed to the filter function
  * @returns {boolean} true if this item should be skipped
  */
@@ -112,7 +112,7 @@ function mustFilterItem(condition, context) {
  * @param   {string} options.itemName - key to identify the looped item in the new context
  * @param   {string} options.indexName - key to identify the index of the looped item
  * @param   {number} options.index - current index
- * @param   {*} options.item - collection item looped
+ * @param   {unknown} options.item - collection item looped
  * @returns {object} enhanced scope object
  */
 function extendScope(scope, { itemName, indexName, index, item }) {
@@ -125,8 +125,8 @@ function extendScope(scope, { itemName, indexName, index, item }) {
 /**
  * Loop the current template items
  * @param   {Array} items - expression collection value
- * @param   {*} scope - template scope
- * @param   {*} parentScope - scope of the parent template
+ * @param   {unknown} scope - template scope
+ * @param   {unknown} parentScope - scope of the parent template
  * @param   {EachBinding} binding - each binding object instance
  * @returns {object} data - An object containing:
  * @property {Map} newChildrenMap - a Map containing the new children template structure

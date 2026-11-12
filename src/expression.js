@@ -10,7 +10,7 @@ export const Expression = {
   // API methods
   /**
    * Mount the expression evaluating its initial value
-   * @param   {*} scope - argument passed to the expression to evaluate its current values
+   * @param   {unknown} scope - argument passed to the expression to evaluate its current values
    * @returns {Expression} self
    */
   mount(scope) {
@@ -27,7 +27,7 @@ export const Expression = {
   },
   /**
    * Update the expression if its value changed
-   * @param   {*} scope - argument passed to the expression to evaluate its current values
+   * @param   {unknown} scope - argument passed to the expression to evaluate its current values
    * @returns {Expression} self
    */
   update(scope) {
